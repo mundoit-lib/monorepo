@@ -1,0 +1,50 @@
+{
+  "name": "@mundoit-lib/plugin-vue-auth",
+  "version": "1.0.2",
+  "description": "Vue plugin for authentication integration using @websanova/vue-auth. Designed to centralize authentication logic and streamline user session management for internal projects. Although intended for internal use, it is publicly available on npm for easier distribution. Not recommended for external use.",
+  "type": "module",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "main": "./dist/index.js",
+  "module": "./dist/esm/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/esm/index.d.cts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mundoit-lib/plugin-vue-auth"
+  },
+  "bugs": {
+    "url": "https://github.com/mundoit-lib/plugin-vue-auth/issues"
+  },
+  "homepage": "https://github.com/mundoit-lib/plugin-vue-auth",
+  "author": "@mundoit-lib",
+  "keywords": [
+    "vue",
+    "auth",
+    "plugin",
+    "vue-plugin",
+    "internal"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "clean": "rm -rf dist && rm -rf node_modules"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.3.3",
+    "tsup": "^8.3.5",
+    "typescript": "5.1"
+  },
+  "dependencies": {
+    "@websanova/vue-auth": "4.2.1"
+  }
+}
