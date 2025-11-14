@@ -1,74 +1,189 @@
-import { createAuth, useAuth as vueAuth3, type VueAuth } from '@websanova/vue-auth';
-//@ts-ignore
-import authBase from '@websanova/vue-auth/dist/v2/vue-auth.esm';
-//@ts-ignore
-import driverHttpAxios from '@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js';
-//@ts-ignore
-import driverRouterVueRouter from '@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js';
-import DriverAuthBearerLaravel from './laravaleBear';
+import { isVue2, isVue3 } from 'vue-demi';
+import type { App } from 'vue-demi';
+import type { VueAuth } from '@websanova/vue-auth';
+import DriverAuthBearerLaravel from './laravaleBear'; // TU DRIVER
 
-// Variable global para almacenar la instancia de auth
+// Tipos
+interface AuthOptions {
+  drivers?: {
+    http?: any;
+    auth?: any;
+    router?: any;
+  };
+  options?: {
+    rolesKey?: string;
+    fetchData?: {
+      url: string;
+      method: string;
+      interval?: number;
+    };
+    refreshData?: { enabled: boolean };
+    rememberkey?: string;
+    tokenDefaultKey?: string;
+    [key: string]: any;
+  };
+}
+
+// Imports lazy
+let createAuth: any;
+let vueAuth3: any;
+let authBase: any;
+let driverHttpAxios: any;
+let driverRouterVueRouter: any;
+
+// Estado global
 let authInstance: VueAuth | null = null;
+let isInitialized = false;
 
-const optionAuthDefault = {
-  drivers: {
-    http: driverHttpAxios,
-    auth: DriverAuthBearerLaravel,
-    router: driverRouterVueRouter,
-  },
-  options: {
-    rolesKey: 'role',
-    fetchData: {
-      url: `${process.env.API_URL}/me`,
-      method: 'GET',
-      interval: 30,
-    },
-    refreshData: { enabled: false },
-    rememberkey: 'refreshToken',
-    tokenDefaultKey: 'accessToken',
-  },
-};
+// Lazy load de dependencias
+function loadDependencies() {
+  if (isInitialized) return;
 
-export const install = {
-  install: function (Vue: any, options: any = {}) {
-    if (typeof Vue.version === 'string' && Vue.version.startsWith('3.')) {
-      // Vue 3
-      Vue.use(
-        createAuth({
-          ...optionAuthDefault,
-          ...options,
-        })
-      );
-      // Guardamos la instancia para Vue 3
-      authInstance = vueAuth3();
-      return;
+  try {
+    // Cargar drivers comunes
+    driverHttpAxios = require('@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js').default;
+    driverRouterVueRouter = require('@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js').default;
+
+    // Cargar módulos específicos de Vue
+    if (isVue3) {
+      const vue3Module = require('@websanova/vue-auth');
+      createAuth = vue3Module.createAuth;
+      vueAuth3 = vue3Module.useAuth;
+    } else if (isVue2) {
+      authBase = require('@websanova/vue-auth/dist/v2/vue-auth.esm').default;
     }
 
-    // Vue 2
-    Vue.use(authBase, {
-      ...optionAuthDefault,
-      ...options,
-    });
+    isInitialized = true;
+  } catch (error) {
+    console.error('Failed to load vue-auth dependencies:', error);
+    throw new Error('Vue Auth: Failed to initialize dependencies.');
+  }
+}
 
-    // Guardamos la instancia para Vue 2
-    authInstance = Vue.auth || Vue.prototype.$auth;
+// Factory para opciones por defecto
+function createDefaultOptions(customDriver?: any): AuthOptions {
+  loadDependencies();
+
+  return {
+    drivers: {
+      http: driverHttpAxios,
+      auth: customDriver || DriverAuthBearerLaravel, // TU DRIVER por defecto
+      router: driverRouterVueRouter,
+    },
+    options: {
+      rolesKey: 'role',
+      fetchData: {
+        url: `${process.env.API_URL || ''}/me`,
+        method: 'GET',
+        interval: 30,
+      },
+      refreshData: { enabled: false },
+      rememberkey: 'refreshToken',
+      tokenDefaultKey: 'accessToken',
+    },
+  };
+}
+
+// Deep merge helper
+function deepMerge(target: any, source: any): any {
+  const output = { ...target };
+  
+  if (isObject(target) && isObject(source)) {
+    Object.keys(source).forEach(key => {
+      if (isObject(source[key])) {
+        if (!(key in target)) {
+          Object.assign(output, { [key]: source[key] });
+        } else {
+          output[key] = deepMerge(target[key], source[key]);
+        }
+      } else {
+        Object.assign(output, { [key]: source[key] });
+      }
+    });
+  }
+  
+  return output;
+}
+
+function isObject(item: any): boolean {
+  return item && typeof item === 'object' && !Array.isArray(item);
+}
+
+// Plugin principal
+export const VueAuthPlugin = {
+  install(app: App, options: AuthOptions & { authDriver?: any } = {}) {
+    loadDependencies();
+
+    if (!isVue2 && !isVue3) {
+      throw new Error('Vue Auth: Unsupported Vue version. Please use Vue 2 or Vue 3.');
+    }
+
+    const { authDriver, ...restOptions } = options;
+    const defaultOptions = createDefaultOptions(authDriver);
+    const mergedOptions = deepMerge(defaultOptions, restOptions);
+
+    try {
+      if (isVue3) {
+        if (!createAuth) {
+          throw new Error('Vue Auth: Failed to load Vue 3 auth module');
+        }
+        app.use(createAuth(mergedOptions));
+        authInstance = vueAuth3();
+      } else if (isVue2) {
+        if (!authBase) {
+          throw new Error('Vue Auth: Failed to load Vue 2 auth module');
+        }
+        app.use(authBase, mergedOptions);
+        // @ts-ignore
+        authInstance = app.auth || app.prototype.$auth;
+      }
+    } catch (error) {
+      console.error('Vue Auth: Installation failed', error);
+      throw error;
+    }
   },
 };
 
-// Función unificada useAuth
-export function useAuth() {
-  // Para Vue 3, usamos el mecanismo de inject
-  if (
-    typeof window !== 'undefined' &&
-    //@ts-ignore
-    window.Vue &&
-    //@ts-ignore
-    window.Vue.version.startsWith('3.')
-  ) {
-    return vueAuth3();
+// Composable useAuth
+export function useAuth(): VueAuth {
+  if (isVue3) {
+    try {
+      if (vueAuth3) {
+        const auth = vueAuth3();
+        if (auth) return auth;
+      }
+    } catch (error) {
+      if (authInstance) return authInstance;
+    }
+    
+    throw new Error(
+      'Vue Auth: Not initialized. Make sure to call app.use(VueAuthPlugin) before using useAuth()'
+    );
   }
 
+  if (isVue2) {
+    if (!authInstance) {
+      throw new Error(
+        'Vue Auth: Not initialized. Make sure to call Vue.use(VueAuthPlugin) before using useAuth()'
+      );
+    }
+    return authInstance;
+  }
+
+  throw new Error('Vue Auth: Unsupported Vue version');
+}
+
+// Helper para obtener la instancia directamente
+export function getAuthInstance(): VueAuth | null {
   return authInstance;
 }
 
-export default install;
+// Re-exportar tu driver para que otros puedan usarlo si quieren
+export { DriverAuthBearerLaravel };
+
+// Re-exportar tipos útiles
+export type { VueAuth, AuthOptions };
+
+// Export por defecto y nombrado
+export { VueAuthPlugin as install };
+export default VueAuthPlugin;
