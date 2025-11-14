@@ -1,7 +1,22 @@
 import { isVue2, isVue3 } from 'vue-demi';
 import type { App } from 'vue-demi';
 import type { VueAuth } from '@websanova/vue-auth';
-import DriverAuthBearerLaravel from './laravaleBear'; // TU DRIVER
+
+// Imports directos - Vue 3
+import { createAuth, useAuth as vueAuth3 } from '@websanova/vue-auth';
+
+// Imports directos - Vue 2
+//@ts-ignore
+import authBase from '@websanova/vue-auth/dist/v2/vue-auth.esm';
+
+// Imports directos - Drivers
+//@ts-ignore
+import driverHttpAxios from '@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js';
+//@ts-ignore
+import driverRouterVueRouter from '@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js';
+
+// Tu driver
+import DriverAuthBearerLaravel from './laravaleBear';
 
 // Tipos
 interface AuthOptions {
@@ -24,50 +39,15 @@ interface AuthOptions {
   };
 }
 
-// Imports lazy
-let createAuth: any;
-let vueAuth3: any;
-let authBase: any;
-let driverHttpAxios: any;
-let driverRouterVueRouter: any;
-
 // Estado global
 let authInstance: VueAuth | null = null;
-let isInitialized = false;
-
-// Lazy load de dependencias
-function loadDependencies() {
-  if (isInitialized) return;
-
-  try {
-    // Cargar drivers comunes
-    driverHttpAxios = require('@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js').default;
-    driverRouterVueRouter = require('@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js').default;
-
-    // Cargar módulos específicos de Vue
-    if (isVue3) {
-      const vue3Module = require('@websanova/vue-auth');
-      createAuth = vue3Module.createAuth;
-      vueAuth3 = vue3Module.useAuth;
-    } else if (isVue2) {
-      authBase = require('@websanova/vue-auth/dist/v2/vue-auth.esm').default;
-    }
-
-    isInitialized = true;
-  } catch (error) {
-    console.error('Failed to load vue-auth dependencies:', error);
-    throw new Error('Vue Auth: Failed to initialize dependencies.');
-  }
-}
 
 // Factory para opciones por defecto
 function createDefaultOptions(customDriver?: any): AuthOptions {
-  loadDependencies();
-
   return {
     drivers: {
       http: driverHttpAxios,
-      auth: customDriver || DriverAuthBearerLaravel, // TU DRIVER por defecto
+      auth: customDriver || DriverAuthBearerLaravel,
       router: driverRouterVueRouter,
     },
     options: {
@@ -112,8 +92,6 @@ function isObject(item: any): boolean {
 // Plugin principal
 export const VueAuthPlugin = {
   install(app: App, options: AuthOptions & { authDriver?: any } = {}) {
-    loadDependencies();
-
     if (!isVue2 && !isVue3) {
       throw new Error('Vue Auth: Unsupported Vue version. Please use Vue 2 or Vue 3.');
     }
@@ -124,15 +102,9 @@ export const VueAuthPlugin = {
 
     try {
       if (isVue3) {
-        if (!createAuth) {
-          throw new Error('Vue Auth: Failed to load Vue 3 auth module');
-        }
         app.use(createAuth(mergedOptions));
         authInstance = vueAuth3();
       } else if (isVue2) {
-        if (!authBase) {
-          throw new Error('Vue Auth: Failed to load Vue 2 auth module');
-        }
         app.use(authBase, mergedOptions);
         // @ts-ignore
         authInstance = app.auth || app.prototype.$auth;
@@ -148,10 +120,8 @@ export const VueAuthPlugin = {
 export function useAuth(): VueAuth {
   if (isVue3) {
     try {
-      if (vueAuth3) {
-        const auth = vueAuth3();
-        if (auth) return auth;
-      }
+      const auth = vueAuth3();
+      if (auth) return auth;
     } catch (error) {
       if (authInstance) return authInstance;
     }
@@ -178,7 +148,7 @@ export function getAuthInstance(): VueAuth | null {
   return authInstance;
 }
 
-// Re-exportar tu driver para que otros puedan usarlo si quieren
+// Re-exportar tu driver
 export { DriverAuthBearerLaravel };
 
 // Re-exportar tipos útiles

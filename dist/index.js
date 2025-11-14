@@ -1,11 +1,10 @@
 import { isVue2, isVue3 } from 'vue-demi';
+import { createAuth, useAuth as useAuth$1 } from '@websanova/vue-auth';
+import authBase from '@websanova/vue-auth/dist/v2/vue-auth.esm';
+import driverHttpAxios from '@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js';
+import driverRouterVueRouter from '@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js';
 
-var __require = /* @__PURE__ */ ((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, {
-  get: (a, b) => (typeof require !== "undefined" ? require : a)[b]
-}) : x)(function(x) {
-  if (typeof require !== "undefined") return require.apply(this, arguments);
-  throw Error('Dynamic require of "' + x + '" is not supported');
-});
+// src/index.ts
 
 // src/laravaleBear.ts
 var laravel = {
@@ -28,38 +27,12 @@ var laravel = {
 var laravaleBear_default = laravel;
 
 // src/index.ts
-var createAuth;
-var vueAuth3;
-var authBase;
-var driverHttpAxios;
-var driverRouterVueRouter;
 var authInstance = null;
-var isInitialized = false;
-function loadDependencies() {
-  if (isInitialized) return;
-  try {
-    driverHttpAxios = __require("@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js").default;
-    driverRouterVueRouter = __require("@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js").default;
-    if (isVue3) {
-      const vue3Module = __require("@websanova/vue-auth");
-      createAuth = vue3Module.createAuth;
-      vueAuth3 = vue3Module.useAuth;
-    } else if (isVue2) {
-      authBase = __require("@websanova/vue-auth/dist/v2/vue-auth.esm").default;
-    }
-    isInitialized = true;
-  } catch (error) {
-    console.error("Failed to load vue-auth dependencies:", error);
-    throw new Error("Vue Auth: Failed to initialize dependencies.");
-  }
-}
 function createDefaultOptions(customDriver) {
-  loadDependencies();
   return {
     drivers: {
       http: driverHttpAxios,
       auth: customDriver || laravaleBear_default,
-      // TU DRIVER por defecto
       router: driverRouterVueRouter
     },
     options: {
@@ -97,7 +70,6 @@ function isObject(item) {
 }
 var VueAuthPlugin = {
   install(app, options = {}) {
-    loadDependencies();
     if (!isVue2 && !isVue3) {
       throw new Error("Vue Auth: Unsupported Vue version. Please use Vue 2 or Vue 3.");
     }
@@ -106,15 +78,9 @@ var VueAuthPlugin = {
     const mergedOptions = deepMerge(defaultOptions, restOptions);
     try {
       if (isVue3) {
-        if (!createAuth) {
-          throw new Error("Vue Auth: Failed to load Vue 3 auth module");
-        }
         app.use(createAuth(mergedOptions));
-        authInstance = vueAuth3();
+        authInstance = useAuth$1();
       } else if (isVue2) {
-        if (!authBase) {
-          throw new Error("Vue Auth: Failed to load Vue 2 auth module");
-        }
         app.use(authBase, mergedOptions);
         authInstance = app.auth || app.prototype.$auth;
       }
@@ -127,10 +93,8 @@ var VueAuthPlugin = {
 function useAuth() {
   if (isVue3) {
     try {
-      if (vueAuth3) {
-        const auth = vueAuth3();
-        if (auth) return auth;
-      }
+      const auth = useAuth$1();
+      if (auth) return auth;
     } catch (error) {
       if (authInstance) return authInstance;
     }
