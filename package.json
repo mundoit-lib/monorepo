@@ -1,18 +1,33 @@
 {
   "name": "@mundoit-lib/plugin-vue-event",
-  "version": "1.0.0",
-  "private": "false",
+  "version": "1.0.1",
   "description": "Vue 3 plugin to handle global events between components, inspired by vue-events. This plugin provides a simple and efficient event bus system, allowing to emit, listen and unregister events in an intuitive way. Compatible with Vue 2 and Vue 3.",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/@mundoit-lib/plugin-vue-event.umd.js",
-  "module": "./dist/@mundoit-lib/plugin-vue-event.es.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/@mundoit-lib/plugin-vue-event.es.js",
-      "require": "./dist/@mundoit-lib/plugin-vue-event.umd.js"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./plugin": {
+      "types": "./dist/plugin.d.ts",
+      "import": "./dist/plugin.js",
+      "require": "./dist/plugin.cjs"
+    },
+    "./eventBus": {
+      "types": "./dist/eventBus.d.ts",
+      "import": "./dist/eventBus.js",
+      "require": "./dist/eventBus.cjs"
     }
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/mundoit-lib/plugin-vue-event"
@@ -40,18 +55,27 @@
   ],
   "author": "@mundoit-lib",
   "scripts": {
-    "dev": "vite build --watch",
-    "build": "vite build",
-    "preview": "vite preview"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsup",
+    "clean": "rm -rf dist && rm -rf node_modules",
+    "postinstall": "vue-demi-fix"
   },
   "dependencies": {
-    "mitt": "^3.0.1"
+    "mitt": "^3.0.1",
+    "vue-demi": "0.14.10"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.9.4",
-    "vite": "^5.4.11"
+    "@types/node": "^22.19.1",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3"
   },
-  "optionalDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "4.27.3"
+  "peerDependencies": {
+    "@vue/composition-api": "^1.0.0-rc.1",
+    "vue": "^2.0.0 || >=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@vue/composition-api": {
+      "optional": true
+    }
   }
 }
