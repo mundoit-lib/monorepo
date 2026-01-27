@@ -41,11 +41,11 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.3.3",
-    "tsup": "^8.4.0",
-    "typescript": "5.1"
+    "@types/node": "^25.0.10",
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
-    "axios": "^1.0.0"
+    "axios": "^1.13.3"
   }
 }
