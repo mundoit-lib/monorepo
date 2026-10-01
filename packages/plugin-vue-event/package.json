@@ -2,7 +2,37 @@
   "name": "@mundoit-lib/plugin-vue-event",
   "version": "2.0.0",
   "description": "Plugin de Vue 3 con un bus de eventos global basado en mitt: $events, la opción de componente events: y useEvents() con auto-desregistro, con eventos tipados por module augmentation.",
+  "keywords": [
+    "custom-events",
+    "event-bus",
+    "event-system",
+    "events",
+    "frontend",
+    "javascript",
+    "vue",
+    "vue-events",
+    "vue-global-events",
+    "vue-library",
+    "vue-plugin",
+    "vue-plugin-event-bus",
+    "vue-plugin-events",
+    "vue3"
+  ],
+  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-event#readme",
+  "bugs": {
+    "url": "https://github.com/mundoit-lib/monorepo/issues"
+  },
   "license": "MIT",
+  "author": "@mundoit-lib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mundoit-lib/monorepo.git",
+    "directory": "packages/plugin-vue-event"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -29,44 +59,19 @@
       "require": "./dist/useEvents.cjs"
     }
   },
-  "files": ["dist", "README.md"],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mundoit-lib/monorepo.git",
-    "directory": "packages/plugin-vue-event"
+  "publishConfig": {
+    "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/mundoit-lib/monorepo/issues"
-  },
-  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-event#readme",
-  "keywords": [
-    "vue",
-    "vue3",
-    "vue-plugin",
-    "events",
-    "event-bus",
-    "custom-events",
-    "vue-global-events",
-    "vue-plugin-event-bus",
-    "vue-plugin-events",
-    "vue-events",
-    "javascript",
-    "event-system",
-    "frontend",
-    "vue-library"
-  ],
-  "author": "@mundoit-lib",
   "scripts": {
     "test": "vitest run --passWithNoTests",
-    "build": "tsup"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "check:exports": "publint && attw --pack . --profile node16"
   },
   "dependencies": {
     "mitt": "^3.0.1"
   },
   "peerDependencies": {
     "vue": "^3.3.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

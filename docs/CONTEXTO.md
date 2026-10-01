@@ -1,6 +1,6 @@
 # Contexto: por qué existe este monorepo y qué hay alrededor
 
-> Escrito el 2026-10-01 para quien trabaje en la raíz del monorepo (persona o agente). Explica el ecosistema, las decisiones tomadas y el estado de los tickets. Para las reglas operativas ver [`../CLAUDE.md`](../CLAUDE.md) y [`../README.md`](../README.md).
+> Escrito el 2026-10-01 para quien trabaje en la raíz del monorepo (persona o agente). Explica el ecosistema, las decisiones tomadas y el estado de los tickets. Para las reglas operativas ver [`../AGENTS.md`](../AGENTS.md) y [`../README.md`](../README.md).
 
 ## 1. El ecosistema frontend de Mundo IT
 
@@ -33,7 +33,7 @@ Antes había cuatro repos (`plugin-vue-event`, `plugin-vue-auth`, `plugin-vue-ax
 - Cambios de API entre la librería y los plugins coordinados a mano entre repos.
 - `plugin-vue-axios` no compilaba con axios 1.20 (usaba un namespace de tipos que ya no existe).
 
-El monorepo resuelve eso con un solo tooling (pnpm workspaces, Biome, Vitest, tsup), CI en cada PR y publicación automática **por versión**: el PR bumpea `version`, al mergear se publica sólo lo que cambió. Los nombres npm y las versiones no cambian: las apps no notan la migración. La librería de componentes entra después (HD-7548), y la idea es que todo lo frontend de Mundo IT viva acá.
+El monorepo resuelve eso con un solo tooling (pnpm workspaces, Turborepo, oxlint + oxfmt, sherif, Vitest, tsup), CI en cada PR y publicación automática **por versión**: el PR bumpea `version`, al mergear se publica sólo lo que cambió. Los nombres npm y las versiones no cambian: las apps no notan la migración. La librería de componentes entra después (HD-7548), y la idea es que todo lo frontend de Mundo IT viva acá.
 
 ## 4. Decisiones tomadas (no re-discutir sin motivo nuevo)
 
@@ -43,7 +43,7 @@ El monorepo resuelve eso con un solo tooling (pnpm workspaces, Biome, Vitest, ts
 4. **`plugin-vue-axios` publica el tipo `HttpClient`** (get/post/put/patch/delete + interceptors) que auth y la librería usan como contrato.
 5. **Cliente stateless** (decisión de la librería, 2026-10-01): no se usan las instancias de sesión del backend (`/instance/*`); el backend tiene que funcionar como API pura porque el MCP lo expone a terceros y las apps tienen que poder ser SPA/PWA.
 6. **Publicación por versión con OIDC trusted publishing**. Hasta que no se registre el repo `monorepo` + workflow `publish.yml` como publisher de cada paquete en npmjs.com (HD-7549, manual), un bump falla al publicar.
-7. **LF**, Biome, Vitest, commits convencionales en español con la clave de Jira, PR con `gh`, merge a `main` sólo con OK explícito de Pablo.
+7. **LF**, oxlint + oxfmt (antes Biome, cambiado en HD-7551), sherif, Vitest, commits convencionales en español con la clave de Jira, PR con `gh`, merge a `main` sólo con OK explícito de Pablo.
 
 ## 5. Estado y tickets (Jira HD, organización MUNDO IT)
 

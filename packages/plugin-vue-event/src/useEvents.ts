@@ -44,6 +44,8 @@ export function useEvents(bus: EventBus = useEventBus()): UseEventsReturn {
 
   if (getCurrentInstance()) {
     onBeforeUnmount(() => {
+      // Copia a propósito: remove() saca elementos de registrations mientras se recorre.
+      // oxlint-disable-next-line unicorn/no-useless-spread
       for (const registration of [...registrations]) remove(registration);
     });
   }
