@@ -123,8 +123,9 @@ export interface HttpRequestConfig {
 }
 
 /**
- * Lo que necesita el servicio del cliente http (compatible con una instancia de axios).
- * Nota: cuando se publique plugin-vue-axios 2.0, importar el tipo desde ahí.
+ * Lo que necesita el servicio del cliente http (una instancia de axios lo cumple).
+ * No se usa el `HttpClient` de plugin-vue-axios 2.0: no declara la firma invocable `http(config)`
+ * que hace falta para reintentar el request original después del refresh.
  */
 export interface HttpClient {
   get<T = unknown>(url: string, config?: any): Promise<{ data: T }>;

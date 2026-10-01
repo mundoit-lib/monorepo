@@ -19,21 +19,22 @@ import { defineBoot } from '#q-app/wrappers';
 import { install as AuthPlugin } from '@mundoit-lib/plugin-vue-auth';
 import { getAxiosInstance } from '@mundoit-lib/plugin-vue-axios';
 
-const apiUrl = () => `${localStorage.getItem('host') || process.env.FIX_API_URL}/api/db/${localStorage.getItem('database') || process.env.DB}`;
-
 export default defineBoot(({ app, router }) => {
   app.use(AuthPlugin, {
-    http: getAxiosInstance(),
+    http: getAxiosInstance(), // con plugin-vue-axios 2.0 el baseURL ya es /api/db/<db> (setDatabase)
     router,
     oauth: { clientId: process.env.CLIENT_ID, clientSecret: process.env.CLIENT_SECRET },
     endpoints: {
-      login: () => `${apiUrl()}/token`, // también se usa para el refresh
-      me: () => `${apiUrl()}/me`,
+      login: '/token', // también se usa para el refresh
+      me: '/me',
       logout: null // Histrix no tiene logout OAuth: sólo se limpia la sesión local
     }
   });
 });
 ```
+
+Si la URL de token no sale del baseURL del http, `endpoints.login` acepta una función:
+``login: ({ baseURL }) => `${host()}/api/db/${db()}/token` ``.
 
 También acepta la forma de 1.x, `{ plugins: { http, router } }`.
 
@@ -111,8 +112,8 @@ El plugin es el único dueño del refresh:
 - Al volver la pestaña al frente (`visibilitychange`) se revalida el vencimiento, porque en PWA los timers se suspenden.
 - Si el refresh falla, se cierra la sesión local.
 
-**plugin-vue-axios 2.0 ya no refresca tokens.** Con plugin-vue-axios 1.x su interceptor de 401 también refresca,
-y un 401 dispararía dos refresh: actualizar los dos juntos.
+**plugin-vue-axios 2.0 ya no refresca tokens.** No combinar auth 2.0 con plugin-vue-axios 1.x ni con su
+`legacyRefresh`: los dos interceptores de 401 refrescarían a la vez.
 
 ### `AuthService` sin Vue
 
@@ -133,7 +134,8 @@ Para la app, cambia sólo el `app.use` del boot. Las llamadas a `$auth.*` en las
 1. Actualizar a `@mundoit-lib/plugin-vue-auth@^2` y a `@mundoit-lib/plugin-vue-axios@^2`. Sacar `@websanova/vue-auth`
    y `vue-demi` del `package.json` de la app si estaban declarados.
 2. En el boot, pasar `http` (o seguir con `plugins.http`) y configurar `oauth` y `endpoints` (`login`, `me`, `logout: null`)
-   como en el ejemplo de arriba. En 1.x eso lo hacía websanova con `fetchData` y el driver.
+   como en el ejemplo de arriba (en 1.x lo hacían websanova con `fetchData` y el driver). En axios, sacar
+   `clientID`, `clientSecret`, `fixURL` y `updateToken`, y no usar `legacyRefresh`.
 3. Cambios que pueden notarse:
    - `login()` devuelve la respuesta del token y rechaza si falla. Antes era igual, ahora sin las opciones propias
      de websanova (`rememberMe`, `staySignedIn`, `method` se ignoran).
