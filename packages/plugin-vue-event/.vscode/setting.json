@@ -1,0 +1,43 @@
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "biomejs.biome"
+},
+  "biomejs.biome": {
+    "formatOnSave": true,
+    "formatOnPaste": true,
+    "formatOnType": true,
+    "formatOnSaveTimeout": 5000,
+    "formatOnPasteTimeout": 5000,
+    "formatOnTypeTimeout": 5000,
+    "formatOnSaveOptions": {
+      "tabSize": 2,
+      "useTabs": false,
+      "semi": true,
+      "singleQuote": false,
+      "trailingComma": "none",
+      "bracketSpacing": true,
+      "arrowParens": "always",
+      "printWidth": 80
+    },
+    "formatOnPasteOptions": {
+      "tabSize": 2,
+      "useTabs": false,
+      "semi": true,
+      "singleQuote": false,
+      "trailingComma": "none",
+      "bracketSpacing": true,
+      "arrowParens": "always",
+      "printWidth": 80
+    },
+    "formatOnTypeOptions": {
+      "tabSize": 2,
+      "useTabs": false,
+      "semi": true,
+      "singleQuote": false,
+      "trailingComma": "none",
+      "bracketSpacing": true,
+      "arrowParens": "always",
+      "printWidth": 80
+    }
+  }
+}
