@@ -1,0 +1,9 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema-jsonc.json",
+  "workspaces": {
+    ".": {
+      // axios y vue son peerDependencies de los paquetes; se instalan en la raíz para tests y typecheck.
+      "ignoreDependencies": ["axios", "vue"]
+    }
+  }
+}
