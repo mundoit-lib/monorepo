@@ -35,3 +35,7 @@ Monorepo pnpm con las librerías frontend de Mundo IT. Cada `packages/<nombre>` 
 | `plugin-vue-axios` | `src/index.ts` | 2.0: instancia axios compartida (`getAxiosInstance`, `setDatabase`, tipo `HttpClient`); el refresh es de auth 2.0, con `legacyRefresh` opcional para auth 1.x |
 
 Consumidores: las apps `*-frontend` de Mundo IT y la librería `@mundoit-lib/histrix-component-vue` (que va a mudarse acá). Cualquier cambio de API pública tiene que pensarse para esas apps.
+
+## Contexto
+
+Por qué existe este monorepo, qué apps y librerías lo rodean, las decisiones tomadas y el estado de los tickets: [`docs/CONTEXTO.md`](docs/CONTEXTO.md). Leerlo antes de tocar cualquier paquete.
