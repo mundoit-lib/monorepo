@@ -4,6 +4,7 @@
   "private": true,
   "description": "Monorepo de las librerías frontend de Mundo IT (@mundoit-lib/*)",
   "license": "MIT",
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "test": "turbo run test",
@@ -28,7 +29,7 @@
     "tsdown": "^0.23.0",
     "turbo": "^2.11.5",
     "typescript": "^5.9.3",
-    "vitest": "^2.1.9",
+    "vitest": "^5.0.3",
     "vue": "^3.5.43"
   },
   "engines": {
