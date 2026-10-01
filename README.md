@@ -6,7 +6,7 @@ Librerías frontend de Mundo IT. Cada carpeta de `packages/` es un paquete npm i
 |---|---|---|
 | [`packages/plugin-vue-event`](packages/plugin-vue-event) | Bus de eventos global (`$events`, opción `events:`) | `@mundoit-lib/plugin-vue-event` |
 | [`packages/plugin-vue-auth`](packages/plugin-vue-auth) | Autenticación OAuth2 password grant contra Histrix (`useAuth`, `$auth`) | `@mundoit-lib/plugin-vue-auth` |
-| [`packages/plugin-vue-axios`](packages/plugin-vue-axios) | Instancia de axios compartida (`$axios`, `axiosInstance`) | `@mundoit-lib/plugin-vue-axios` |
+| [`packages/plugin-vue-axios`](packages/plugin-vue-axios) | Instancia de axios compartida (`$axios`, `getAxiosInstance`, `setDatabase`) | `@mundoit-lib/plugin-vue-axios` |
 
 Próximo en entrar: `@mundoit-lib/histrix-component-vue` (hoy en [`mundoit-lib/histrix-component-vue`](https://github.com/mundoit-lib/histrix-component-vue)), cuando termine el plan HD-7515.
 
