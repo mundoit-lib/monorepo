@@ -1,16 +1,20 @@
-# CLAUDE.md — monorepo @mundoit-lib
+# AGENTS.md — monorepo @mundoit-lib
 
-Monorepo pnpm con las librerías frontend de Mundo IT. Cada `packages/<nombre>` es un paquete npm independiente. Ver `README.md` para el flujo completo.
+Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `packages/<nombre>` es un paquete npm independiente. Ver `README.md` para el flujo completo.
 
 ## Reglas para trabajar acá
 
 - **Package manager: pnpm** (versión fijada en `packageManager`). `pnpm install` en la raíz, nunca en un paquete.
 - **Un lockfile**, el de la raíz. No crear `package-lock.json` ni lockfiles por paquete.
-- **devDependencies compartidas en la raíz** (`tsup`, `typescript`, `vitest`, `@biomejs/biome`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
-- **Finales de línea LF**, formato y lint con Biome (`pnpm lint`, `pnpm lint:fix`).
-- **Tests con Vitest** en `packages/*/src/**/*.test.ts`. `pnpm test` desde la raíz.
-- **Checks antes de un PR**: `pnpm lint && pnpm build && pnpm test`.
+- **devDependencies compartidas en la raíz** (`tsup`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
+- **Tareas con Turborepo** (`turbo.json`): `build`, `typecheck`, `test` y `check:exports` corren por paquete con caché. Los scripts de la raíz las llaman (`pnpm build` = `turbo run build`). Un paquete solo: `pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth`.
+- **Finales de línea LF**, lint con oxlint (`.oxlintrc.json`) y formato con oxfmt (`.oxfmtrc.json`). `pnpm lint` corre oxlint, `oxfmt --check` y sherif; `pnpm lint:fix` corrige lo que se pueda. Los `.md` no se formatean.
+- **sherif** valida la consistencia del workspace (misma versión de una dependencia en todos los paquetes, `package.json` ordenados, sin dependencias duplicadas). Si se queja, `pnpm lint:fix` o ajustar a mano; no ignorar reglas sin motivo.
+- **Tests con Vitest** en `packages/*/src/**/*.test.ts`. `pnpm test` corre cada paquete por turbo; `pnpm test:watch` corre vitest en la raíz.
+- **Checks antes de un PR**: `pnpm lint && pnpm build && pnpm typecheck && pnpm test`.
+- **Exports publicados**: `pnpm check:exports` (publint + are-the-types-wrong) sobre el `dist`. Correrlo cuando se toque `package.json` (`exports`, `main`, `types`) o `tsup.config.ts`.
 - **Vue 3 only** para todo lo nuevo. El soporte Vue 2 (`vue-demi`, `@vue/composition-api`) está deprecado y se va sacando con cada major.
+- Turborepo cambia entre versiones: antes de tocar `turbo.json` leer la doc del paquete instalado (`node_modules/turbo/docs/`).
 
 ## Publicación
 

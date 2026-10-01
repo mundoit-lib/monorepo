@@ -15,7 +15,7 @@ import { getCurrentInstance, inject } from 'vue';
  *
  * Los eventos que no están declarados siguen aceptando cualquier argumento.
  */
-// biome-ignore lint/suspicious/noEmptyInterface: se completa por module augmentation
+// Vacía a propósito: se completa por module augmentation.
 export interface MundoitEvents {}
 
 /** Nombre de evento: los declarados en `MundoitEvents` (con autocompletado) o cualquier string. */
