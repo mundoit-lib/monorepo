@@ -8,7 +8,7 @@ export default defineConfig({
   clean: true,
   minify: true,
   target: 'node14',
-  external: ['axios'],
+  external: ['axios', 'vue'],
   ignoreWatch: ['**/node_modules/**'],
   watch: process.env.NODE_ENV === 'development',
   outDir: 'dist',
