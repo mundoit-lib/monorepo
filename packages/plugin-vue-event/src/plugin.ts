@@ -1,6 +1,6 @@
 import { isVue2, isVue3 } from 'vue-demi';
 import type { App, ComponentOptions } from 'vue-demi';
-import { useEventBus, type EventBusInstance } from './eventBus';
+import { type EventBusInstance, useEventBus } from './eventBus';
 
 // Tipos para Vue 2
 interface Vue2Constructor {
@@ -35,12 +35,12 @@ function plugin(VueOrApp: App | Vue2Constructor): void {
     // Vue 3
     const app = VueOrApp as App;
     app.config.globalProperties.$events = bus;
-    
+
     app.mixin({
       beforeCreate(this: any) {
         if (typeof this.$options.events !== 'object') return;
         this._eventListeners = [] as StoredListener[];
-        
+
         for (const [event, handler] of Object.entries(this.$options.events)) {
           // @ts-ignore
           const boundHandler = handler.bind(this);
@@ -50,27 +50,27 @@ function plugin(VueOrApp: App | Vue2Constructor): void {
       },
       beforeUnmount(this: any) {
         if (!this._eventListeners) return;
-        
+
         for (const { event, listener } of this._eventListeners as StoredListener[]) {
           bus.off(event, listener);
         }
-      },
+      }
     });
   } else if (isVue2) {
     // Vue 2
     const Vue = VueOrApp as Vue2Constructor;
-    
+
     Object.defineProperty(Vue.prototype, '$events', {
       get() {
         return bus;
-      },
+      }
     });
-    
+
     Vue.mixin({
       beforeCreate(this: Vue2Instance) {
         if (typeof this.$options.events !== 'object') return;
         this._eventListeners = [];
-        
+
         for (const [event, handler] of Object.entries(this.$options.events)) {
           const boundHandler = handler.bind(this);
           const listener = bus.on(event, boundHandler);
@@ -79,11 +79,11 @@ function plugin(VueOrApp: App | Vue2Constructor): void {
       },
       beforeDestroy(this: Vue2Instance) {
         if (!this._eventListeners) return;
-        
+
         for (const { event, listener } of this._eventListeners) {
           bus.off(event, listener);
         }
-      },
+      }
     });
   }
 }

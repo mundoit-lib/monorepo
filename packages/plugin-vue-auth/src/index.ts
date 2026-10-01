@@ -1,6 +1,6 @@
+import type { VueAuth } from '@websanova/vue-auth';
 import { isVue2, isVue3 } from 'vue-demi';
 import type { App } from 'vue-demi';
-import type { VueAuth } from '@websanova/vue-auth';
 
 // Imports directos - Vue 3
 import { createAuth, useAuth as vueAuth3 } from '@websanova/vue-auth';
@@ -48,28 +48,28 @@ function createDefaultOptions(customDriver?: any): AuthOptions {
     drivers: {
       http: driverHttpAxios,
       auth: customDriver || DriverAuthBearerLaravel,
-      router: driverRouterVueRouter,
+      router: driverRouterVueRouter
     },
     options: {
       rolesKey: 'role',
       fetchData: {
         url: `${process.env.API_URL || ''}/me`,
         method: 'GET',
-        interval: 30,
+        interval: 30
       },
       refreshData: { enabled: false },
       rememberkey: 'refreshToken',
-      tokenDefaultKey: 'accessToken',
-    },
+      tokenDefaultKey: 'accessToken'
+    }
   };
 }
 
 // Deep merge helper
 function deepMerge(target: any, source: any): any {
   const output = { ...target };
-  
+
   if (isObject(target) && isObject(source)) {
-    Object.keys(source).forEach(key => {
+    Object.keys(source).forEach((key) => {
       if (isObject(source[key])) {
         if (!(key in target)) {
           Object.assign(output, { [key]: source[key] });
@@ -81,7 +81,7 @@ function deepMerge(target: any, source: any): any {
       }
     });
   }
-  
+
   return output;
 }
 
@@ -113,7 +113,7 @@ export const VueAuthPlugin = {
       console.error('Vue Auth: Installation failed', error);
       throw error;
     }
-  },
+  }
 };
 
 // Composable useAuth
@@ -122,20 +122,16 @@ export function useAuth(): VueAuth {
     try {
       const auth = vueAuth3();
       if (auth) return auth;
-    } catch (error) {
+    } catch {
       if (authInstance) return authInstance;
     }
-    
-    throw new Error(
-      'Vue Auth: Not initialized. Make sure to call app.use(VueAuthPlugin) before using useAuth()'
-    );
+
+    throw new Error('Vue Auth: Not initialized. Make sure to call app.use(VueAuthPlugin) before using useAuth()');
   }
 
   if (isVue2) {
     if (!authInstance) {
-      throw new Error(
-        'Vue Auth: Not initialized. Make sure to call Vue.use(VueAuthPlugin) before using useAuth()'
-      );
+      throw new Error('Vue Auth: Not initialized. Make sure to call Vue.use(VueAuthPlugin) before using useAuth()');
     }
     return authInstance;
   }

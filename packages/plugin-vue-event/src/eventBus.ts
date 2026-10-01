@@ -5,7 +5,6 @@ import mitt, { type Emitter, type EventType, type Handler } from 'mitt';
 export type EventBusEvents = Record<EventType, any>;
 
 // Tipos para los listeners
-type EventListener<T = any> = (args: T) => void;
 type UnwrappedHandler<T = any> = (...args: any[]) => T;
 
 // Exportamos una única instancia del event bus
@@ -14,19 +13,10 @@ export const eventBus: Emitter<EventBusEvents> = mitt<EventBusEvents>();
 // Interface para el retorno de useEventBus
 export interface EventBusInstance {
   emit<K extends keyof EventBusEvents>(event: K, ...args: any[]): void;
-  on<K extends keyof EventBusEvents>(
-    event: K,
-    callback: UnwrappedHandler
-  ): Handler<EventBusEvents[K]>;
+  on<K extends keyof EventBusEvents>(event: K, callback: UnwrappedHandler): Handler<EventBusEvents[K]>;
   fire<K extends keyof EventBusEvents>(event: K, ...args: any[]): void;
-  off<K extends keyof EventBusEvents>(
-    event: K,
-    listener: Handler<EventBusEvents[K]>
-  ): void;
-  once<K extends keyof EventBusEvents>(
-    event: K,
-    callback: UnwrappedHandler
-  ): Handler<EventBusEvents[K]>;
+  off<K extends keyof EventBusEvents>(event: K, listener: Handler<EventBusEvents[K]>): void;
+  once<K extends keyof EventBusEvents>(event: K, callback: UnwrappedHandler): Handler<EventBusEvents[K]>;
 }
 
 // Exportamos helpers para usar en composables o archivos JS/TS
@@ -35,31 +25,22 @@ export const useEventBus = (): EventBusInstance => {
     emit<K extends keyof EventBusEvents>(event: K, ...args: any[]): void {
       eventBus.emit(event, args);
     },
-    
-    on<K extends keyof EventBusEvents>(
-      event: K,
-      callback: UnwrappedHandler
-    ): Handler<EventBusEvents[K]> {
+
+    on<K extends keyof EventBusEvents>(event: K, callback: UnwrappedHandler): Handler<EventBusEvents[K]> {
       const listener: Handler<EventBusEvents[K]> = (args: any) => callback(...args);
       eventBus.on(event, listener);
       return listener;
     },
-    
+
     fire<K extends keyof EventBusEvents>(event: K, ...args: any[]): void {
       eventBus.emit(event, args);
     },
-    
-    off<K extends keyof EventBusEvents>(
-      event: K,
-      listener: Handler<EventBusEvents[K]>
-    ): void {
+
+    off<K extends keyof EventBusEvents>(event: K, listener: Handler<EventBusEvents[K]>): void {
       eventBus.off(event, listener);
     },
-    
-    once<K extends keyof EventBusEvents>(
-      event: K,
-      callback: UnwrappedHandler
-    ): Handler<EventBusEvents[K]> {
+
+    once<K extends keyof EventBusEvents>(event: K, callback: UnwrappedHandler): Handler<EventBusEvents[K]> {
       const listener: Handler<EventBusEvents[K]> = (args: any) => callback(...args);
       const wrappedListener: Handler<EventBusEvents[K]> = (args: any) => {
         listener(args);

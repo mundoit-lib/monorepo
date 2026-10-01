@@ -1,4 +1,4 @@
-import { getAxiosInstance, initializeAxios, axiosInstance, type AxiosConfig } from './configAxios';
+import { type AxiosConfig, axiosInstance, getAxiosInstance, initializeAxios } from './configAxios';
 
 export const install = (Vue: any, options: AxiosConfig) => {
   initializeAxios(options);
@@ -7,6 +7,6 @@ export const install = (Vue: any, options: AxiosConfig) => {
     return;
   }
   Vue.prototype.$axios = getAxiosInstance();
-}
+};
 
-export { AxiosConfig, getAxiosInstance, initializeAxios, axiosInstance };
+export { type AxiosConfig, getAxiosInstance, initializeAxios, axiosInstance };

@@ -20,7 +20,7 @@ export default defineConfig({
   entryPoints: ['src/index.ts'],
   tsconfig: 'tsconfig.json',
   env: {
-    NODE_ENV: 'production',
+    NODE_ENV: 'production'
   },
-  metafile: false,
+  metafile: false
 });

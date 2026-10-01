@@ -24,18 +24,16 @@
       "require": "./dist/eventBus.cjs"
     }
   },
-  "files": [
-    "dist",
-    "src"
-  ],
+  "files": ["dist"],
   "repository": {
     "type": "git",
-    "url": "https://github.com/mundoit-lib/plugin-vue-event"
+    "url": "git+https://github.com/mundoit-lib/monorepo.git",
+    "directory": "packages/plugin-vue-event"
   },
   "bugs": {
-    "url": "https://github.com/mundoit-lib/plugin-vue-event/issues"
+    "url": "https://github.com/mundoit-lib/monorepo/issues"
   },
-  "homepage": "https://github.com/mundoit-lib/plugin-vue-event",
+  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-event#readme",
   "keywords": [
     "vue",
     "vue3",
@@ -55,19 +53,12 @@
   ],
   "author": "@mundoit-lib",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsup",
-    "clean": "rm -rf dist && rm -rf node_modules",
-    "postinstall": "npx vue-demi-fix"
+    "test": "vitest run --passWithNoTests",
+    "build": "tsup"
   },
   "dependencies": {
     "mitt": "^3.0.1",
     "vue-demi": "0.14.10"
-  },
-  "devDependencies": {
-    "@types/node": "^22.19.1",
-    "tsup": "^8.5.1",
-    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "@vue/composition-api": "^1.0.0-rc.1",
@@ -77,5 +68,8 @@
     "@vue/composition-api": {
       "optional": true
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

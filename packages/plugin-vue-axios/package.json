@@ -3,9 +3,7 @@
   "version": "1.0.9",
   "description": "Vue plugin for Axios integration. Designed to centralize configurations and streamline HTTP request handling for internal projects. Although intended for internal use, it is publicly available on npm for easier distribution. Not recommended for external use.",
   "type": "module",
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "main": "./dist/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
@@ -18,34 +16,24 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mundoit-lib/plugin-vue-axios"
+    "url": "git+https://github.com/mundoit-lib/monorepo.git",
+    "directory": "packages/plugin-vue-axios"
   },
   "bugs": {
-    "url": "https://github.com/mundoit-lib/plugin-vue-axios/issues"
+    "url": "https://github.com/mundoit-lib/monorepo/issues"
   },
-  "homepage": "https://github.com/mundoit-lib/plugin-vue-axios",
+  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-axios#readme",
   "author": "@mundoit-lib",
-  "keywords": [
-    "vue",
-    "axios",
-    "plugin",
-    "vue-plugin",
-    "http",
-    "requests",
-    "interceptors",
-    "internal"
-  ],
+  "keywords": ["vue", "axios", "plugin", "vue-plugin", "http", "requests", "interceptors", "internal"],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run --passWithNoTests",
     "build": "tsup"
   },
   "license": "MIT",
-  "devDependencies": {
-    "@types/node": "^25.0.10",
-    "tsup": "^8.5.1",
-    "typescript": "5.9.3"
-  },
   "peerDependencies": {
     "axios": "^1.13.3"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

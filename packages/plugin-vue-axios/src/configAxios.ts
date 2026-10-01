@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type AxiosInstance } from 'axios';
 
 export interface AxiosConfig {
   baseURL: string;
@@ -10,7 +10,7 @@ export interface AxiosConfig {
   onError?: () => void;
 }
 
-export let axiosInstance: axios.AxiosInstance;
+export let axiosInstance: AxiosInstance;
 
 export const getAxiosInstance = () => {
   if (!axiosInstance) {
@@ -25,8 +25,8 @@ export const initializeAxios = (config: AxiosConfig) => {
   axiosInstance = axios.create({
     baseURL: config.baseURL,
     headers: {
-      'Content-Type': 'application/json',
-    },
+      'Content-Type': 'application/json'
+    }
   });
 
   axiosInstance.interceptors.response.use(
@@ -39,8 +39,8 @@ export const initializeAxios = (config: AxiosConfig) => {
           originalRequest._retry = true;
           try {
             const requestToken = await updateToken(config.fixURL, config.clientID, config.clientSecret);
-            originalRequest.headers['Authorization'] = `Bearer ${requestToken.access_token}`;
-            axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${requestToken.access_token}`;
+            originalRequest.headers.Authorization = `Bearer ${requestToken.access_token}`;
+            axiosInstance.defaults.headers.common.Authorization = `Bearer ${requestToken.access_token}`;
             config.updateToken?.(requestToken);
             return axiosInstance(originalRequest);
           } catch (err) {
@@ -59,9 +59,7 @@ export const initializeAxios = (config: AxiosConfig) => {
 };
 
 const validateAxiosConfig = (config: Partial<AxiosConfig>) => {
-  const requiredFields: (keyof AxiosConfig)[] = [
-    'baseURL', 'db', 'clientID', 'clientSecret', 'fixURL',
-  ];
+  const requiredFields: (keyof AxiosConfig)[] = ['baseURL', 'db', 'clientID', 'clientSecret', 'fixURL'];
   for (const field of requiredFields) {
     if (typeof config[field] !== 'string' || !config[field]) {
       throw new Error(`Invalid or missing config property: ${field}`);
@@ -79,7 +77,7 @@ const updateToken = async (fixURL: string, client: string, secret: string) => {
       client_id: client,
       client_secret: secret,
       refresh_token: refreshToken,
-      notification_token: null,
+      notification_token: null
     });
 
     if (data.error || data.error_description) {

@@ -2,11 +2,11 @@ export const laravel = {
   request: function (req: any, token: string) {
     // @ts-ignore
     this.drivers.http.setHeaders.call(this, req, {
-      Authorization: 'Bearer ' + token,
+      Authorization: `Bearer ${token}`
     });
   },
 
-  response: function (res: any) {
+  response: (res: any) => {
     /**
      * TODO: Further investigation about the tokens must be implemented
      * Laravel responses expires_in in seconds. Because it is useless
@@ -27,7 +27,7 @@ export const laravel = {
       localStorage.setItem('tokenExpireDate', tokenExpireDate);
       return accessToken;
     }
-  },
+  }
 };
 
 export default laravel;

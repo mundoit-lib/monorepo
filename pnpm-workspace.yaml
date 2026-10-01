@@ -1,0 +1,8 @@
+packages:
+  - 'packages/*'
+
+# pnpm 11 bloquea los scripts de instalación de dependencias salvo que se autoricen acá.
+allowBuilds:
+  '@biomejs/biome': true
+  esbuild: true
+  vue-demi: false # no correr vue-demi-switch: el default del paquete ya es Vue 3
