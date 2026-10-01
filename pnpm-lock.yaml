@@ -32,18 +32,9 @@ importers:
 
   packages/plugin-vue-auth:
     dependencies:
-      '@vue/composition-api':
-        specifier: ^1.0.0-rc.1
-        version: 1.7.2(vue@3.5.43(typescript@5.9.3))
-      '@websanova/vue-auth':
-        specifier: 4.2.1
-        version: 4.2.1
       vue:
-        specifier: ^2.0.0 || >=3.0.0
+        specifier: ^3.3.0
         version: 3.5.43(typescript@5.9.3)
-      vue-demi:
-        specifier: 0.14.10
-        version: 0.14.10(@vue/composition-api@1.7.2(vue@3.5.43(typescript@5.9.3)))(vue@3.5.43(typescript@5.9.3))
 
   packages/plugin-vue-axios:
     dependencies:
@@ -660,9 +651,6 @@ packages:
 
   '@vue/shared@3.5.43':
     resolution: {integrity: sha512-uksS7YGMR5NZyr4JNq0Rp+QyLns0ueaz20KwzIPW9R0LH1Vnt4E+XUM29PNseEbf1www2gOuhuDi5AKOIXag9Q==}
-
-  '@websanova/vue-auth@4.2.1':
-    resolution: {integrity: sha512-gc4WL3WzJMkj3wZmrBAP7U7WBAcVY0/a/YhCzMVR/iA1u/8QJlugq/320CRRbZ0Acz+qbGPhdm07IRE3U053yg==}
 
   acorn@8.18.0:
     resolution: {integrity: sha512-lGq+9yr1/GuAWaVYIHRjvvySG5/4VfKIvC8EWxStPdcDh/Ka7FG3twP6v4d5BkravUilhIAsG4Qj83t02LWUPQ==}
@@ -1537,8 +1525,6 @@ snapshots:
       '@vue/shared': 3.5.43
 
   '@vue/shared@3.5.43': {}
-
-  '@websanova/vue-auth@4.2.1': {}
 
   acorn@8.18.0: {}
 
