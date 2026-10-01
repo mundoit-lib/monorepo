@@ -32,6 +32,6 @@ Monorepo pnpm con las librerías frontend de Mundo IT. Cada `packages/<nombre>` 
 |---|---|---|
 | `plugin-vue-event` | `src/index.ts` | mitt + mixin para la opción `events:`; expone `$events` |
 | `plugin-vue-auth` | `src/index.ts` | 1.x envuelve `@websanova/vue-auth`; la reescritura 2.0 (`AuthService`) está en la rama `feat/plugin-vue-auth-2` |
-| `plugin-vue-axios` | `src/index.ts` | instancia axios compartida con interceptor 401→refresh (a mover a auth en 2.0) |
+| `plugin-vue-axios` | `src/index.ts` | 2.0: instancia axios compartida (`getAxiosInstance`, `setDatabase`, tipo `HttpClient`); el refresh es de auth 2.0, con `legacyRefresh` opcional para auth 1.x |
 
 Consumidores: las apps `*-frontend` de Mundo IT y la librería `@mundoit-lib/histrix-component-vue` (que va a mudarse acá). Cualquier cambio de API pública tiene que pensarse para esas apps.

@@ -1,12 +1,27 @@
-import { type AxiosConfig, axiosInstance, getAxiosInstance, initializeAxios } from './configAxios';
+import type { AxiosInstance } from 'axios';
+import type { App } from 'vue';
+import { axiosInstance, getAxiosInstance, initializeAxios, setBaseURL, setDatabase } from './configAxios';
+import type { AxiosConfig } from './types';
 
-export const install = (Vue: any, options: AxiosConfig) => {
-  initializeAxios(options);
-  if (typeof Vue.version === 'string' && Vue.version.startsWith('3.')) {
-    Vue.config.globalProperties.$axios = getAxiosInstance();
-    return;
-  }
-  Vue.prototype.$axios = getAxiosInstance();
+export const install = (app: App, options: AxiosConfig) => {
+  app.config.globalProperties.$axios = initializeAxios(options);
 };
 
-export { type AxiosConfig, getAxiosInstance, initializeAxios, axiosInstance };
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    $axios: AxiosInstance;
+  }
+}
+
+export { axiosInstance, getAxiosInstance, initializeAxios, setBaseURL, setDatabase };
+export type {
+  AxiosConfig,
+  ErrorContext,
+  ErrorHandler,
+  ErrorOptions,
+  HttpClient,
+  HttpInterceptorManager,
+  HttpRequestConfig,
+  HttpResponse,
+  LegacyRefreshConfig
+} from './types';
