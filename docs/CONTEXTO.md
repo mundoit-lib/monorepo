@@ -33,7 +33,7 @@ Antes había cuatro repos (`plugin-vue-event`, `plugin-vue-auth`, `plugin-vue-ax
 - Cambios de API entre la librería y los plugins coordinados a mano entre repos.
 - `plugin-vue-axios` no compilaba con axios 1.20 (usaba un namespace de tipos que ya no existe).
 
-El monorepo resuelve eso con un solo tooling (pnpm workspaces, Turborepo, oxlint + oxfmt, sherif, Vitest, tsup), CI en cada PR y publicación automática **por versión**: el PR bumpea `version`, al mergear se publica sólo lo que cambió. Los nombres npm y las versiones no cambian: las apps no notan la migración. La librería de componentes entra después (HD-7548), y la idea es que todo lo frontend de Mundo IT viva acá.
+El monorepo resuelve eso con un solo tooling (pnpm workspaces, Turborepo, oxlint + oxfmt, sherif, Vitest, tsdown), CI en cada PR y publicación automática **por versión**: el PR bumpea `version`, al mergear se publica sólo lo que cambió. Los nombres npm y las versiones no cambian: las apps no notan la migración. La librería de componentes entra después (HD-7548), y la idea es que todo lo frontend de Mundo IT viva acá.
 
 ## 4. Decisiones tomadas (no re-discutir sin motivo nuevo)
 

@@ -44,7 +44,7 @@
   },
   "scripts": {
     "test": "vitest run --passWithNoTests",
-    "build": "tsup",
+    "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "check:exports": "publint && attw --pack . --profile node16"
   },
