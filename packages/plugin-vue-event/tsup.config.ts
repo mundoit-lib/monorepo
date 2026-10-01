@@ -1,7 +1,7 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts', 'src/plugin.ts', 'src/eventBus.ts'],
+  entry: ['src/index.ts', 'src/plugin.ts', 'src/eventBus.ts', 'src/useEvents.ts'],
   format: ['esm', 'cjs'],
   dts: true,
   sourcemap: false,
@@ -12,15 +12,11 @@ export default defineConfig({
   watch: process.env.NODE_ENV === 'development',
   outDir: 'dist',
   legacyOutput: false,
-  splitting: false,
+  splitting: true,
   treeshake: true,
-  shims: true,
+  shims: false,
   bundle: true,
   platform: 'neutral',
-  entryPoints: ['src/index.ts', 'src/plugin.ts', 'src/eventBus.ts'],
   tsconfig: 'tsconfig.json',
-  env: {
-    NODE_ENV: 'production'
-  },
   metafile: false
 });

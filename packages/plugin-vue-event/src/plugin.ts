@@ -1,91 +1,60 @@
-import { isVue2, isVue3 } from 'vue-demi';
-import type { App, ComponentOptions } from 'vue-demi';
-import { type EventBusInstance, useEventBus } from './eventBus';
+import type { App } from 'vue';
+import { EVENTS_KEY, type EventBus, eventBus } from './eventBus';
 
-// Tipos para Vue 2
-interface Vue2Constructor {
-  prototype: any;
-  mixin: (options: any) => void;
+export interface EventsPluginOptions {
+  /** Bus a usar en la app. Por defecto, el bus compartido `eventBus`. */
+  bus?: EventBus;
 }
 
-// Tipos para las opciones de componentes extendidas
-interface ComponentWithEvents extends ComponentOptions {
-  events?: Record<string, (...args: any[]) => void>;
-}
+type EventsOption = Record<string, (...args: any[]) => void>;
 
-// Tipo interno para los listeners almacenados
-interface StoredListener {
-  event: string;
-  listener: any;
-}
+declare module 'vue' {
+  interface ComponentCustomProperties {
+    /** Bus de eventos de la app (`@mundoit-lib/plugin-vue-event`). */
+    $events: EventBus;
+  }
 
-// Extensión de tipos para Vue 2
-interface Vue2Instance {
-  $options: ComponentWithEvents;
-  _eventListeners?: StoredListener[];
-  $events?: EventBusInstance;
-}
-// Sobrecarga de tipos para el plugin
-function plugin(app: App): void;
-function plugin(Vue: Vue2Constructor): void;
-function plugin(VueOrApp: App | Vue2Constructor): void {
-  const bus = useEventBus();
-
-  if (isVue3) {
-    // Vue 3
-    const app = VueOrApp as App;
-    app.config.globalProperties.$events = bus;
-
-    app.mixin({
-      beforeCreate(this: any) {
-        if (typeof this.$options.events !== 'object') return;
-        this._eventListeners = [] as StoredListener[];
-
-        for (const [event, handler] of Object.entries(this.$options.events)) {
-          // @ts-ignore
-          const boundHandler = handler.bind(this);
-          const listener = bus.on(event, boundHandler);
-          this._eventListeners.push({ event, listener });
-        }
-      },
-      beforeUnmount(this: any) {
-        if (!this._eventListeners) return;
-
-        for (const { event, listener } of this._eventListeners as StoredListener[]) {
-          bus.off(event, listener);
-        }
-      }
-    });
-  } else if (isVue2) {
-    // Vue 2
-    const Vue = VueOrApp as Vue2Constructor;
-
-    Object.defineProperty(Vue.prototype, '$events', {
-      get() {
-        return bus;
-      }
-    });
-
-    Vue.mixin({
-      beforeCreate(this: Vue2Instance) {
-        if (typeof this.$options.events !== 'object') return;
-        this._eventListeners = [];
-
-        for (const [event, handler] of Object.entries(this.$options.events)) {
-          const boundHandler = handler.bind(this);
-          const listener = bus.on(event, boundHandler);
-          this._eventListeners.push({ event, listener });
-        }
-      },
-      beforeDestroy(this: Vue2Instance) {
-        if (!this._eventListeners) return;
-
-        for (const { event, listener } of this._eventListeners) {
-          bus.off(event, listener);
-        }
-      }
-    });
+  interface ComponentCustomOptions {
+    /** Listeners del bus: se registran en `beforeCreate` y se desregistran en `beforeUnmount`. */
+    events?: EventsOption;
   }
 }
 
-export default plugin;
+interface StoredListener {
+  event: string;
+  listener: (...args: any[]) => void;
+}
+
+/**
+ * Plugin de Vue 3: expone `$events`, hace `app.provide('mundoitEvents', bus)` y registra
+ * la opción de componente `events: { 'nombre'() {} }`.
+ */
+function eventsPlugin(app: App, options: EventsPluginOptions = {}): void {
+  const bus = options.bus ?? eventBus;
+  const listeners = new WeakMap<object, StoredListener[]>();
+
+  app.config.globalProperties.$events = bus;
+  app.provide(EVENTS_KEY, bus);
+
+  app.mixin({
+    beforeCreate(this: any) {
+      const events: EventsOption | undefined = this.$options.events;
+      if (!events || typeof events !== 'object') return;
+
+      const stored: StoredListener[] = [];
+      for (const [event, handler] of Object.entries(events)) {
+        if (typeof handler !== 'function') continue;
+        stored.push({ event, listener: bus.on(event, handler.bind(this)) });
+      }
+      listeners.set(this, stored);
+    },
+    beforeUnmount(this: any) {
+      const stored = listeners.get(this);
+      if (!stored) return;
+      for (const { event, listener } of stored) bus.off(event, listener);
+      listeners.delete(this);
+    }
+  });
+}
+
+export default eventsPlugin;
