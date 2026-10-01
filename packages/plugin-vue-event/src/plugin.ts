@@ -57,4 +57,5 @@ function eventsPlugin(app: App, options: EventsPluginOptions = {}): void {
   });
 }
 
+export { eventsPlugin };
 export default eventsPlugin;
