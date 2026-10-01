@@ -1,7 +1,7 @@
 {
   "name": "@mundoit-lib/plugin-vue-event",
-  "version": "1.0.2",
-  "description": "Vue 3 plugin to handle global events between components, inspired by vue-events. This plugin provides a simple and efficient event bus system, allowing to emit, listen and unregister events in an intuitive way. Compatible with Vue 2 and Vue 3.",
+  "version": "2.0.0",
+  "description": "Plugin de Vue 3 con un bus de eventos global basado en mitt: $events, la opción de componente events: y useEvents() con auto-desregistro, con eventos tipados por module augmentation.",
   "license": "MIT",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -22,9 +22,14 @@
       "types": "./dist/eventBus.d.ts",
       "import": "./dist/eventBus.js",
       "require": "./dist/eventBus.cjs"
+    },
+    "./useEvents": {
+      "types": "./dist/useEvents.d.ts",
+      "import": "./dist/useEvents.js",
+      "require": "./dist/useEvents.cjs"
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mundoit-lib/monorepo.git",
@@ -37,7 +42,6 @@
   "keywords": [
     "vue",
     "vue3",
-    "vue2",
     "vue-plugin",
     "events",
     "event-bus",
@@ -57,17 +61,10 @@
     "build": "tsup"
   },
   "dependencies": {
-    "mitt": "^3.0.1",
-    "vue-demi": "0.14.10"
+    "mitt": "^3.0.1"
   },
   "peerDependencies": {
-    "@vue/composition-api": "^1.0.0-rc.1",
-    "vue": "^2.0.0 || >=3.0.0"
-  },
-  "peerDependenciesMeta": {
-    "@vue/composition-api": {
-      "optional": true
-    }
+    "vue": "^3.3.0"
   },
   "publishConfig": {
     "access": "public"
