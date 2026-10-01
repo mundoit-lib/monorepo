@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/plugin-vue-auth",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Vue plugin for authentication integration using @websanova/vue-auth. Designed to centralize authentication logic and streamline user session management for internal projects. Although intended for internal use, it is publicly available on npm for easier distribution. Not recommended for external use.",
   "type": "module",
   "files": [
@@ -37,7 +37,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup",
     "clean": "rm -rf dist && rm -rf node_modules",
-    "postinstall": "vue-demi-fix"
+    "postinstall": "npx vue-demi-fix"
   },
   "license": "MIT",
   "devDependencies": {

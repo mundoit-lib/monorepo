@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/plugin-vue-event",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Vue 3 plugin to handle global events between components, inspired by vue-events. This plugin provides a simple and efficient event bus system, allowing to emit, listen and unregister events in an intuitive way. Compatible with Vue 2 and Vue 3.",
   "license": "MIT",
   "type": "module",
@@ -58,7 +58,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsup",
     "clean": "rm -rf dist && rm -rf node_modules",
-    "postinstall": "vue-demi-fix"
+    "postinstall": "npx vue-demi-fix"
   },
   "dependencies": {
     "mitt": "^3.0.1",
