@@ -14,13 +14,17 @@ Próximo en entrar: `@mundoit-lib/histrix-component-vue` (hoy en [`mundoit-lib/h
 
 ```bash
 pnpm install          # una sola vez, instala todo el workspace
-pnpm build            # tsup en cada paquete → packages/*/dist
-pnpm test             # vitest sobre packages/*/src/**/*.test.ts
-pnpm lint             # biome (formato + lint); pnpm lint:fix para corregir
-pnpm --filter @mundoit-lib/plugin-vue-auth build   # un solo paquete
+pnpm build            # turbo → tsup en cada paquete → packages/*/dist (con caché)
+pnpm typecheck        # turbo → tsc --noEmit en cada paquete
+pnpm test             # turbo → vitest en cada paquete (packages/*/src/**/*.test.ts)
+pnpm lint             # oxlint + oxfmt --check + sherif; pnpm lint:fix para corregir
+pnpm check:exports    # publint + are-the-types-wrong sobre el dist de cada paquete
+pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth   # un solo paquete
 ```
 
 Node ≥ 22, pnpm 11 (el `packageManager` del `package.json` raíz fija la versión). Finales de línea LF.
+
+Turborepo orquesta las tareas por paquete (`turbo.json`) y cachea en `.turbo/`: si un paquete no cambió, su `build`/`test` sale de caché. `--force` lo ignora.
 
 ## Publicación
 
@@ -46,8 +50,8 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 ## Agregar un paquete
 
 1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsup.config.ts` y `tsconfig.json`.
-2. Scripts mínimos: `build` (tsup) y `test` (`vitest run --passWithNoTests`).
-3. Las devDependencies compartidas (`tsup`, `typescript`, `vitest`, `@biomejs/biome`) viven en la raíz: no repetirlas.
+2. Scripts mínimos: `build` (tsup), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`) y `check:exports` (`publint && attw --pack . --profile node16`). Turbo los toma solos.
+3. Las devDependencies compartidas (`tsup`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`) viven en la raíz: no repetirlas.
 
 ## Historia
 

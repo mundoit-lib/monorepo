@@ -1,0 +1,23 @@
+{
+  "$schema": "./node_modules/turbo/schema.json",
+  "agentGuidance": false,
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "!src/**/*.test.ts", "tsup.config.ts", "tsconfig.json", "package.json"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "package.json", "$TURBO_ROOT$/vitest.config.ts"]
+    },
+    "check:exports": {
+      "dependsOn": ["build"],
+      "inputs": ["dist/**", "package.json"]
+    }
+  }
+}

@@ -2,8 +2,30 @@
   "name": "@mundoit-lib/plugin-vue-axios",
   "version": "2.0.0",
   "description": "Vue 3 plugin for a shared Axios instance (JSON headers, multi-database base URL, infrastructure error hook). Internal use at Mundo IT; published on npm for easier distribution. Not recommended for external use.",
+  "keywords": [
+    "axios",
+    "http",
+    "internal",
+    "plugin",
+    "vue",
+    "vue-plugin",
+    "vue3"
+  ],
+  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-axios#readme",
+  "bugs": {
+    "url": "https://github.com/mundoit-lib/monorepo/issues"
+  },
+  "license": "MIT",
+  "author": "@mundoit-lib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mundoit-lib/monorepo.git",
+    "directory": "packages/plugin-vue-axios"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
-  "files": ["dist"],
   "main": "./dist/index.js",
   "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
@@ -14,27 +36,17 @@
       "require": "./dist/index.js"
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mundoit-lib/monorepo.git",
-    "directory": "packages/plugin-vue-axios"
+  "publishConfig": {
+    "access": "public"
   },
-  "bugs": {
-    "url": "https://github.com/mundoit-lib/monorepo/issues"
-  },
-  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-axios#readme",
-  "author": "@mundoit-lib",
-  "keywords": ["vue", "vue3", "axios", "plugin", "vue-plugin", "http", "internal"],
   "scripts": {
     "test": "vitest run --passWithNoTests",
-    "build": "tsup"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "check:exports": "publint && attw --pack . --profile node16"
   },
-  "license": "MIT",
   "peerDependencies": {
     "axios": "^1.6.0",
     "vue": "^3.3.0"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }
