@@ -17,7 +17,7 @@ pnpm install          # una sola vez, instala todo el workspace
 pnpm build            # turbo → tsdown en cada paquete → packages/*/dist (con caché)
 pnpm typecheck        # turbo → tsc --noEmit en cada paquete
 pnpm test             # turbo → vitest en cada paquete (packages/*/src/**/*.test.ts)
-pnpm lint             # oxlint + oxfmt --check + sherif; pnpm lint:fix para corregir
+pnpm lint             # oxlint + oxfmt --check + sherif + knip; pnpm lint:fix para corregir
 pnpm check:exports    # publint + are-the-types-wrong sobre el dist de cada paquete
 pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth   # un solo paquete
 ```
@@ -51,7 +51,7 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 
 1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsdown.config.ts` (copiar uno existente: ESM `.js` + CJS `.cjs`, `platform: 'neutral'`) y `tsconfig.json`.
 2. Scripts mínimos: `build` (tsdown), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`) y `check:exports` (`publint && attw --pack . --profile node16`). Turbo los toma solos.
-3. Las devDependencies compartidas (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`) viven en la raíz: no repetirlas.
+3. Las devDependencies compartidas (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `knip`) viven en la raíz: no repetirlas.
 
 ## Historia
 

@@ -6,10 +6,11 @@ Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `package
 
 - **Package manager: pnpm** (versión fijada en `packageManager`). `pnpm install` en la raíz, nunca en un paquete.
 - **Un lockfile**, el de la raíz. No crear `package-lock.json` ni lockfiles por paquete.
-- **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
+- **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `knip`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
 - **Tareas con Turborepo** (`turbo.json`): `build`, `typecheck`, `test` y `check:exports` corren por paquete con caché. Los scripts de la raíz las llaman (`pnpm build` = `turbo run build`). Un paquete solo: `pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth`.
-- **Finales de línea LF**, lint con oxlint (`.oxlintrc.json`) y formato con oxfmt (`.oxfmtrc.json`). `pnpm lint` corre oxlint, `oxfmt --check` y sherif; `pnpm lint:fix` corrige lo que se pueda. Los `.md` no se formatean.
+- **Finales de línea LF**, lint con oxlint (`.oxlintrc.json`) y formato con oxfmt (`.oxfmtrc.json`). `pnpm lint` corre oxlint, `oxfmt --check`, sherif y knip; `pnpm lint:fix` corrige lo que se pueda. Los `.md` no se formatean.
 - **sherif** valida la consistencia del workspace (misma versión de una dependencia en todos los paquetes, `package.json` ordenados, sin dependencias duplicadas). Si se queja, `pnpm lint:fix` o ajustar a mano; no ignorar reglas sin motivo.
+- **knip** (`knip.jsonc`) marca exports, archivos y dependencias sin uso. Un export duplicado a propósito se marca con `/** @alias … */`; una dependencia que knip no ve (peers instaladas en la raíz) va en `ignoreDependencies` con el porqué.
 - **Tests con Vitest** en `packages/*/src/**/*.test.ts`. `pnpm test` corre cada paquete por turbo; `pnpm test:watch` corre vitest en la raíz.
 - **Checks antes de un PR**: `pnpm lint && pnpm build && pnpm typecheck && pnpm test && pnpm check:exports`.
 - **Exports publicados**: `pnpm check:exports` (publint + are-the-types-wrong) sobre el `dist`. Corre en CI. Cada entrada de `exports` lleva `types` por condición (`.d.ts` para `import`, `.d.cts` para `require`).
