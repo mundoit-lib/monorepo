@@ -12,7 +12,7 @@ export default defineConfig({
   ignoreWatch: ['**/node_modules/**'],
   watch: process.env.NODE_ENV === 'development',
   outDir: 'dist',
-  legacyOutput: true,
+  legacyOutput: false,
   splitting: false,
   treeshake: true,
   bundle: true,

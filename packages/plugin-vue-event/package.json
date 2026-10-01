@@ -36,27 +36,47 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/index.d.cts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./plugin": {
-      "types": "./dist/plugin.d.ts",
-      "import": "./dist/plugin.js",
-      "require": "./dist/plugin.cjs"
+      "import": {
+        "types": "./dist/plugin.d.ts",
+        "default": "./dist/plugin.js"
+      },
+      "require": {
+        "types": "./dist/plugin.d.cts",
+        "default": "./dist/plugin.cjs"
+      }
     },
     "./eventBus": {
-      "types": "./dist/eventBus.d.ts",
-      "import": "./dist/eventBus.js",
-      "require": "./dist/eventBus.cjs"
+      "import": {
+        "types": "./dist/eventBus.d.ts",
+        "default": "./dist/eventBus.js"
+      },
+      "require": {
+        "types": "./dist/eventBus.d.cts",
+        "default": "./dist/eventBus.cjs"
+      }
     },
     "./useEvents": {
-      "types": "./dist/useEvents.d.ts",
-      "import": "./dist/useEvents.js",
-      "require": "./dist/useEvents.cjs"
+      "import": {
+        "types": "./dist/useEvents.d.ts",
+        "default": "./dist/useEvents.js"
+      },
+      "require": {
+        "types": "./dist/useEvents.d.cts",
+        "default": "./dist/useEvents.cjs"
+      }
     }
   },
   "publishConfig": {
