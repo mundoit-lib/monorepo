@@ -22,7 +22,7 @@ pnpm check:exports    # publint + are-the-types-wrong sobre el dist de cada paqu
 pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth   # un solo paquete
 ```
 
-Node 22.18+ o 24.11+ (los pisos de tsdown; `.node-version` fija 24 para desarrollo y publish, CI prueba 22 y 24), pnpm 11 (el `packageManager` del `package.json` raíz fija la versión). Finales de línea LF.
+Node `^22.18.0 || ^24.11.0 || >=26.0.0` (lo que soportan tsdown y vitest; `.node-version` fija 24 para desarrollo y publish, CI prueba 22 y 24), pnpm 11 (el `packageManager` del `package.json` raíz fija la versión). Finales de línea LF.
 
 Turborepo orquesta las tareas por paquete (`turbo.json`) y cachea en `.turbo/`: si un paquete no cambió, su `build`/`test` sale de caché. `--force` lo ignora.
 

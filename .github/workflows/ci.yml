@@ -24,10 +24,9 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-node${{ matrix.node }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          key: ${{ runner.os }}-node${{ matrix.node }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'package.json', 'turbo.json') }}-${{ github.sha }}
           restore-keys: |
-            ${{ runner.os }}-node${{ matrix.node }}-turbo-${{ hashFiles('pnpm-lock.yaml') }}-
-            ${{ runner.os }}-node${{ matrix.node }}-turbo-
+            ${{ runner.os }}-node${{ matrix.node }}-turbo-${{ hashFiles('pnpm-lock.yaml', 'package.json', 'turbo.json') }}-
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
@@ -39,3 +38,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm check:exports
       - run: pnpm test
+      # turbo no borra entradas viejas: se podan antes de que actions/cache guarde la nueva.
+      - name: Podar caché de turbo
+        if: always()
+        run: find .turbo/cache -type f -mtime +14 -delete 2>/dev/null || true
