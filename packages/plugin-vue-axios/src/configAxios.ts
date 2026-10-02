@@ -11,7 +11,7 @@ const DEFAULT_HEADERS = {
 const LEGACY_KEYS = ['db', 'clientID', 'clientSecret', 'fixURL', 'updateToken'];
 
 /**
- * @deprecated Usar `getAxiosInstance()`. Es `undefined` hasta que se llama a `initializeAxios`.
+ * @deprecated Se elimina en 3.0. Usar `getAxiosInstance()`. Es `undefined` hasta que se llama a `initializeAxios`.
  */
 export let axiosInstance: AxiosInstance;
 
@@ -86,6 +86,6 @@ const warnLegacyConfig = (config: AxiosConfig) => {
   const found = LEGACY_KEYS.filter((key) => key in config);
   if (found.length === 0) return;
   console.warn(
-    `[plugin-vue-axios] 2.0 ya no refresca el token y ignora ${found.join(', ')}. El refresh lo hace plugin-vue-auth 2.0; si seguís con auth 1.x, pasá { legacyRefresh: { fixURL, clientID, clientSecret, updateToken } }. Para la base, usá setDatabase(db).`
+    `[plugin-vue-axios] 2.0 ya no refresca el token y ignora ${found.join(', ')}. El refresh lo hace plugin-vue-auth 2.0; si seguís con auth 1.x, pasá { legacyRefresh: { fixURL, clientID, clientSecret, updateToken } }. Para la base, usá setDatabase(db). legacyRefresh se elimina en 3.0.`
   );
 };

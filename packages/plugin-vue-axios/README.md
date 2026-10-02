@@ -72,8 +72,19 @@ onError: {
 | `getAxiosInstance()` | Devuelve la instancia; tira si no se inicializó |
 | `setBaseURL(url)` | Cambia la base de los requests siguientes |
 | `setDatabase(db)` | `setBaseURL` con `<host>/api/db/<db>` |
-| `axiosInstance` | **Deprecated**: es `undefined` hasta `initializeAxios`. Usar `getAxiosInstance()` |
+| `axiosInstance` | **Deprecado, se elimina en 3.0**: es `undefined` hasta `initializeAxios`. Usar `getAxiosInstance()` |
 | `HttpClient` (tipo) | Contrato `get/post/put/patch/delete` + `interceptors` que usan auth y `histrix-component-vue`. Una instancia de axios lo cumple sin adaptador |
+
+## Deprecado (se elimina en 3.0)
+
+Siguen andando en 2.x por compatibilidad con 1.x y se sacan en la 3.0.
+
+| Qué | Reemplazo |
+|---|---|
+| `legacyRefresh` (y el warning por `db`, `clientID`, `clientSecret`, `fixURL`, `updateToken`) | El refresh de `plugin-vue-auth` 2.0 |
+| `axiosInstance` | `getAxiosInstance()` |
+
+`legacyRefresh` es el único con lógica: se saca recién cuando ninguna app quede en `plugin-vue-auth` 1.x.
 
 ## Guía 1.x → 2.0
 
