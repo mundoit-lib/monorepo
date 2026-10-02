@@ -5,6 +5,7 @@ Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `package
 ## Reglas para trabajar acá
 
 - **Package manager: pnpm** (versión fijada en `packageManager`). `pnpm install` en la raíz, nunca en un paquete.
+- **Node**: `.node-version` (24) para desarrollo y `publish.yml`; `ci.yml` corre en 22 y 24. `engines` sigue los pisos de tsdown/vitest: si se sube una devDependency que pide más, actualizar `engines` y la matriz.
 - **Un lockfile**, el de la raíz. No crear `package-lock.json` ni lockfiles por paquete.
 - **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `knip`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
 - **Tareas con Turborepo** (`turbo.json`): `build`, `typecheck`, `test` y `check:exports` corren por paquete con caché. Los scripts de la raíz las llaman (`pnpm build` = `turbo run build`). Un paquete solo: `pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth`.
