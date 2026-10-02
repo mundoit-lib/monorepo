@@ -20,7 +20,7 @@ export interface RouterLike {
 export interface VueAuthOptions extends AuthOptions {
   http?: HttpClient;
   router?: RouterLike;
-  /** Forma 1.x: `{ plugins: { http, router } }`. */
+  /** @deprecated Se elimina en 3.0. Usar `{ http, router }` (forma 1.x `{ plugins: { http, router } }`). */
   plugins?: { http?: HttpClient; router?: RouterLike };
   /** A dónde manda el guard de `meta.auth` sin sesión. Por defecto `/login`. */
   authRedirect?: RedirectTarget;

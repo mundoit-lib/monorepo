@@ -42,16 +42,16 @@ export interface EventBus {
   once<K extends EventName>(event: K, listener: EventListener<K>): EventListener<K>;
   /** Desregistra `listener` de `event`; sin `listener`, desregistra todos los de `event`. */
   off<K extends EventName>(event: K, listener?: EventListener<K>): void;
-  /** @deprecated Usar `emit`. Se mantiene por compatibilidad con 1.x. */
+  /** @deprecated Se elimina en 3.0. Usar `emit`. */
   fire<K extends EventName>(event: K, ...args: EventArgs<K>): void;
   /** El emitter de mitt por debajo. Ojo: el payload de cada evento es el array de argumentos. */
   readonly rawBus: RawEventBus;
 }
 
-/** @deprecated Nombre de 1.x, usar `EventBus`. */
+/** @deprecated Se elimina en 3.0. Nombre de 1.x, usar `EventBus`. */
 export type EventBusInstance = EventBus;
 
-/** @deprecated Tipo de 1.x, usar `MundoitEvents`. */
+/** @deprecated Se elimina en 3.0. Tipo de 1.x, usar `MundoitEvents`. */
 export type EventBusEvents = Record<EventType, any>;
 
 type AnyListener = (...args: any[]) => void;
@@ -129,7 +129,7 @@ export function createEventBus(): EventBus {
     fire(event, ...args) {
       if (!fireWarned && isDev()) {
         fireWarned = true;
-        console.warn('[@mundoit-lib/plugin-vue-event] `fire` está deprecado, usar `emit`.');
+        console.warn('[@mundoit-lib/plugin-vue-event] `fire` está deprecado y se elimina en 3.0, usar `emit`.');
       }
       bus.emit(event, ...args);
     }

@@ -97,15 +97,24 @@ declare module '@mundoit-lib/plugin-vue-event' {
 
 Con eso `emit`, `on`, `once`, `off` y `$events` controlan los argumentos de esos eventos y los autocompletan. Los eventos no declarados siguen siendo `any`.
 
+## Deprecado (se elimina en 3.0)
+
+Siguen andando en 2.x por compatibilidad con 1.x y se sacan en la 3.0.
+
+| Qué | Reemplazo |
+|---|---|
+| `fire()` (`$events.fire`, `eventBus.fire`) | `emit()` |
+| Tipos `EventBusInstance`, `EventBusEvents` | `EventBus`, `MundoitEvents` |
+
 ## Migración 1.x → 2.0
 
 | 1.x | 2.0 |
 |---|---|
 | Vue 2 y Vue 3 | **Sólo Vue 3** (`vue ^3.3`). En Vue 2 quedarse en 1.x. |
-| `$events.fire(...)` | Sigue andando, pero está deprecado: usar `$events.emit(...)`. En desarrollo avisa una vez por consola. |
+| `$events.fire(...)` | Sigue andando, pero está deprecado (se elimina en 3.0): usar `$events.emit(...)`. En desarrollo avisa una vez por consola. |
 | `useEventBus()` | Sigue igual. Para componentes, mejor `useEvents()`, que desregistra solo. |
 | `off(evento, handle)` con el valor que devolvía `on` | Igual, y además acepta la función original o sólo el evento. |
-| `EventBusInstance`, `EventBusEvents` | Deprecados: usar `EventBus` y `MundoitEvents`. |
+| `EventBusInstance`, `EventBusEvents` | Deprecados (se eliminan en 3.0): usar `EventBus` y `MundoitEvents`. |
 | `eventBus` era el emitter de mitt | `eventBus` es el bus (`emit`/`on`/…); el emitter de mitt está en `eventBus.rawBus`. |
 | Dependencias de compatibilidad con Vue 2 | Ya no hacen falta: se pueden sacar de la app si nadie más los usa. |
 

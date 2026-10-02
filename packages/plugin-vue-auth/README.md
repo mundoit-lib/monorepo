@@ -127,6 +127,15 @@ auth.on('auth', (isAuthenticated) => {});
 
 Eventos de `on()`: `user`, `auth`, `refresh` y `refreshError`.
 
+## Deprecado (se elimina en 3.0)
+
+Siguen andando en 2.x por compatibilidad con 1.x y se sacan en la 3.0.
+
+| Qué | Reemplazo |
+|---|---|
+| `setupInterceptors()` | `attach(http)` |
+| Forma `{ plugins: { http, router } }` en el `app.use` | `{ http, router }` |
+
 ## Migración 1.x → 2.0
 
 Para la app, cambia sólo el `app.use` del boot. Las llamadas a `$auth.*` en las páginas siguen igual.

@@ -66,6 +66,9 @@ export interface AxiosConfig {
   headers?: Record<string, string>;
   timeout?: number;
   onError?: ErrorHandler | ErrorOptions;
-  /** Apagado por defecto. */
+  /**
+   * Apagado por defecto.
+   * @deprecated Se elimina en 3.0. Usar el refresh de `plugin-vue-auth` 2.0. La 3.0 sale cuando ninguna app quede en auth 1.x.
+   */
   legacyRefresh?: LegacyRefreshConfig;
 }
