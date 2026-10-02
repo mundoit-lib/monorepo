@@ -13,7 +13,8 @@
  * Uso local: `pnpm release:dry` (no publica, sólo informa).
  */
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const dryRun = process.argv.includes('--dry-run');
@@ -53,7 +54,15 @@ for (const dir of dirs) {
     continue;
   }
   console.log(`+ publicando ${id}`);
-  execSync('npm publish --access public', { cwd: dir, stdio: 'inherit' });
+  // pnpm pack reescribe `workspace:*` (p. ej. @mundoit-lib/tsconfig) a una versión real;
+  // npm publish lo dejaría tal cual en el manifiesto. Publica npm, por el trusted publishing.
+  const packDir = mkdtempSync(join(tmpdir(), 'mundoit-release-'));
+  try {
+    const { filename } = JSON.parse(sh(`pnpm pack --pack-destination ${packDir} --json`, { cwd: dir }));
+    execSync(`npm publish ${filename} --access public`, { cwd: dir, stdio: 'inherit' });
+  } finally {
+    rmSync(packDir, { recursive: true, force: true });
+  }
   sh(`git tag -a ${tag} -m "${id}"`);
   published.push(tag);
 }

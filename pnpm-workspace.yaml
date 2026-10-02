@@ -1,5 +1,6 @@
 packages:
   - 'packages/*'
+  - 'tooling/*'
 
 # pnpm 11 bloquea los scripts de instalación de dependencias salvo que se autoricen acá.
 allowBuilds:
