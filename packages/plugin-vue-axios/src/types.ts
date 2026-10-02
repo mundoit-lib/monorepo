@@ -52,10 +52,7 @@ export interface ErrorOptions {
   statuses?: number[];
 }
 
-/**
- * Refresh 401 de la 1.x. Sólo para apps que todavía usan `plugin-vue-auth` 1.x; con auth 2.0 no se usa.
- * @deprecated Se elimina en 3.0, cuando ninguna app quede en auth 1.x. Usar el refresh de `plugin-vue-auth` 2.0.
- */
+/** Refresh 401 de la 1.x. Sólo para apps que todavía usan `plugin-vue-auth` 1.x; con auth 2.0 no se usa. */
 export interface LegacyRefreshConfig {
   fixURL: string;
   clientID: string;
@@ -71,7 +68,7 @@ export interface AxiosConfig {
   onError?: ErrorHandler | ErrorOptions;
   /**
    * Apagado por defecto.
-   * @deprecated Se elimina en 3.0, cuando ninguna app quede en auth 1.x. Usar el refresh de `plugin-vue-auth` 2.0.
+   * @deprecated Se elimina en 3.0. Usar el refresh de `plugin-vue-auth` 2.0. La 3.0 sale cuando ninguna app quede en auth 1.x.
    */
   legacyRefresh?: LegacyRefreshConfig;
 }

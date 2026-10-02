@@ -42,7 +42,7 @@ export interface EventBus {
   once<K extends EventName>(event: K, listener: EventListener<K>): EventListener<K>;
   /** Desregistra `listener` de `event`; sin `listener`, desregistra todos los de `event`. */
   off<K extends EventName>(event: K, listener?: EventListener<K>): void;
-  /** @deprecated Se elimina en 3.0. Usar `emit`; se mantiene por compatibilidad con 1.x. */
+  /** @deprecated Se elimina en 3.0. Usar `emit`. */
   fire<K extends EventName>(event: K, ...args: EventArgs<K>): void;
   /** El emitter de mitt por debajo. Ojo: el payload de cada evento es el array de argumentos. */
   readonly rawBus: RawEventBus;

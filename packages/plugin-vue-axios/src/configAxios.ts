@@ -86,6 +86,6 @@ const warnLegacyConfig = (config: AxiosConfig) => {
   const found = LEGACY_KEYS.filter((key) => key in config);
   if (found.length === 0) return;
   console.warn(
-    `[plugin-vue-axios] 2.0 ya no refresca el token y ignora ${found.join(', ')}. El refresh lo hace plugin-vue-auth 2.0; si seguís con auth 1.x, pasá { legacyRefresh: { fixURL, clientID, clientSecret, updateToken } }. Para la base, usá setDatabase(db). legacyRefresh se elimina en 3.0.`
+    `[plugin-vue-axios] 2.0 ya no refresca el token y ignora ${found.join(', ')}. El refresh lo hace plugin-vue-auth 2.0; si seguís con auth 1.x, pasá { legacyRefresh: { fixURL, clientID, clientSecret, updateToken } } (se elimina en 3.0). Para la base, usá setDatabase(db).`
   );
 };
