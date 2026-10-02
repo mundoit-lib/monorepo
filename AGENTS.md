@@ -5,6 +5,7 @@ Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `package
 ## Reglas para trabajar acá
 
 - **Package manager: pnpm** (versión fijada en `packageManager`). `pnpm install` en la raíz, nunca en un paquete.
+- **Node**: `.node-version` (24) para desarrollo y `publish.yml`; `ci.yml` corre en 22 y 24. `engines` sigue los pisos de tsdown/vitest: si se sube una devDependency que pide más, actualizar `engines` y la matriz.
 - **Un lockfile**, el de la raíz. No crear `package-lock.json` ni lockfiles por paquete.
 - **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `knip`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`, más los `@mundoit-lib/*` de `tooling/` como `workspace:*` en `devDependencies`.
 - **tsconfig compartido**: cada `packages/*/tsconfig.json` es `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }`. Las opciones se cambian en `tooling/typescript` (`base.json`: strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `noEmit`…; `library.json`: lo propio de una lib publicada), no en el paquete.
