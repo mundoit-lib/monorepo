@@ -17,10 +17,12 @@ export default defineConfig({
       include: ['**/src/**/*.test-d.ts']
     },
     projects: enRaiz
-      ? readdirSync('packages').map((name) => ({
-          extends: true,
-          test: { name, root: `packages/${name}` }
-        }))
+      ? readdirSync('packages', { withFileTypes: true })
+          .filter((entry) => entry.isDirectory())
+          .map(({ name }) => ({
+            extends: true,
+            test: { name, root: `packages/${name}` }
+          }))
       : undefined
   }
 });

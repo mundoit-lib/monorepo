@@ -20,7 +20,7 @@
     },
     "test": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "package.json", "$TURBO_ROOT$/vitest.config.ts"]
+      "inputs": ["src/**", "tsconfig.json", "package.json", "$TURBO_ROOT$/vitest.config.ts"]
     },
     "check:exports": {
       "dependsOn": ["build"],
