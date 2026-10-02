@@ -10,17 +10,24 @@
         "!src/**/*.test-d.ts",
         "tsdown.config.ts",
         "tsconfig.json",
-        "package.json"
+        "package.json",
+        "$TURBO_ROOT$/tooling/typescript/**"
       ],
       "outputs": ["dist/**"]
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "tsconfig.json", "package.json"]
+      "inputs": ["src/**", "tsconfig.json", "package.json", "$TURBO_ROOT$/tooling/typescript/**"]
     },
     "test": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "tsconfig.json", "package.json", "$TURBO_ROOT$/vitest.config.ts"]
+      "inputs": [
+        "src/**",
+        "tsconfig.json",
+        "package.json",
+        "$TURBO_ROOT$/vitest.config.ts",
+        "$TURBO_ROOT$/tooling/typescript/**"
+      ]
     },
     "check:exports": {
       "dependsOn": ["build"],

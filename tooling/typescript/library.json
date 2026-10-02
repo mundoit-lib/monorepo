@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "./base.json",
+  "compilerOptions": {
+    // tsc solo typechequea: los .js y .d.ts del dist los genera tsdown.
+    "declaration": false
+  }
+}

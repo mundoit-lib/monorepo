@@ -80,7 +80,8 @@ describe('initializeAxios', () => {
     initializeAxios({ baseURL: BASE });
     await getAxiosInstance().get('/settings');
 
-    const [custom, defaults] = calls;
+    const custom = calls[0]!;
+    const defaults = calls[1]!;
     expect(custom.headers['Content-Type']).toBe('application/json');
     expect(custom.headers.Accept).toBe('text/plain');
     expect(custom.headers['X-App']).toBe('demo');
@@ -95,7 +96,7 @@ describe('initializeAxios', () => {
 
     initializeAxios({ baseURL: BASE, db: 'demo', clientID: 'id', clientSecret: 's', fixURL: 'x' } as any);
     expect(warn).toHaveBeenCalledOnce();
-    expect(warn.mock.calls[0][0]).toContain('db, clientID, clientSecret, fixURL');
+    expect(warn.mock.calls[0]![0]).toContain('db, clientID, clientSecret, fixURL');
 
     initializeAxios({ baseURL: BASE, legacyRefresh: { fixURL: 'x', clientID: 'id', clientSecret: 's' } });
     expect(warn).toHaveBeenCalledOnce();
@@ -113,7 +114,7 @@ describe('setBaseURL y setDatabase', () => {
     initializeAxios({ baseURL: BASE });
     setBaseURL('https://otro.test/api/db/x');
     await getAxiosInstance().get('/dir');
-    expect(fullURL(calls[0])).toBe('https://otro.test/api/db/x/dir');
+    expect(fullURL(calls[0]!)).toBe('https://otro.test/api/db/x/dir');
   });
 
   it.each([
@@ -213,13 +214,13 @@ describe('legacyRefresh', () => {
 
     expect(data).toEqual({ ok: true });
     expect(calls.map(fullURL)).toEqual([`${BASE}/x`, 'https://auth.test/token', `${BASE}/x`]);
-    expect(JSON.parse(calls[1].data)).toMatchObject({
+    expect(JSON.parse(calls[1]!.data)).toMatchObject({
       grant_type: 'refresh_token',
       client_id: 'id',
       client_secret: 'secret',
       refresh_token: 'r1'
     });
-    expect(calls[2].headers.Authorization).toBe('Bearer a2');
+    expect(calls[2]!.headers.Authorization).toBe('Bearer a2');
     expect(getAxiosInstance().defaults.headers.common.Authorization).toBe('Bearer a2');
     expect(localStorage.getItem('accessToken')).toBe('a2');
     expect(localStorage.getItem('refreshToken')).toBe('r2');
@@ -238,7 +239,7 @@ describe('legacyRefresh', () => {
     await expect(getAxiosInstance().get('/x')).rejects.toMatchObject({ response: { status: 401 } });
     expect(calls).toHaveLength(3);
     expect(onError).toHaveBeenCalledOnce();
-    expect(onError.mock.calls[0][1]).toMatchObject({ kind: 'refresh', status: 401 });
+    expect(onError.mock.calls[0]![1]).toMatchObject({ kind: 'refresh', status: 401 });
   });
 
   it('si el refresh falla, limpia los tokens, avisa a onError y rechaza', async () => {
@@ -251,7 +252,7 @@ describe('legacyRefresh', () => {
     await expect(getAxiosInstance().get('/x')).rejects.toThrow('No hay token de refresco');
     expect(localStorage.getItem('accessToken')).toBeNull();
     expect(onError).toHaveBeenCalledOnce();
-    expect(onError.mock.calls[0][1]).toMatchObject({ kind: 'refresh' });
+    expect(onError.mock.calls[0]![1]).toMatchObject({ kind: 'refresh' });
   });
 });
 

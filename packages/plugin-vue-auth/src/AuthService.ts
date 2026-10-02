@@ -277,7 +277,7 @@ export class AuthService<TUser = Record<string, unknown>> {
     );
   }
 
-  /** @deprecated Usar `attach(http)`. */
+  /** @deprecated Se elimina en 3.0. Usar `attach(http)`. */
   setupInterceptors(): void {
     this.attach(this.client());
   }

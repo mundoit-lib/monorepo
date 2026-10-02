@@ -56,6 +56,10 @@ importers:
       vue:
         specifier: ^3.3.0
         version: 3.5.43(typescript@5.9.3)
+    devDependencies:
+      '@mundoit-lib/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
 
   packages/plugin-vue-axios:
     dependencies:
@@ -65,6 +69,10 @@ importers:
       vue:
         specifier: ^3.3.0
         version: 3.5.43(typescript@5.9.3)
+    devDependencies:
+      '@mundoit-lib/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
 
   packages/plugin-vue-event:
     dependencies:
@@ -74,6 +82,12 @@ importers:
       vue:
         specifier: ^3.3.0
         version: 3.5.43(typescript@5.9.3)
+    devDependencies:
+      '@mundoit-lib/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+
+  tooling/typescript: {}
 
 packages:
 

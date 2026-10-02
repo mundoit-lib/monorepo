@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/plugin-vue-event",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Plugin de Vue 3 con un bus de eventos global basado en mitt: $events, la opción de componente events: y useEvents() con auto-desregistro, con eventos tipados por module augmentation.",
   "keywords": [
     "custom-events",
@@ -90,6 +90,9 @@
   },
   "dependencies": {
     "mitt": "^3.0.1"
+  },
+  "devDependencies": {
+    "@mundoit-lib/tsconfig": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.3.0"

@@ -1,0 +1,14 @@
+{
+  "name": "@mundoit-lib/tsconfig",
+  "version": "0.0.0",
+  "private": true,
+  "description": "tsconfig compartidos de los paquetes del monorepo",
+  "license": "MIT",
+  "files": [
+    "*.json"
+  ],
+  "exports": {
+    "./base.json": "./base.json",
+    "./library.json": "./library.json"
+  }
+}
