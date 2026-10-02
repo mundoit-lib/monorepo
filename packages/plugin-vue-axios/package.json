@@ -45,7 +45,7 @@
     "access": "public"
   },
   "scripts": {
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --config ../../vitest.config.ts",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "check:exports": "publint && attw --pack . --profile node16"

@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from 'vitest';
 import { createEventBus } from './eventBus';
 
-// Los tipos se validan con `pnpm typecheck`; en runtime estos tests no hacen nada.
+// Test de tipos: Vitest lo valida con tsc (typecheck en vitest.config.ts), no se ejecuta en runtime.
 declare module './eventBus' {
   interface MundoitEvents {
     'test:typed': [id: number, label: string];
