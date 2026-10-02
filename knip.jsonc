@@ -4,6 +4,10 @@
     ".": {
       // axios y vue son peerDependencies de los paquetes; se instalan en la raíz para tests y typecheck.
       "ignoreDependencies": ["axios", "vue"]
+    },
+    "packages/*": {
+      // Tests de tipos: los toma typecheck.include de vitest.config.ts, que el plugin de vitest de knip no lee.
+      "entry": ["src/**/*.test-d.ts"]
     }
   }
 }

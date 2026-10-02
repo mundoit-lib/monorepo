@@ -4,7 +4,14 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "!src/**/*.test.ts", "tsdown.config.ts", "tsconfig.json", "package.json"],
+      "inputs": [
+        "src/**",
+        "!src/**/*.test.ts",
+        "!src/**/*.test-d.ts",
+        "tsdown.config.ts",
+        "tsconfig.json",
+        "package.json"
+      ],
       "outputs": ["dist/**"]
     },
     "typecheck": {
