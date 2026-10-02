@@ -1,12 +1,13 @@
 # AGENTS.md — monorepo @mundoit-lib
 
-Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `packages/<nombre>` es un paquete npm independiente. Ver `README.md` para el flujo completo.
+Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `packages/<nombre>` es un paquete npm independiente; `tooling/*` es configuración compartida privada (no se publica), hoy `tooling/typescript` = `@mundoit-lib/tsconfig`. Ver `README.md` para el flujo completo.
 
 ## Reglas para trabajar acá
 
 - **Package manager: pnpm** (versión fijada en `packageManager`). `pnpm install` en la raíz, nunca en un paquete.
 - **Un lockfile**, el de la raíz. No crear `package-lock.json` ni lockfiles por paquete.
-- **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `knip`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`.
+- **devDependencies compartidas en la raíz** (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `publint`, `@arethetypeswrong/cli`, `knip`, `@types/node`). Un paquete sólo declara sus `dependencies` y `peerDependencies`, más los `@mundoit-lib/*` de `tooling/` como `workspace:*` en `devDependencies`.
+- **tsconfig compartido**: cada `packages/*/tsconfig.json` es `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }`. Las opciones (strict, `noUncheckedIndexedAccess`, `verbatimModuleSyntax`, `noEmit`…) se cambian en `tooling/typescript/base.json`, no en el paquete.
 - **Tareas con Turborepo** (`turbo.json`): `build`, `typecheck`, `test` y `check:exports` corren por paquete con caché. Los scripts de la raíz las llaman (`pnpm build` = `turbo run build`). Un paquete solo: `pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth`.
 - **Finales de línea LF**, lint con oxlint (`.oxlintrc.json`) y formato con oxfmt (`.oxfmtrc.json`). `pnpm lint` corre oxlint, `oxfmt --check`, sherif y knip; `pnpm lint:fix` corrige lo que se pueda. Los `.md` no se formatean.
 - **sherif** valida la consistencia del workspace (misma versión de una dependencia en todos los paquetes, `package.json` ordenados, sin dependencias duplicadas). Si se queja, `pnpm lint:fix` o ajustar a mano; no ignorar reglas sin motivo.

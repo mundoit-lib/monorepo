@@ -58,8 +58,8 @@ describe('AuthService', () => {
     expect(storage.data.get('accessToken')).toBe('token-1');
     expect(storage.data.get('refreshToken')).toBe('refresh-1');
     expect(Number(storage.data.get('tokenExpireDate'))).toBeGreaterThan(Date.now());
-    expect(http.requests[0].data).toMatchObject({ grant_type: 'password', client_id: 'app', username: 'ana' });
-    expect(http.requests[0].headers.Authorization).toBeUndefined();
+    expect(http.requests[0]!.data).toMatchObject({ grant_type: 'password', client_id: 'app', username: 'ana' });
+    expect(http.requests[0]!.headers.Authorization).toBeUndefined();
     expect(service.user()).toEqual(USER);
     expect(service.user('name')).toBe('Ana');
     expect(service.check()).toBe(true);
@@ -93,7 +93,7 @@ describe('AuthService', () => {
     expect(service.check()).toBe(true);
 
     await service.refresh();
-    expect(http.requests[1].url).toBe('https://h/api/db/tork/token');
+    expect(http.requests[1]!.url).toBe('https://h/api/db/tork/token');
     expect(storage.data.get('accessToken')).toBe('token-2');
   });
 
@@ -167,7 +167,7 @@ describe('AuthService', () => {
 
       // El sistema durmió la pestaña: el reloj avanzó sin que corrieran los timers.
       vi.setSystemTime(Date.now() + 115_000);
-      listeners.visibilitychange();
+      listeners.visibilitychange!();
       await vi.advanceTimersByTimeAsync(0);
 
       expect(backend.refreshCalls).toBe(1);

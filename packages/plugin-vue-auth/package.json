@@ -48,6 +48,9 @@
     "typecheck": "tsc --noEmit",
     "check:exports": "publint && attw --pack . --profile node16"
   },
+  "devDependencies": {
+    "@mundoit-lib/tsconfig": "workspace:*"
+  },
   "peerDependencies": {
     "vue": "^3.3.0"
   }
