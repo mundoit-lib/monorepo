@@ -97,10 +97,6 @@ importers:
         version: link:../../tooling/tsdown
 
   tooling/tsdown:
-    dependencies:
-      tsdown:
-        specifier: ^0.23.0
-        version: 0.23.0(@arethetypeswrong/core@0.18.5)(oxc-resolver@11.24.2)(publint@0.3.24)(typescript@5.9.3)
     devDependencies:
       '@mundoit-lib/tsconfig':
         specifier: workspace:*

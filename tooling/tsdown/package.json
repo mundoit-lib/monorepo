@@ -16,8 +16,5 @@
   },
   "devDependencies": {
     "@mundoit-lib/tsconfig": "workspace:*"
-  },
-  "peerDependencies": {
-    "tsdown": "^0.23.0"
   }
 }
