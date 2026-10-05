@@ -19,7 +19,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
     "@types/node": "^24.0.0",
-    "axios": "^1.20.0",
+    "axios": "catalog:",
     "happy-dom": "^20.14.5",
     "knip": "^6.39.0",
     "oxfmt": "^0.71.0",
@@ -30,7 +30,7 @@
     "turbo": "^2.11.5",
     "typescript": "^5.9.3",
     "vitest": "^5.0.3",
-    "vue": "^3.5.43"
+    "vue": "catalog:"
   },
   "engines": {
     "node": "^22.18.0 || ^24.11.0 || >=26.0.0"

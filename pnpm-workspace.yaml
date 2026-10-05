@@ -2,6 +2,20 @@ packages:
   - 'packages/*'
   - 'tooling/*'
 
+# Rangos compartidos: un solo lugar los define y los package.json ponen `catalog:` / `catalog:peers`.
+# `pnpm pack` (lo usa scripts/release.mjs) reemplaza esos valores por el rango real en el manifiesto publicado.
+#
+# Default: lo que se instala en la raíz para tests y typecheck.
+catalog:
+  axios: ^1.20.0
+  vue: ^3.5.43
+
+catalogs:
+  # Mínimo que soportan las apps: peerDependencies de los plugins publicados. Subirlo es un major.
+  peers:
+    axios: ^1.6.0
+    vue: ^3.3.0
+
 # pnpm 11 bloquea los scripts de instalación de dependencias salvo que se autoricen acá.
 allowBuilds:
   esbuild: true
