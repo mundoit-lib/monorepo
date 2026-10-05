@@ -1,0 +1,4 @@
+{
+  "extends": "@mundoit-lib/tsconfig/base.json",
+  "include": ["src"]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/plugin-vue-auth",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Vue 3 plugin for authentication (OAuth password grant, token refresh, $auth/useAuth) for Mundo IT apps. Although intended for internal use, it is publicly available on npm for easier distribution. Not recommended for external use.",
   "keywords": [
     "auth",
@@ -49,7 +49,8 @@
     "check:exports": "publint && attw --pack . --profile node16"
   },
   "devDependencies": {
-    "@mundoit-lib/tsconfig": "workspace:*"
+    "@mundoit-lib/tsconfig": "workspace:*",
+    "@mundoit-lib/tsdown-config": "workspace:*"
   },
   "peerDependencies": {
     "vue": "^3.3.0"
