@@ -33,6 +33,10 @@
     "check:exports": {
       "dependsOn": ["build"],
       "inputs": ["dist/**", "package.json"]
+    },
+    "size": {
+      "dependsOn": ["build"],
+      "inputs": ["dist/**", "package.json"]
     }
   }
 }
