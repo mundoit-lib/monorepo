@@ -174,6 +174,34 @@ describe('attachOidcHttp: 401 → renew → reintento', () => {
     expect(calls).toHaveLength(2);
   });
 
+  it('401 escalonado: si el token vigente ya cambió desde que salió el request, reintenta sin renovar de nuevo', async () => {
+    const http = axios.create();
+    const auth = fakeAuth('at-1');
+    attachOidcHttp(http, auth);
+    // B salió con at-1; mientras viajaba, otro request renovó y el token vigente pasó a at-2.
+    reply = (config) => {
+      if (authHeader(config) === 'Bearer at-1') auth.token = 'at-2';
+      return unauthorizedUntilRenewed()(config);
+    };
+
+    const { data } = await http.get('/b');
+
+    expect(data).toEqual({ ok: true });
+    expect(auth.renew).not.toHaveBeenCalled();
+    expect(calls.map(authHeader)).toEqual(['Bearer at-1', 'Bearer at-2']);
+  });
+
+  it('401 con el mismo token vigente que se mandó → sí renueva (el token fue rechazado, no reemplazado)', async () => {
+    const http = axios.create();
+    const auth = fakeAuth('at-1');
+    attachOidcHttp(http, auth);
+    reply = unauthorizedUntilRenewed();
+
+    await http.get('/a');
+
+    expect(auth.renew).toHaveBeenCalledTimes(1);
+  });
+
   it('otros errores pasan sin renew: 500, 403 y error de red', async () => {
     const http = axios.create();
     const auth = fakeAuth('at-1');
@@ -211,8 +239,8 @@ describe('attachOidcHttp: attach y detach', () => {
 
     await http.get('/me');
 
-    // Un getToken por pasada del request (original + reintento); duplicado serían 4.
-    expect(auth.getToken).toHaveBeenCalledTimes(2);
+    // getToken: request original, chequeo del 401 y reintento; con interceptores duplicados serían 6.
+    expect(auth.getToken).toHaveBeenCalledTimes(3);
     expect(auth.renew).toHaveBeenCalledTimes(1);
     expect(calls).toHaveLength(2);
   });

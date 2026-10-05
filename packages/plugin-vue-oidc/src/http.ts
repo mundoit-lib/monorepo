@@ -17,12 +17,24 @@ export interface OidcHttpRequestConfig extends HttpRequestConfig {
 
 type Detach = () => void;
 
+const renewedToken = (auth: OidcAuthLike): Promise<string | null> =>
+  auth.renew().then(
+    (user) => user?.access_token ?? null,
+    () => null
+  );
+
 /** Un attach por instancia: el segundo devuelve el detach del primero, sin duplicar el Bearer ni el reintento. */
 const attached = new WeakMap<HttpClient, Detach>();
 
 const setBearer = (config: OidcHttpRequestConfig, token: string): void => {
   config.headers = config.headers ?? {};
   config.headers.Authorization = `Bearer ${token}`;
+};
+
+/** Token con el que salió el request, según su header Authorization (axios lo expone con la clave tal cual). */
+const sentToken = (config: OidcHttpRequestConfig): string | null => {
+  const value = config.headers?.Authorization ?? config.headers?.authorization;
+  return typeof value === 'string' && value.startsWith('Bearer ') ? value.slice('Bearer '.length) : null;
 };
 
 /**
@@ -34,7 +46,8 @@ const setBearer = (config: OidcHttpRequestConfig, token: string): void => {
  *   `client_id`/`client_secret` (cliente público).
  * - Response 401 (una vez por request): `auth.renew()` y se repite el pedido con el token nuevo. Si el refresh falla
  *   o no deja sesión, se propaga el 401 original: la app decide (`onUnauthorized` de histrix-component-vue).
- *   `renew()` comparte una sola renovación en vuelo, así varios 401 simultáneos gastan un solo refresh token.
+ *   `renew()` comparte una sola renovación en vuelo, así varios 401 simultáneos gastan un solo refresh token; y si
+ *   el token vigente ya cambió desde que salió el request (401 escalonado), se reintenta con ése sin renovar.
  *
  * Devuelve el detach, que saca los dos interceptores.
  */
@@ -53,9 +66,12 @@ export function attachOidcHttp(http: HttpClient, auth: OidcAuthLike): Detach {
     if (error?.response?.status !== 401 || !request || request._retry) throw error;
 
     request._retry = true;
-    const user = await auth.renew().catch(() => null);
-    if (!user) throw error;
-    setBearer(request, user.access_token);
+    // 401 escalonados: si otro request ya renovó mientras éste viajaba con el token viejo, el token vigente ya es
+    // otro y alcanza con reintentar. Renovar de nuevo gastaría otra rotación del refresh token.
+    const current = auth.getToken();
+    const token = current && current !== sentToken(request) ? current : await renewedToken(auth);
+    if (!token) throw error;
+    setBearer(request, token);
     return http(request);
   });
 

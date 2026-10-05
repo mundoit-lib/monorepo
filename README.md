@@ -42,7 +42,7 @@ Turborepo orquesta las tareas por paquete (`turbo.json`) y cachea en `.turbo/`: 
 | `plugin-vue-auth` | 5 kB | 3,1 kB |
 | `plugin-vue-axios` | 2 kB | 1,3 kB |
 | `plugin-vue-event` | 1,5 kB | 1,0 kB (`index.js` reexporta `plugin`, `eventBus` y `useEvents`, así que el bundle medido incluye los 4 subpaths) |
-| `plugin-vue-oidc` | 4 kB | 2,0 kB (sin `oidc-client-ts`, que es dependencia del paquete, ni `axios`) |
+| `plugin-vue-oidc` | 4 kB | 2,1 kB (sin `oidc-client-ts`, que es dependencia del paquete, ni `axios`) |
 
 Si un cambio se pasa, primero revisar qué entró al bundle (`pnpm --filter <paquete> exec size-limit --why` abre el reporte); si el peso es legítimo, subir el `limit` en el mismo PR y actualizar esta tabla.
 
