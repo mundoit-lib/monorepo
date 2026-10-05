@@ -92,4 +92,4 @@ export default {
     background: yellow;
     border: 2px solid red;
   }
-</style>
+</style>
