@@ -18,7 +18,7 @@
     },
     "typecheck": {
       "dependsOn": ["^build"],
-      "inputs": ["src/**", "tsconfig.json", "package.json", "$TURBO_ROOT$/tooling/typescript/**"]
+      "inputs": ["src/**", "types/**", "tsconfig.json", "package.json", "$TURBO_ROOT$/tooling/typescript/**"]
     },
     "test": {
       "dependsOn": ["^build"],

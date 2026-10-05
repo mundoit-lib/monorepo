@@ -1,0 +1,871 @@
+<template>
+  <div class="q-pa-sm">
+    <!--
+      Botones de acción (helpers.link de campos NO editables): abren el XML
+      linkeado en un modal. En una `fichaing` son los accesos grandes tipo
+      "Orden de Trabajo de Obra", "Orden de trabajo de servicio", etc.
+    -->
+    <div v-if="linkButtons.length" class="row q-col-gutter-sm q-mb-md">
+      <div v-for="btn in linkButtons" :key="btn.name" class="col-12 col-sm">
+        <q-btn
+          class="full-width"
+          color="primary"
+          size="md"
+          no-caps
+          unelevated
+          :icon="linkIcon(btn)"
+          :label="linkLabel(btn)"
+          @click="openLinkButton(btn)"
+        />
+      </div>
+    </div>
+    <slot name="slot-top-form" :props="localValues" />
+    <q-form @submit="onSubmit" enctype="multipart/form-data">
+      <div class="row">
+        <div class="col">
+          <q-tabs
+            v-model="currentTab"
+            dense
+            class="text-grey"
+            active-color="primary"
+            indicator-color="primary"
+            align="justify"
+            narrow-indicator
+          >
+            <q-tab
+              v-if="Object.keys(innerTabs).length != 0"
+              name="mainTab"
+              :label="localSchema.title"
+              class="bg-primary text-white"
+            >
+              <q-tooltip anchor="top middle" self="bottom middle"> Solapa principal {{ localSchema.title }} </q-tooltip>
+            </q-tab>
+            <span v-else>
+              {{ localSchema.title }}
+            </span>
+            <q-tab v-for="tab in innerTabs" :name="tab.name" v-bind:key="tab.name" :label="tab.title || tab.name">
+              <q-tooltip anchor="top middle" self="bottom middle">
+                Click para mas información con respecto a {{ tab.title }}
+              </q-tooltip>
+            </q-tab>
+          </q-tabs>
+
+          <q-tab-panels v-model="currentTab" animated>
+            <q-tab-panel name="mainTab" class="q-pl-none q-pr-none">
+              <div class="row">
+                <div
+                  v-for="field in editables"
+                  v-bind:key="field.name"
+                  :name="field.name"
+                  :class="fieldClass(field)"
+                  :style="field.form_style"
+                >
+                  <q-item dense>
+                    <q-item-section>
+                      <q-item-label v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']">
+                        {{ field.title }}
+                      </q-item-label>
+                      <HistrixCell
+                        v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']"
+                        :path="path"
+                        :props="editedRow[field.name]"
+                        :schema="field"
+                        :col="{ value: editedRow[field.name] }"
+                        v-on:open-popup="bubbleLink(editedRow, $event)"
+                        v-on:closepopup="closePopup"
+                      />
+
+                      <HistrixField
+                        :model-value="localValues[field.name]"
+                        @update:model-value="localValues[field.name] = $event"
+                        :name="field.name"
+                        :row="localValues"
+                        :schema="field"
+                        :path="computedPath(field)"
+                        :submitting="submitting"
+                        :query="fieldQuerys[field.name]"
+                        :readonly="localSchema.readonly"
+                        :disabled="localSchema.readonly"
+                        v-on:selectOption="onSelectOption"
+                        v-on:fill-fields="fillFields"
+                        v-on:computed-total="onComputedTotal"
+                        dense
+                        v-else-if="!localSchema.readonly"
+                      >
+                        <template v-slot:slot-top-field-histrixapp="props">
+                          <slot name="slot-top-field-histrixapp" :props="props.props" />
+                        </template>
+                      </HistrixField>
+                      <div v-else>
+                        <span v-html="localValues[field.name]" />
+                      </div>
+                    </q-item-section>
+                  </q-item>
+                </div>
+              </div>
+            </q-tab-panel>
+            <q-tab-panel v-for="field in innerTabs" :name="field.name" v-bind:key="field.name">
+              <HistrixField
+                :model-value="localValues[field.name]"
+                @update:model-value="localValues[field.name] = $event"
+                :name="field.name"
+                :schema="field"
+                :path="computedPath(field)"
+                :row="localValues"
+                :submitting="submitting"
+                :query="fieldQuerys[field.name]"
+                :readonly="localSchema.readonly"
+                :disabled="localSchema.readonly"
+                v-on:selectOption="onSelectOption"
+                v-on:fill-fields="fillFields"
+                v-on:computed-total="onComputedTotal"
+                dense
+                v-if="!localSchema.readonly"
+              />
+            </q-tab-panel>
+          </q-tab-panels>
+        </div>
+      </div>
+      <q-separator />
+      <div class="row">
+        <span class="q-pa-sm col-12 text-center">
+          <q-btn
+            :label="t('common.cancel')"
+            icon="close"
+            class="nojustify-end flat"
+            @click="closePopup"
+            type="reset"
+            v-if="insertButton || updateButton"
+          />
+          <q-btn
+            v-if="insertButton || updateButton"
+            :disable="submitting"
+            type="submit"
+            :label="t('form.submit')"
+            icon="save"
+            class="bg-positive text-white nojustify-end"
+            :loading="submitting"
+          />
+        </span>
+      </div>
+    </q-form>
+    <slot name="slot-botton-form" :props="localValues" />
+
+    <!-- Modal que abre un botón de acción (helper.link) -->
+    <q-dialog
+      v-model="showLinkButtonDialog"
+      full-width
+      :maximized="$q.platform.is.mobile"
+      transition-show="slide-down"
+      transition-hide="slide-up"
+    >
+      <q-layout view="Lhh lpR fff" container class="bg-white">
+        <q-header class="bg-primary">
+          <q-toolbar>
+            <q-toolbar-title>{{ linkButtonDialog.title }}</q-toolbar-title>
+            <q-btn flat round dense icon="close" v-close-popup />
+          </q-toolbar>
+        </q-header>
+        <q-page-container>
+          <q-page>
+            <HistrixApp
+              :path="linkButtonDialog.path"
+              :query="linkButtonDialog.query"
+              :title="linkButtonDialog.title"
+              class="col"
+              v-on:closepopup="closeLinkButton"
+            />
+          </q-page>
+        </q-page-container>
+      </q-layout>
+    </q-dialog>
+  </div>
+</template>
+
+<script>
+import { useVuelidate } from '@vuelidate/core';
+import { isFieldEditable as isFieldEditablePure } from '../core/fieldVisibility.js';
+import { evaluateFormula } from '../core/formula.js';
+import { isFocusCandidate, nextFocusable } from '../core/hotkeys.js';
+import { mapUiIcon } from '../core/icons.js';
+import { extractKeys } from '../core/keys.js';
+import { buildLinkParameters, resolveHelperLinkPath } from '../core/links.js';
+import { normalizeScreenType } from '../core/normalize.js';
+import { defineLazyComponent } from '../services/asyncComponents.js';
+import useApi from '../services/histrixApi.js';
+import { useHistrixI18n } from '../services/i18n.js';
+import { useHistrixNavigate } from '../services/navigation.js';
+import { useHistrixNotify } from '../services/notify.js';
+import HistrixCell from './HistrixCell.vue';
+import HistrixField from './HistrixField.vue';
+
+export default {
+  name: 'HistrixForm',
+  props: {
+    title: String,
+    inner: { type: Boolean, default: false },
+    path: String,
+    newRecord: { type: Boolean, default: false },
+    url: String,
+    query: Object,
+    schema: Object,
+    resources: Object,
+    editedItem: null,
+    editedRow: null,
+    editedIndex: null,
+    computedFields: Object,
+    // Enter en el último campo graba el form. Por defecto no: evita
+    // grabaciones accidentales en carga intensiva (comprobantes).
+    enterSubmits: { type: Boolean, default: false },
+    // Form de renglón `subtipo="vertical"`: un campo por línea.
+    vertical: { type: Boolean, default: false }
+  },
+  inject: {
+    // Lo provee HistrixApp (prop `keyboard`). Fuera de una app, activo.
+    histrixKeyboard: { default: () => () => true }
+  },
+  components: {
+    HistrixField,
+    HistrixCell,
+    // Lazy para evitar el ciclo HistrixApp -> HistrixForm -> HistrixApp.
+    HistrixApp: defineLazyComponent(() => import('./HistrixApp.vue'))
+  },
+  setup() {
+    const { getAppSchema, upload, processAppForm, insertAppData, updateAppData, getAppData } = useApi();
+    return {
+      t: useHistrixI18n().t,
+      v$: useVuelidate(),
+      navigation: useHistrixNavigate(),
+      notify: useHistrixNotify(),
+      getAppSchema,
+      upload,
+      processAppForm,
+      insertAppData,
+      updateAppData,
+      getAppData
+    };
+  },
+  computed: {
+    insertButton() {
+      // Para grids tipo "ing"/"grid" la fila nueva trae editedIndex >= 0 (su
+      // posición en la tabla), por eso además contemplamos newRecord: si es una
+      // fila nueva hay que mostrar el botón Grabar igual.
+      return (
+        this.schema.insertButton &&
+        (this.isGridRow || this.newRecord || this.editedIndex === -1 || this.editedIndex == null)
+      );
+    },
+    screenType() {
+      return normalizeScreenType(this.schema?.type);
+    },
+    isGridRow() {
+      // El form se está usando para confirmar un renglón de un grid embebido
+      // (detalle de comprobante) en vez de un alta/edición directa contra la API.
+      return ['ing', 'grid', 'livegrid'].includes(this.screenType);
+    },
+    updateButton() {
+      return (
+        this.canUpdate &&
+        !this.localSchema.readonly &&
+        !this.localSchema.can_process &&
+        !this.insertButton &&
+        this.schema.updateButton
+      );
+    },
+    formTitle() {
+      return this.title || this.schema.title;
+    },
+    fieldsWithContainers() {
+      return this.filter(this.localSchema.fields, (field) => !field.innerContainer && !field.options);
+    },
+    editables() {
+      return this.filter(this.localSchema.fields, this.isFieldEditable);
+    },
+    innerTabs() {
+      return this.filter(
+        this.localSchema.fields,
+        (field) =>
+          this.screenType === 'fichaing' || this.screenType === 'cabecera' || !field.innerContainer || field.isSelect
+      );
+    },
+    /**
+     * Campos "botón" de acción: no editables y con `helpers.link`. En Histrix se
+     * muestran arriba del form como botones grandes que abren el XML linkeado en
+     * un modal (p. ej. en una `fichaing`: "Orden de Trabajo de Obra", etc.).
+     *
+     * Se distinguen del botón "+" inline de HistrixField (isViewAddButton), que
+     * es para campos EDITABLES con helper. Estos no editables no entran en
+     * `editables`, así que hoy no se renderizan por ningún otro lado: agregarlos
+     * acá es puramente aditivo.
+     */
+    linkButtons() {
+      return Object.values(this.localSchema.fields || {}).filter((field) => field.helpers?.link && !field.editable);
+    },
+    dateFields() {
+      return this.filter(this.localSchema.fields, (field) => field['data-role'] !== 'datebox');
+    },
+    /**
+     * @description: chequea si el formulario tiene campos de tipo date object
+     * @returns {Array || null}
+     */
+    files() {
+      const data = [];
+      Object.keys(this.localValues).map((item) => {
+        if (this.localSchema.fields[item] && this.localSchema.fields[item].inputType === 'file') {
+          data.push({
+            name: item,
+            data: this.localValues[item],
+            path: this.computedPath(this.schema.fields[item])
+          });
+        }
+      });
+      return data.length ? data : null;
+    },
+    postData() {
+      // Copia sin los campos calculados por SQL (isExpression): el backend no
+      // los persiste. Los archivos viajan por su nombre.
+      const fields = this.localSchema.fields || {};
+      const data = {};
+      for (const [item, value] of Object.entries(this.localValues)) {
+        if (fields[item]?.isExpression === true) continue;
+        data[item] = value && typeof value === 'object' && value.name ? value.name : value;
+      }
+      return data;
+    },
+    savedValues() {
+      // Lo que se emite después de grabar: los valores locales con los
+      // archivos por nombre (como quedan en el backend), incluidos los
+      // calculados que no viajan en el post.
+      return { ...this.localValues, ...this.postData };
+    },
+    canUpdate() {
+      // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+      return this.resources.hasOwnProperty('PUT') && this.schema.can_update;
+    },
+    visibleColumns() {
+      if (this.localSchema.columns) {
+        return this.localSchema.columns.filter((column) => !column.hidden).map((column, _index, _array) => column.name);
+      }
+    },
+    fieldQuerys() {
+      const fieldQuerys = {};
+
+      if (this.fieldsWithContainers) {
+        Object.keys(this.fieldsWithContainers).map((target) => {
+          const field = this.fieldsWithContainers[target];
+
+          const rel = {};
+          /**
+           * Read initial container conditions
+           */
+          if (field.innerContainer.schema) {
+            Object.entries(field.innerContainer.schema.conditions).map((conditions) => {
+              Object.entries(conditions[1]).map((condition) => {
+                const con = condition[1]?.operador ?? null;
+                if (con && con === '=') {
+                  rel[conditions[0]] = condition[1].valor;
+                }
+              });
+            }, this);
+            fieldQuerys[field.name] = rel;
+          }
+
+          /**
+           * Read Relationships
+           */
+          if (field.innerContainer.relationship) {
+            Object.entries(field.innerContainer.relationship).map((relationship) => {
+              const localtarget = relationship[0];
+              const source = relationship[1];
+
+              rel[localtarget] = this.localValues[source.valor];
+            }, this);
+
+            fieldQuerys[field.name] = rel;
+          }
+        }, this);
+      }
+
+      // updated field querys with (histrix actualiza)
+      Object.entries(this.updatedFields).map((fieldArray) => {
+        const field = fieldArray[1];
+
+        const relations = field.update_fields;
+        relations.map((relation) => {
+          // for inner field querys
+          const rel = {};
+          if (relation.parentField) {
+            const query = {};
+
+            query[relation.targetField] = this.localValues[field.name];
+            rel[relation.field] = query;
+
+            fieldQuerys[relation.parentField] = rel;
+
+            if (fieldQuerys[relation.field] === undefined) {
+              rel[relation.field] = query;
+              fieldQuerys[relation.parentField] = rel;
+            } else {
+              fieldQuerys[relation.field][relation.field] = query;
+            }
+          } else if (fieldQuerys[relation.field] === undefined) {
+            rel[relation.targetField] = this.localValues[field.name];
+            fieldQuerys[relation.field] = rel;
+          } else {
+            const data = this.localValues[field.name];
+            if (data) {
+              fieldQuerys[relation.field][relation.targetField] = data.value || data;
+            }
+          }
+        }, this);
+      }, this);
+
+      // add External Query data
+      Object.keys(this.query).map((key) => {
+        if (this.query[key]) {
+          const query = this.query[key];
+          if (typeof query === 'object' || typeof query === 'function') {
+            fieldQuerys[key] = query;
+          }
+        }
+      });
+
+      return fieldQuerys;
+    },
+    updatedFields() {
+      return this.filter(this.localSchema.fields, (field) => !field.update_fields);
+    }
+  },
+  mounted() {
+    this.refresh();
+    this.focusFirstField();
+  },
+  watch: {
+    editedItem: {
+      handler(_data) {
+        this.localValues = { ...this.editedItem };
+      },
+      deep: true
+    },
+    localValues: {
+      handler(_data, oldVal) {
+        if (!this.valueEdit && JSON.stringify(oldVal).length !== 2) {
+          this.valueEdit = true;
+          this.$emit('valueEdit', true);
+        }
+        for (const formula in this.computedFields) {
+          const result = this.processOperation(this.computedFields[formula]);
+          if (result !== undefined) {
+            this.localValues[formula] = result;
+          }
+        }
+        this.$emit('update:modelValue', this.localValues);
+      },
+      deep: true
+    },
+    v$: {
+      handler() {
+        this.$emit('validity', !this.v$.$invalid);
+      },
+      deep: true
+    }
+  },
+  methods: {
+    refresh() {
+      this.localSchema = this.schema;
+      this.localValues = { ...this.editedItem };
+
+      Object.keys(this.query).map((key) => {
+        this.localValues[key] = this.query[key];
+      });
+      if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
+        this.getData();
+      }
+    },
+    bubbleLink(row, link) {
+      link.row = row;
+      this.$emit('open-popup', link);
+    },
+    closePopup() {
+      this.$emit('closepopup');
+    },
+    /**
+     * Texto del botón de acción: el label viene del valor del campo (p. ej.
+     * "Orden de Trabajo de Obra"), con fallback al title/name del schema.
+     */
+    linkLabel(field) {
+      return this.localValues?.[field.name] || field.title || field.name;
+    },
+    /**
+     * Ícono Material del botón, traducido desde el ícono jQuery-UI del helper.
+     */
+    linkIcon(field) {
+      return mapUiIcon(field.helpers?.link?.icon);
+    },
+    /**
+     * Abre el XML linkeado por el helper en un modal (ventana interna Histrix).
+     */
+    openLinkButton(field) {
+      const link = field.helpers?.link;
+      const path = resolveHelperLinkPath(link, this.path);
+      if (!path) {
+        return;
+      }
+      // Los `parameters` del link (p. ej. { source:'3', target:'tipo_oto' }) se
+      // pasan como query al form hijo, que los mergea en sus values (tipo_oto=3).
+      const linkParams = buildLinkParameters(link.parameters);
+      this.linkButtonDialog = {
+        path,
+        title: this.linkLabel(field),
+        width: link.width || '90%',
+        query: { ...this.query, ...linkParams }
+      };
+      this.showLinkButtonDialog = true;
+    },
+    /**
+     * Al cerrar el modal de un botón de acción refrescamos el form (por si el
+     * alta modificó datos que la consulta embebida debe volver a leer).
+     */
+    closeLinkButton() {
+      this.showLinkButtonDialog = false;
+      this.$emit('process-finish');
+    },
+
+    computedPath(field) {
+      const dirValue = this.localValues[field.path] || '';
+      const path = `${this.schema.path}/${dirValue}/`;
+      return path.replaceAll('//', '/').replaceAll('//', '/');
+    },
+    /**
+     * recives values from inner tables and updates local field values
+     */
+    onComputedTotal(data) {
+      this.localValues[data.target] = data.value;
+    },
+    /**
+     * Calcula la fórmula de un campo (computed_fields) con los valores actuales.
+     * La evaluación vive en core/formula.js (evaluador aritmético seguro, sin eval).
+     */
+    processOperation(formula) {
+      return evaluateFormula(formula, (k) => this.localValues[k]);
+    },
+    reset() {
+      this.localValues = { ...this.editedItem };
+      this.setDefaultValues();
+    },
+    fillFields(targets) {
+      for (const target in targets) {
+        this.localValues[target] = targets[target];
+      }
+    },
+    onSelectOption(data) {
+      const selectedOptions = data.selected_option;
+      if (selectedOptions) {
+        const fieldsToChange = selectedOptions.data;
+        for (const fieldName in fieldsToChange) {
+          this.localValues[fieldName] = fieldsToChange[fieldName];
+        }
+      }
+    },
+    back() {
+      this.navigation.back();
+    },
+
+    fieldClass(field) {
+      if (this.vertical) {
+        return 'col-12';
+      }
+      let span = 0;
+      if (field.colspan !== '') {
+        span = field.colspan / 2;
+      }
+
+      // fields with inner container expands more
+      if (field.innerContainer) {
+        span = field.colspan;
+      }
+
+      let lg = Math.min(4 + span, 12);
+      let md = Math.min(6 + span, 12);
+      let sm = 12;
+      let xs = 12;
+
+      // small forms
+      if (this.visibleColumns.length < 6) {
+        const all = 12;
+        lg = all;
+        md = all;
+        sm = all;
+        xs = all;
+      }
+
+      return `col-lg-${lg} col-md-${md} col-sm-${sm} col-xs-${xs}`;
+    },
+
+    filter(obj, predicate) {
+      return Object.fromEntries(Object.entries(obj).filter(([_key, value]) => !predicate(value)));
+    },
+    isFieldEditable(field) {
+      // TRUE = No mostrar No editable
+      // FALSE = Mostrar editable
+      // Lógica pura extraída a ../core/fieldVisibility.js; se le pasa el tipo
+      // del schema porque la decisión depende de this.schema.type.
+      return isFieldEditablePure(field, this.screenType);
+    },
+    deleteItem(_item) {
+      //
+    },
+    xmlUrl() {
+      return `${this.path}?`;
+    },
+    getKeys(_item) {
+      // Las claves de este form salen de localValues, no del item recibido.
+      return extractKeys(this.localValues, this.localSchema.fields);
+    },
+    processData() {
+      this.submitting = true;
+
+      // upload attached files
+      if (this.files) {
+        this.upload(this.files);
+      }
+      // Devuelve la promesa para que HistrixApp libere su flag `processing`
+      // también cuando el proceso falla (en error no se emite process-finish).
+      return this.processAppForm(this.xmlUrl(), this.postData)
+        .then((response) => {
+          this.submitting = false;
+          this.notify.success(this.t('form.processFinished'));
+          const data = response?.data?.resourceIds || [];
+          this.reset();
+          this.refresh();
+          this.$emit('process-finish', data);
+          this.$emit('closepopup');
+        })
+        .catch((e) => {
+          // El form queda abierto con los datos cargados y el padre no refresca:
+          // el proceso no se grabó. `e` es un HistrixApiError (mensaje sin tags).
+          this.submitting = false;
+          this.notify.error(e);
+        });
+    },
+    /**
+     * Valida el formulario completo y, si hay errores, los muestra y lleva el
+     * foco al primer campo inválido. Vuelidate agrega automáticamente las reglas
+     * de cada HistrixField hijo, así que v$.$validate() marca todo como tocado
+     * (dirty) y recién ahí aparecen los mensajes en rojo. Devuelve true si el
+     * formulario es válido. Es público: HistrixApp lo invoca vía ref antes de
+     * procesar un comprobante o avanzar un paso del stepper.
+     */
+    /** Inputs enfocables del form, en orden del DOM (ver core/hotkeys.js). */
+    focusCandidates() {
+      const root = this.$el;
+      if (!root || typeof root.querySelectorAll !== 'function') {
+        return [];
+      }
+      return Array.from(root.querySelectorAll('input, select, textarea')).filter(isFocusCandidate);
+    },
+    /**
+     * Foco inicial (H.focusFirstInput del legacy): el campo con `autofocus` en
+     * el schema o, si no hay, el primer campo editable visible. No le saca el
+     * foco al usuario si ya está escribiendo en otro lado.
+     */
+    focusFirstField(force = false) {
+      if (!this.histrixKeyboard() || typeof document === 'undefined') {
+        return;
+      }
+      // Los campos son componentes async: esperamos a que terminen de pintar.
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const active = document.activeElement;
+          if (!force && active && active !== document.body && isFocusCandidate(active)) {
+            return;
+          }
+          const candidates = this.focusCandidates();
+          const auto = Object.values(this.localSchema.fields || {}).find(
+            (f) => f.autofocus === true || f.autofocus === 'true'
+          );
+          const target = (auto && candidates.find((el) => el.name === auto.name)) || candidates[0];
+          target?.focus?.();
+        }, 100);
+      });
+    },
+    /**
+     * Enter: pasa al siguiente campo editable. En el último no hace nada
+     * (salvo `enterSubmits`). Devuelve true si consumió la tecla. Lo llama
+     * HistrixApp desde el atajo.
+     */
+    focusNextField(current) {
+      const candidates = this.focusCandidates();
+      if (!candidates.includes(current)) {
+        return false;
+      }
+      const next = nextFocusable(candidates, current);
+      if (next) {
+        next.focus();
+        next.select?.();
+        return true;
+      }
+      if (this.enterSubmits) {
+        this.onSubmit();
+      }
+      return true;
+    },
+    /**
+     * Renglón nuevo o cargado para modificar (grillas de carga): limpia los
+     * errores de la validación anterior, el aviso de cambios sin guardar y
+     * lleva el foco al primer campo. Lo llama HistrixTable.
+     */
+    startRow() {
+      this.v$.$reset();
+      this.valueEdit = false;
+      this.$emit('valueEdit', false);
+      this.focusFirstField(true);
+    },
+    async validateAndFocus() {
+      const valid = await this.v$.$validate();
+      if (!valid) {
+        this.focusFirstError();
+      }
+      return valid;
+    },
+    /**
+     * Lleva el foco (y hace scroll) al primer campo que quedó en error. Se basa
+     * en la clase .q-field--error que Quasar agrega al pintar el error, así que
+     * funciona para cualquier tipo de campo (input, select, date, etc.).
+     */
+    focusFirstError() {
+      this.$nextTick(() => {
+        const root = this.$el;
+        if (!root || typeof root.querySelector !== 'function') {
+          return;
+        }
+        const errorEl = root.querySelector('.q-field--error');
+        if (!errorEl) {
+          return;
+        }
+        const focusable = errorEl.querySelector('input, textarea, select, [tabindex]:not([tabindex="-1"])');
+        (focusable || errorEl).focus?.();
+        errorEl.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+      });
+    },
+    async onSubmit() {
+      // Validación diferida: recién al apretar Grabar validamos todo el form. Si
+      // algo falla, marcamos los campos, frenamos el submit y movemos el foco al
+      // primer error. (El botón ya no se deshabilita por v$.$invalid.)
+      const valid = await this.validateAndFocus();
+      if (!valid) {
+        return;
+      }
+      // Grids tipo "ing"/"grid": las filas NO se graban una por una contra la
+      // API. Se acumulan en la tabla interna del grid (cliente-side) y viajan
+      // juntas en el process del comprobante padre. Acá sólo confirmamos el
+      // renglón emitiéndolo hacia arriba; HistrixTable lo agrega a su data.
+      if (this.isGridRow) {
+        this.$emit('insert-row', this.localValues, this.editedIndex);
+        return;
+      }
+      if (this.editedIndex === -1 || this.editedIndex === null || this.editedIndex === undefined) {
+        this.insertRow();
+      } else {
+        this.saveForm();
+      }
+    },
+    insertRow() {
+      this.saveForm();
+    },
+    saveForm() {
+      // set button state
+      this.submitting = true;
+
+      // upload attached files
+      if (this.files) {
+        this.upload(this.files);
+      }
+
+      const postData = {
+        keys: this.getKeys(this.editedItem),
+        data: this.postData
+      };
+      // if this is a new record Insert
+      if (this.newRecord) {
+        this.insertAppData(this.xmlUrl(), postData)
+          .then((response) => {
+            this.submitting = false;
+            this.$emit('closepopup');
+            this.$emit('form-saved', this.savedValues, response.data.id);
+            this.$emit('insert-row', this.savedValues, response.data.id);
+          })
+          .catch((e) => {
+            this.submitting = false;
+            this.notify.error(e);
+          });
+      } else {
+        this.updateAppData(this.xmlUrl(), postData)
+          .then((_response) => {
+            this.submitting = false;
+            this.$emit('closepopup');
+            this.$emit('form-saved', this.savedValues, this.editedIndex);
+          })
+          .catch((e) => {
+            this.submitting = false;
+            this.notify.error(e);
+          });
+      }
+    },
+    setDefaultValues() {
+      for (const key in this.localSchema.fields) {
+        const field = this.localSchema.fields[key];
+        if (
+          // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
+          field.hasOwnProperty('default_option_value') &&
+          this.localValues[field.name] === '' &&
+          field.default_option_value !== ''
+        ) {
+          this.localValues[field.name] = field.default_option_value;
+        }
+      }
+    },
+    getData() {
+      this.getAppData(this.xmlUrl(), this.query)
+        .then((response) => {
+          // 204 / sin resultados → `data: []`: la ficha arranca vacía.
+          this.localValues = response?.data?.data?.[0] ?? {};
+          this.setDefaultValues();
+        })
+        .catch((e) => {
+          this.dialog = true;
+          this.message = `${this.t('form.loadError')}: ${e.message}`;
+        });
+    }
+  },
+  validations() {
+    return {};
+  },
+  emits: [
+    'valueEdit',
+    'update:modelValue',
+    'validity',
+    'open-popup',
+    'closepopup',
+    'process-finish',
+    'form-saved',
+    'insert-row'
+  ],
+  data() {
+    return {
+      localValues: {},
+      errorMessages: {},
+      localSchema: {
+        fields: {},
+        columns: []
+      },
+      data: [],
+      submitting: false,
+      currentTab: 'mainTab',
+      valueEdit: false,
+      showLinkButtonDialog: false, // modal abierto por un botón de acción (helper.link)
+      linkButtonDialog: {} // { path, title, width, query } del botón clickeado
+    };
+  }
+};
+</script>

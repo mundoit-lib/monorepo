@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+*.local
+.DS_Store
+
+# Lista de XML reales a capturar (rutas del cliente): local, no se versiona.
+scripts/fixtures.list.json

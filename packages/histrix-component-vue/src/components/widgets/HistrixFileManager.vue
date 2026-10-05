@@ -1,0 +1,94 @@
+<template>
+  <div>
+    <q-card flat bordered>
+      <q-toolbar class="bg-orange text-white shadow-2">
+        <q-toolbar-title><q-avatar text-color="white" icon="folder" round />{{ path }}</q-toolbar-title>
+      </q-toolbar>
+      <q-card-section>
+        <VueFileAgent
+          ref="fileAgent"
+          :uploadUrl="uploadUrl"
+          :thumbnailSize="120"
+          @beforedelete="onBeforeDelete($event)"
+          @delete="onDelete($event)"
+          :deletable="true"
+          theme="list"
+          :uploadHeaders="uploadHeaders"
+          helpText="Elija o arrastre aquí sus archivos"
+          :model-value="files"
+          @update:model-value="files = $event"
+        >
+        </VueFileAgent>
+      </q-card-section>
+    </q-card>
+  </div>
+</template>
+
+<script>
+import useApi from '../../services/histrixApi.js';
+import { useHistrixI18n } from '../../services/i18n.js';
+import { useHistrixNotify } from '../../services/notify.js';
+
+export default {
+  name: 'HistrixFileManager',
+  setup() {
+    const { getFiles, apiUrl, deleteFile, getToken } = useApi();
+    return { t: useHistrixI18n().t, notify: useHistrixNotify(), getFiles, apiUrl, deleteFile, getToken };
+  },
+  props: ['path'],
+  components: {},
+  data() {
+    return {
+      files: [],
+      uploadHeaders: { Authorization: `Bearer ${this.getToken()}` },
+      uploadUrl: `${this.apiUrl()}/files${this.path}`
+    };
+  },
+  computed: {},
+  methods: {
+    getFiles() {
+      let files = [];
+      this.getFiles(this.path).then((success) => {
+        files = success.data.data;
+        this.files = files
+          .map((item) => {
+            const file = item.node;
+            file.name = file.basename;
+            return file;
+          })
+          .filter((item) => item.type !== 'dir');
+      });
+    },
+    async onBeforeDelete(fileRecord) {
+      if (await this.notify.confirm(this.t('files.confirmDelete'))) {
+        this.$refs.fileAgent.deleteFileRecord(fileRecord);
+      }
+    },
+    onDelete(fileRecord) {
+      const url = this.uploadUrl + fileRecord.name();
+
+      this.$refs.fileAgent.deleteUpload(url, this.uploadHeaders, fileRecord);
+      this.deleteFile(this.path + fileRecord.name()).then((_success) => {
+        this.getFiles();
+      });
+    }
+  },
+  mounted() {
+    this.getFiles();
+  }
+};
+</script>
+<style>
+.my-file-agent .file-preview-wrapper .file-preview {
+  width: calc(100% - 50px); /* 50px: width of the button */
+}
+.my-file-agent .file-preview-button {
+  position: absolute;
+  z-index: 11;
+  width: 50px;
+  height: 100%;
+  right: 0;
+  background: yellow;
+  border: 2px solid red;
+}
+</style>
