@@ -39,7 +39,7 @@ const defaultStorage = (): OidcStorage => (typeof localStorage === 'undefined' ?
 const origin = (): string => (typeof window === 'undefined' ? '' : window.location.origin);
 
 /** Ruta relativa al origin de la app: empieza con una sola `/` (ni `//host`, ni esquema, ni `javascript:`). */
-const isAppPath = (target: unknown): target is string =>
+export const isAppPath = (target: unknown): target is string =>
   typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') && !target.startsWith('/\\');
 
 /** `expired` es `undefined` si el token no trae `expires_at`: se lo trata como vigente. */
@@ -56,6 +56,7 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
   const userKey = options.userKey ?? DEFAULT_USER_KEY;
   const managers = new Map<string, UserManager>();
   const listeners = new Set<(user: TUser | null) => void>();
+  const expiredListeners = new Set<() => void>();
 
   let issuer: string | null = null;
   let manager: UserManager | null = null;
@@ -97,6 +98,25 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     notify();
   };
 
+  /**
+   * La sesión venció sin renovarse (o no se pudo renovar): se descarta la que había en memoria y se avisa a la app.
+   * `hadSession` cubre el arranque, donde la sesión vencida vive en storage y todavía no está en memoria.
+   */
+  const emitExpired = (): void => {
+    for (const cb of Array.from(expiredListeners)) {
+      try {
+        cb();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+  const expire = (hadSession = session !== null): void => {
+    session = null;
+    notify();
+    if (hadSession) emitExpired();
+  };
+
   const createManager = (authority: string): UserManager => {
     const um = new UserManager({
       authority,
@@ -123,6 +143,10 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     });
     um.events.addSilentRenewError((error) => {
       if (um === manager) console.warn('[oidc] no se pudo renovar la sesión', error);
+    });
+    // Con `automaticSilentRenew` una renovación exitosa reinicia el timer: si llega a vencer es porque no se renovó.
+    um.events.addAccessTokenExpired(() => {
+      if (um === manager) expire();
     });
     return um;
   };
@@ -186,6 +210,10 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
         if (um === manager) setSession(user);
         return isLive(user) ? user : null;
       })
+      .catch((error: unknown) => {
+        if (um === manager) expire();
+        throw error;
+      })
       .finally(() => renewing.delete(um));
     renewing.set(um, promise);
     return promise;
@@ -218,16 +246,25 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     async restore() {
       if (!manager) return null;
       const um = manager;
-      let user = await um.getUser();
+      const user = await um.getUser();
       if (user?.expired && user.refresh_token) {
+        const hadSession = session !== null;
         try {
           return await renewWith(um);
         } catch (error) {
           console.warn('[oidc] no se pudo renovar la sesión', error);
-          user = null;
+          // renewWith ya avisó si había sesión en memoria; al arrancar sólo estaba en storage y hay que avisar acá.
+          if (um === manager && !hadSession) emitExpired();
+          return null;
         }
       }
-      if (um === manager) setSession(user);
+      if (um !== manager) return isLive(user) ? user : null;
+      // Sesión guardada pero vencida y sin refresh token: la app se entera de que tiene que volver a loguear.
+      if (user && !isLive(user)) {
+        expire(true);
+        return null;
+      }
+      setSession(user);
       return isLive(user) ? user : null;
     },
 
@@ -260,6 +297,11 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     onUserChange(cb) {
       listeners.add(cb);
       return () => void listeners.delete(cb);
+    },
+
+    onSessionExpired(cb) {
+      expiredListeners.add(cb);
+      return () => void expiredListeners.delete(cb);
     },
 
     setIssuer,

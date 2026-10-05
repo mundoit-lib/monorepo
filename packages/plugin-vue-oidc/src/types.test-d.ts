@@ -1,7 +1,17 @@
 import type { User, UserManager } from 'oidc-client-ts';
 import { describe, expectTypeOf, it } from 'vitest';
-import { createOidcAuth } from './index';
-import type { HistrixAuthContract, OidcAuth, OidcCallbackResult, OidcUser } from './index';
+import { type ComputedRef, type ShallowRef, createApp } from 'vue';
+import { OidcPlugin, createOidcAuth, createOidcGuard, useOidc, useOidcSession } from './index';
+import type {
+  HistrixAuthContract,
+  OidcAuth,
+  OidcCallbackResult,
+  OidcUser,
+  RouteLike,
+  RouteTarget,
+  RouterLike,
+  VueOidc
+} from './index';
 
 describe('tipos de plugin-vue-oidc', () => {
   it('createOidcAuth devuelve un OidcAuth que cumple el contrato de auth de histrix-component-vue', () => {
@@ -38,5 +48,35 @@ describe('tipos de plugin-vue-oidc', () => {
 
   it('el user por defecto es un objeto genérico', () => {
     expectTypeOf(createOidcAuth().user()).toEqualTypeOf<Record<string, unknown> | null>();
+  });
+});
+
+describe('tipos de la capa Vue', () => {
+  it('useOidcSession tiene la forma de useHistrixSession: user, isLogged, login, logout', () => {
+    const session = useOidcSession<{ id: number }>();
+    expectTypeOf(session.user).toEqualTypeOf<ShallowRef<{ id: number } | null>>();
+    expectTypeOf(session.isLogged).toEqualTypeOf<ComputedRef<boolean>>();
+    expectTypeOf(session.login({ redirect: '/x' })).toEqualTypeOf<Promise<never>>();
+    expectTypeOf(session.logout({ redirect: '/login' })).toEqualTypeOf<Promise<void>>();
+    expectTypeOf(session.renew()).toEqualTypeOf<Promise<OidcUser | null>>();
+    expectTypeOf(session.auth).toEqualTypeOf<OidcAuth<{ id: number }>>();
+    expectTypeOf(useOidc()).toEqualTypeOf<VueOidc>();
+  });
+
+  it('el guard devuelve lo que vue-router acepta de un beforeEach', () => {
+    const guard = createOidcGuard(useOidc(), { loginRoute: { name: 'login' }, publicMeta: 'public' });
+    expectTypeOf(guard).parameter(0).toExtend<RouteLike>();
+    expectTypeOf(guard).returns.resolves.toEqualTypeOf<RouteTarget | true>();
+    // @ts-expect-error publicMeta es la key de meta, no un booleano
+    createOidcGuard(useOidc(), { publicMeta: true });
+  });
+
+  it('el plugin exige auth y acepta un router estructural', () => {
+    const router: RouterLike = { push() {}, replace() {}, beforeEach() {} };
+    expectTypeOf(
+      OidcPlugin.install(createApp({}), { auth: createOidcAuth(), router, loginRoute: '/login' })
+    ).toBeVoid();
+    // @ts-expect-error auth es obligatorio
+    OidcPlugin.install(createApp({}), { router });
   });
 });
