@@ -1,9 +1,0 @@
-{
-  "recommendations": [
-    "biomejs.biome",
-    "EditorConfig.EditorConfig",
-    "usernamehw.errorlens",
-    "humao.rest-client",
-    "YoavBls.pretty-ts-errors"
-  ]
-}
