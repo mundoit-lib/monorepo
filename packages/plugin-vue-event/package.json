@@ -102,7 +102,7 @@
   },
   "size-limit": [
     {
-      "name": "ESM (gzip)",
+      "name": "ESM index + subpaths (gzip)",
       "path": "dist/index.js",
       "limit": "1.5 kB",
       "gzip": true,
