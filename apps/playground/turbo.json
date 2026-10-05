@@ -1,0 +1,11 @@
+{
+  "$schema": "../../node_modules/turbo/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      // Vite lee más que src/** (vite.config.js, unocss.config.js, index.html): cuenta todo el paquete.
+      // histrix-component-vue no tiene build (no entra por ^build), así que su fuente se agrega a mano.
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/histrix-component-vue/src/**"]
+    }
+  }
+}
