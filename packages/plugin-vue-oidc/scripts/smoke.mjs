@@ -69,7 +69,13 @@ try {
 
 const dist = join(pkg, 'dist');
 const server = createServer(async (req, res) => {
-  const path = decodeURIComponent(new URL(req.url, APP).pathname);
+  let path;
+  try {
+    path = decodeURIComponent(new URL(req.url, APP).pathname);
+  } catch {
+    // URL mal codificada: 400 en vez de un URIError sin capturar que tire el proceso.
+    return send(res, 400, 'text/plain', 'URL inválida');
+  }
   try {
     if (path === '/vendor/oidc-client-ts.js') return send(res, 200, 'text/javascript', oidcShim);
     if (path.startsWith('/dist/')) {
