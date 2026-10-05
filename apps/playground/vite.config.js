@@ -33,9 +33,10 @@ export default defineConfig({
   ],
 
   resolve: {
-    // Una sola copia de vue / quasar en todo el grafo, aunque la librería
-    // del workspace tenga su propio node_modules con copias.
-    dedupe: ['vue', 'quasar', '@vuelidate/core', '@vuelidate/validators'],
+    // Una sola copia de vue / vue-demi / quasar en todo el grafo, aunque la librería
+    // del workspace tenga su propio node_modules con copias. vue-demi lo usan
+    // @vuelidate/* y vue-echarts (no los plugins @mundoit-lib 2.x).
+    dedupe: ['vue', 'vue-demi', 'quasar', '@vuelidate/core', '@vuelidate/validators'],
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
       // El @quasar/vite-plugin inyecta imports profundos `quasar/src/...`
@@ -58,7 +59,14 @@ export default defineConfig({
     // plugin de Vue en lugar de tratarla como dependencia ya construida.
     exclude: ['@mundoit-lib/histrix-component-vue'],
     // Estas sí conviene pre-bundlearlas (la lib las importa internamente).
-    include: ['@vuelidate/core', '@vuelidate/validators', 'echarts', 'vue-echarts', '@quasar/quasar-ui-qcalendar']
+    include: [
+      '@vuelidate/core',
+      '@vuelidate/validators',
+      'vue-demi',
+      'echarts',
+      'vue-echarts',
+      '@quasar/quasar-ui-qcalendar'
+    ]
   },
 
   server: {

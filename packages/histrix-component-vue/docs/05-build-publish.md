@@ -32,6 +32,7 @@ Reglas de versionado acordadas:
 
 - **`0.0.x`** — serie legacy Vue 2/Vue 3 vía `vue-demi`. Congelada; solo hotfixes críticos para apps Vue 2.
 - **`0.1.x`** — Vue 3 + Quasar 2 nativo (actual).
+- Desde la mudanza al monorepo el peer `vue` sale del catálogo `peers` de `pnpm-workspace.yaml` (`^3.3.0`, el mismo piso que los plugins 2.x; antes era `^3.2.0`). La primera versión publicada desde el monorepo lo tiene que anotar en el bump.
 
 ## Desarrollo local: el playground
 
