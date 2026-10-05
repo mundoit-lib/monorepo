@@ -14,14 +14,5 @@ declare module 'vue' {
 }
 
 export { axiosInstance, getAxiosInstance, initializeAxios, setBaseURL, setDatabase };
-export type {
-  AxiosConfig,
-  ErrorContext,
-  ErrorHandler,
-  ErrorOptions,
-  HttpClient,
-  HttpInterceptorManager,
-  HttpRequestConfig,
-  HttpResponse,
-  LegacyRefreshConfig
-} from './types';
+export type { HttpClient, HttpInterceptorManager, HttpRequestConfig, HttpResponse } from './http';
+export type { AxiosConfig, ErrorContext, ErrorHandler, ErrorOptions, LegacyRefreshConfig } from './types';

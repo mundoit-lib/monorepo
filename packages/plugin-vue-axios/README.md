@@ -73,7 +73,7 @@ onError: {
 | `setBaseURL(url)` | Cambia la base de los requests siguientes |
 | `setDatabase(db)` | `setBaseURL` con `<host>/api/db/<db>` |
 | `axiosInstance` | **Deprecado, se elimina en 3.0**: es `undefined` hasta `initializeAxios`. Usar `getAxiosInstance()` |
-| `HttpClient` (tipo) | Contrato `get/post/put/patch/delete` + `interceptors` que usan auth y `histrix-component-vue`. Una instancia de axios lo cumple sin adaptador |
+| `HttpClient` (tipo) | Contrato `get/post/put/patch/delete` + `interceptors`, invocable como `http(config)` (2.1+), que usan auth y `histrix-component-vue`. Una instancia de axios lo cumple sin adaptador. También en `@mundoit-lib/plugin-vue-axios/http` (sólo tipos, sin axios ni `$axios`) junto con `HttpRequestConfig`, `HttpResponse` y `HttpInterceptorManager` |
 
 ## Deprecado (se elimina en 3.0)
 

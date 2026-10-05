@@ -57,6 +57,9 @@ importers:
         specifier: ^3.3.0
         version: 3.5.43(typescript@5.9.3)
     devDependencies:
+      '@mundoit-lib/plugin-vue-axios':
+        specifier: workspace:*
+        version: link:../plugin-vue-axios
       '@mundoit-lib/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript

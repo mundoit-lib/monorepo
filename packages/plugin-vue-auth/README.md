@@ -42,7 +42,7 @@ También acepta la forma de 1.x, `{ plugins: { http, router } }`.
 
 | Opción | Default | Qué hace |
 |---|---|---|
-| `http` | — (obligatorio) | Instancia de axios (o compatible). Se le instalan los interceptores una sola vez. |
+| `http` | — (obligatorio) | Instancia de axios (o compatible: el tipo `HttpClient` de `plugin-vue-axios` 2.1, re-exportado acá, invocable como `http(config)`). Se le instalan los interceptores una sola vez. |
 | `router` | — | vue-router. Con él, `redirect` en `login`/`logout` hace `router.push` y se activa el guard de `meta.auth`. |
 | `authRedirect` | `'/login'` | A dónde manda el guard cuando una ruta con `meta.auth` no tiene sesión. |
 | `baseURL` | `''` | Se antepone a los endpoints relativos. Se cambia en runtime con `service.setBaseURL(url)`. |

@@ -1,3 +1,5 @@
+import type { HttpRequestConfig as BaseHttpRequestConfig } from '@mundoit-lib/plugin-vue-axios/http';
+
 /** Datos que recibe un endpoint definido como función. */
 export interface EndpointContext {
   /** Base fijada con `config.baseURL` o `service.setBaseURL()`; '' si no hay. */
@@ -115,28 +117,20 @@ export interface TokenResponse {
   error_description?: string;
 }
 
-export interface HttpRequestConfig {
+/** Config de request que ven los interceptores de auth: el de plugin-vue-axios más las marcas internas del reintento. */
+export interface HttpRequestConfig extends BaseHttpRequestConfig {
   url?: string;
   headers?: Record<string, string>;
+  /** Puesta por el interceptor de respuesta: el request ya se reintentó tras un refresh. */
   _retry?: boolean;
-  [key: string]: any;
+  /** Puesta por el servicio en sus propios requests (login, refresh): sin Bearer y sin reintento. */
+  _skipAuth?: boolean;
 }
 
 /**
- * Lo que necesita el servicio del cliente http (una instancia de axios lo cumple).
- * No se usa el `HttpClient` de plugin-vue-axios 2.0: no declara la firma invocable `http(config)`
- * que hace falta para reintentar el request original después del refresh.
+ * El cliente http es el `HttpClient` de `@mundoit-lib/plugin-vue-axios/http` (2.1+, invocable como `http(config)`
+ * para reintentar el request original después del refresh). Una instancia de axios lo cumple sin adaptador.
+ * Se re-exporta por compatibilidad. Sólo tipos, inlineados en el `.d.ts`: auth no depende de plugin-vue-axios
+ * ni de axios, ni en runtime ni en tipos.
  */
-export interface HttpClient {
-  get<T = unknown>(url: string, config?: any): Promise<{ data: T }>;
-  post<T = unknown>(url: string, data?: unknown, config?: any): Promise<{ data: T }>;
-  interceptors: {
-    request: {
-      use: (onFulfilled: (config: any) => any, onRejected?: (error: any) => any) => unknown;
-    };
-    response: {
-      use: (onFulfilled: (response: any) => any, onRejected?: (error: any) => any) => unknown;
-    };
-  };
-  (config: any): Promise<any>;
-}
+export type { HttpClient, HttpResponse } from '@mundoit-lib/plugin-vue-axios/http';

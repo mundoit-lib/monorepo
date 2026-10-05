@@ -1,42 +1,5 @@
 import type { AxiosRequestConfig } from 'axios';
 
-/** Respuesta mínima que necesitan los consumidores de `HttpClient`. */
-export interface HttpResponse<T = any> {
-  data: T;
-  status: number;
-  headers: Record<string, any>;
-}
-
-/** Opciones de request que entiende cualquier `HttpClient`. */
-export interface HttpRequestConfig {
-  headers?: Record<string, any>;
-  params?: any;
-  timeout?: number;
-  signal?: AbortSignal;
-  [key: string]: any;
-}
-
-export interface HttpInterceptorManager<V> {
-  use(onFulfilled?: ((value: V) => V | Promise<V>) | null, onRejected?: ((error: any) => any) | null): number;
-  eject(id: number): void;
-}
-
-/**
- * Contrato HTTP que usan `plugin-vue-auth` y `histrix-component-vue`.
- * Una instancia de axios lo cumple sin adaptador.
- */
-export interface HttpClient {
-  get<T = any>(url: string, config?: HttpRequestConfig): Promise<HttpResponse<T>>;
-  delete<T = any>(url: string, config?: HttpRequestConfig): Promise<HttpResponse<T>>;
-  post<T = any>(url: string, data?: any, config?: HttpRequestConfig): Promise<HttpResponse<T>>;
-  put<T = any>(url: string, data?: any, config?: HttpRequestConfig): Promise<HttpResponse<T>>;
-  patch<T = any>(url: string, data?: any, config?: HttpRequestConfig): Promise<HttpResponse<T>>;
-  interceptors: {
-    request: HttpInterceptorManager<any>;
-    response: HttpInterceptorManager<HttpResponse>;
-  };
-}
-
 export interface ErrorContext {
   /** `network`: sin respuesta; `http`: respuesta con status de error; `refresh`: falló el refresh legacy. */
   kind: 'network' | 'http' | 'refresh';

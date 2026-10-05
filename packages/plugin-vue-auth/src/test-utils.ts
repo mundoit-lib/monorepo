@@ -31,10 +31,19 @@ export function createHttp(handler: Handler) {
 
   const http = ((config: any) => run(config)) as HttpClient & { requests: Request[] };
   http.get = (url: string, config: any = {}) => run({ ...config, url, method: 'get' });
+  http.delete = (url: string, config: any = {}) => run({ ...config, url, method: 'delete' });
   http.post = (url: string, data?: unknown, config: any = {}) => run({ ...config, url, method: 'post', data });
+  http.put = (url: string, data?: unknown, config: any = {}) => run({ ...config, url, method: 'put', data });
+  http.patch = (url: string, data?: unknown, config: any = {}) => run({ ...config, url, method: 'patch', data });
+  const noEject = () => {
+    throw new Error('eject no implementado en createHttp');
+  };
   http.interceptors = {
-    request: { use: (onFulfilled) => requestInterceptors.push(onFulfilled) },
-    response: { use: (onFulfilled, onRejected) => responseInterceptors.push([onFulfilled, onRejected]) }
+    request: { use: (onFulfilled) => requestInterceptors.push(onFulfilled ?? ((c) => c)), eject: noEject },
+    response: {
+      use: (onFulfilled, onRejected) => responseInterceptors.push([onFulfilled ?? ((r) => r), onRejected ?? undefined]),
+      eject: noEject
+    }
   };
   http.requests = requests;
   return http;

@@ -14,7 +14,7 @@ Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `package
 - **Finales de línea LF**, lint con oxlint (`.oxlintrc.json`) y formato con oxfmt (`.oxfmtrc.json`). `pnpm lint` corre oxlint, `oxfmt --check`, sherif y knip; `pnpm lint:fix` corrige lo que se pueda. Los `.md` no se formatean.
 - **sherif** valida la consistencia del workspace (misma versión de una dependencia en todos los paquetes, `package.json` ordenados, sin dependencias duplicadas). Si se queja, `pnpm lint:fix` o ajustar a mano; no ignorar reglas sin motivo.
 - **knip** (`knip.jsonc`) marca exports, archivos y dependencias sin uso. Un export duplicado a propósito se marca con `/** @alias … */`; una dependencia que knip no ve (peers instaladas en la raíz) va en `ignoreDependencies` con el porqué.
-- **Tests con Vitest** en `packages/*/src/**/*.test.ts`. Los tests de tipos (`expectTypeOf`, `@ts-expect-error`) van en `*.test-d.ts`: Vitest los valida con `tsc` (typecheck habilitado) y hacen fallar `pnpm test`. `pnpm test` corre cada paquete por turbo con la config de la raíz (`vitest run --config ../../vitest.config.ts` en el `test` de cada paquete); `pnpm test:watch` corre vitest en la raíz, con un project por paquete.
+- **Tests con Vitest** en `packages/*/src/**/*.test.ts`. Los tests de tipos (`expectTypeOf`, `@ts-expect-error`) van en `*.test-d.ts`: Vitest los valida con `tsc` (typecheck habilitado) y hacen fallar `pnpm test`. `pnpm test` corre cada paquete por turbo con la config de la raíz (`vitest run --config ../../vitest.config.ts` en el `test` de cada paquete); `pnpm test:watch` corre vitest en la raíz, con un project por paquete; antes hace falta `pnpm build`, porque `plugin-vue-auth` toma el tipo `HttpClient` del `dist` de `plugin-vue-axios` (turbo ya lo resuelve con `dependsOn: ["^build"]`).
 - **Checks antes de un PR**: `pnpm lint && pnpm build && pnpm typecheck && pnpm test && pnpm check:exports`.
 - **Exports publicados**: `pnpm check:exports` (publint + are-the-types-wrong) sobre el `dist`. Corre en CI. Cada entrada de `exports` lleva `types` por condición (`.d.ts` para `import`, `.d.cts` para `require`).
 - **Vue 3 only** para todo lo nuevo. El soporte Vue 2 (`vue-demi`, `@vue/composition-api`) está deprecado y se va sacando con cada major.
@@ -39,7 +39,7 @@ Monorepo pnpm + Turborepo con las librerías frontend de Mundo IT. Cada `package
 | Paquete | Entrada | Notas |
 |---|---|---|
 | `plugin-vue-event` | `src/index.ts` | 2.x Vue 3 only: `createEventBus`, mixin para la opción `events:`, `$events`, `useEvents()` con auto-off, tipos por `MundoitEvents` |
-| `plugin-vue-auth` | `src/index.ts` | 2.x: `AuthService` (sin websanova) + adaptador Vue 3 (`src/vue.ts`) con `$auth`/`useAuth()` compatibles con 1.x; único dueño del refresh |
-| `plugin-vue-axios` | `src/index.ts` | 2.0: instancia axios compartida (`getAxiosInstance`, `setDatabase`, tipo `HttpClient`); el refresh es de auth 2.0, con `legacyRefresh` opcional para auth 1.x |
+| `plugin-vue-auth` | `src/index.ts` | 2.x: `AuthService` (sin websanova) + adaptador Vue 3 (`src/vue.ts`) con `$auth`/`useAuth()` compatibles con 1.x; único dueño del refresh. El tipo `HttpClient` es el de `plugin-vue-axios/http` (`import type`, inlineado en el `.d.ts`: sin dependencia runtime) |
+| `plugin-vue-axios` | `src/index.ts` | 2.1: instancia axios compartida (`getAxiosInstance`, `setDatabase`, tipo `HttpClient` invocable que comparten auth e histrix-component-vue, también en el subpath `./http` sólo tipos); el refresh es de auth 2.0, con `legacyRefresh` opcional para auth 1.x |
 
 Consumidores: las apps `*-frontend` de Mundo IT y la librería `@mundoit-lib/histrix-component-vue` (que va a mudarse acá). Cualquier cambio de API pública tiene que pensarse para esas apps.
