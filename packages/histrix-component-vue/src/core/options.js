@@ -28,7 +28,7 @@
  */
 
 // Regex de fecha dd/mm/yyyy (con `/` o `-`) usado para detectar el modo `flat`.
-const DATE_RE = /^(0?[1-9]|[12][0-9]|3[01])[\/\-](0?[1-9]|1[012])[\/\-]\d{4}$/;
+const DATE_RE = /^(0?[1-9]|[12][0-9]|3[01])[/-](0?[1-9]|1[012])[/-]\d{4}$/;
 
 /**
  * Determina si una label arranca con una fecha dd/mm/yyyy.

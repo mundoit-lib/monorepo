@@ -2,7 +2,7 @@
 
 ## Qué es
 
-`histrix-quasar-client` es la **librería de componentes Vue** de Mundo IT que actúa como **cliente UI del backend Histrix**. Histrix es un motor de aplicaciones declarativas: las pantallas (formularios, tablas, calendarios, dashboards, etc.) se describen con un *schema* XML/JSON servido por el backend, y esta librería renderiza ese schema en componentes Quasar listos para usar.
+`@mundoit-lib/histrix-component-vue` (antes repo `histrix-quasar-client`) es la **librería de componentes Vue** de Mundo IT que actúa como **cliente UI del backend Histrix**. Histrix es un motor de aplicaciones declarativas: las pantallas (formularios, tablas, calendarios, dashboards, etc.) se describen con un *schema* XML/JSON servido por el backend, y esta librería renderiza ese schema en componentes Quasar listos para usar.
 
 El paquete publicado se llama **`@mundoit-lib/histrix-component-vue`** (no confundir con el nombre del repo).
 
@@ -10,11 +10,11 @@ El paquete publicado se llama **`@mundoit-lib/histrix-component-vue`** (no confu
 
 ### Modelo de consumo: source-only
 
-A diferencia de una librería npm "tradicional", **acá no se publica código compilado**. Lo que viaja en el tarball de npm es `ui/src/` con los `.vue` originales (`files: ["src"]` en `ui/package.json`). Cada app cliente importa los componentes (import raíz, subpath o plugin — ver `ui/package.json -> exports`) y los **compila su propio bundler** (Vite / Quasar CLI / webpack).
+A diferencia de una librería npm "tradicional", **acá no se publica código compilado**. Lo que viaja en el tarball de npm es `src/` con los `.vue` originales (y los tipos de `types/`, ver `files` en `package.json`). Cada app cliente importa los componentes (import raíz, subpath o plugin — ver `package.json -> exports`) y los **compila su propio bundler** (Vite / Quasar CLI / webpack).
 
 Consecuencias prácticas:
 
-- **No hay build step en el flujo de release**. Bumpear `ui/package.json -> version`, tag, push, y CI publica directo el código fuente.
+- **No hay build step en el flujo de release**. Bumpear `version` en el PR; al mergear a `main`, CI publica directo el código fuente.
 - Cambios en `.vue` son visibles para clientes apenas hacen `npm update` y rebuild de su app — no hay paso intermedio.
 - No se pueden usar features que requieran transformación a build-time específica (ej. tipos `.d.ts` generados) salvo que el cliente ya los soporte.
 
@@ -42,11 +42,10 @@ import { HistrixApp, HistrixForm, HistrixTable } from '@mundoit-lib/histrix-comp
 | Router | `vue-router ^4` (peer opcional) |
 | Charts | `echarts ^5.6.0` + `vue-echarts ^7.0.3` |
 | Calendar | `@quasar/quasar-ui-qcalendar ^4.1.2` |
-| Lint/format | Biome 1.9 (CRLF, single-quote, 120 cols, sin trailing commas) |
-| Package manager raíz | pnpm 10.33.0 |
-| Package manager `ui/` y `ui/dev/` | pnpm |
-| Playground | Vite + `@quasar/vite-plugin` en `ui/dev/` |
-| CI | GitHub Actions → publica a npm en tags `v*` |
+| Lint/format | oxlint + oxfmt del monorepo (LF, single-quote, 120 cols, sin trailing commas) |
+| Package manager | pnpm (workspace del monorepo, un solo lockfile) |
+| Playground | Vite + `@quasar/vite-plugin` en `apps/playground` del monorepo |
+| CI | GitHub Actions del monorepo → publica a npm las versiones nuevas al mergear a `main` |
 
 ## Contexto Histrix
 

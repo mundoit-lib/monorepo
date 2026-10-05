@@ -7,18 +7,21 @@ Librerías frontend de Mundo IT. Cada carpeta de `packages/` es un paquete npm i
 | [`packages/plugin-vue-event`](packages/plugin-vue-event) | Bus de eventos global (`$events`, opción `events:`) | `@mundoit-lib/plugin-vue-event` |
 | [`packages/plugin-vue-auth`](packages/plugin-vue-auth) | Autenticación OAuth2 password grant contra Histrix (`useAuth`, `$auth`) | `@mundoit-lib/plugin-vue-auth` |
 | [`packages/plugin-vue-axios`](packages/plugin-vue-axios) | Instancia de axios compartida (`$axios`, `getAxiosInstance`, `setDatabase`) | `@mundoit-lib/plugin-vue-axios` |
+| [`packages/histrix-component-vue`](packages/histrix-component-vue) | Componentes Vue 3 + Quasar 2 del cliente Histrix. Se publica la fuente (`.vue`/JS), sin build | `@mundoit-lib/histrix-component-vue` |
 
 `tooling/` guarda configuración compartida que no se publica: [`tooling/typescript`](tooling/typescript) (`@mundoit-lib/tsconfig`, privado) tiene el `base.json` y el `library.json` que extiende cada paquete, y [`tooling/tsdown`](tooling/tsdown) (`@mundoit-lib/tsdown-config`, privado) exporta `libraryConfig({ entry })` con la config de build común (ESM `.js` + CJS `.cjs`, `platform: 'neutral'`, `es2022`, sin minificar: minifica el bundler de la app).
 
-Próximo en entrar: `@mundoit-lib/histrix-component-vue` (hoy en [`mundoit-lib/histrix-component-vue`](https://github.com/mundoit-lib/histrix-component-vue)), cuando termine el plan HD-7515.
+`apps/` guarda apps privadas que no se publican: [`apps/playground`](apps/playground) es el playground Vite + Quasar de `histrix-component-vue`, que consume la librería y los tres plugins por `workspace:*`.
+
+`histrix-component-vue` es *source-only*: sólo tiene `test` y `typecheck` (tsc sobre `types/`), así que turbo no le corre `build`, `check:exports` ni `size`. Sus tests son `.test.js` y corren con `TZ=UTC`.
 
 ## Desarrollo
 
 ```bash
 pnpm install          # una sola vez, instala todo el workspace
-pnpm build            # turbo → tsdown en cada paquete → packages/*/dist (con caché)
+pnpm build            # turbo → tsdown en cada paquete → packages/*/dist, y vite build del playground (con caché)
 pnpm typecheck        # turbo → tsc --noEmit en cada paquete
-pnpm test             # turbo → vitest en cada paquete (packages/*/src/**/*.test.ts)
+pnpm test             # turbo → vitest en cada paquete (packages/*/src/**/*.test.{ts,js})
 pnpm lint             # oxlint + oxfmt --check + sherif + knip; pnpm lint:fix para corregir
 pnpm check:exports    # publint + are-the-types-wrong sobre el dist de cada paquete
 pnpm size             # size-limit sobre el dist ESM de cada paquete (falla si pasa el presupuesto)
@@ -71,4 +74,4 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 
 ## Historia
 
-Los tres plugins se importaron con `git subtree` desde sus repos originales el 2026-10-01, conservando el historial. Los repos viejos quedan para archivar cuando la primera publicación desde acá salga bien.
+Los tres plugins se importaron con `git subtree` desde sus repos originales el 2026-10-01, conservando el historial. `histrix-component-vue` entró igual el 2026-10-05 (HD-7548), desde la carpeta `ui/` de su repo, con el playground a `apps/playground`. Los repos viejos quedan para archivar cuando la primera publicación desde acá salga bien.

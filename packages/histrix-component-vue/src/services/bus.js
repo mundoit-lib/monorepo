@@ -21,7 +21,8 @@ export function createHistrixBus() {
   };
   return {
     emit(name, ...args) {
-      for (const handler of [...(handlers.get(name) || [])]) {
+      // Copia: un handler puede hacer off() mientras se recorre la lista.
+      for (const handler of (handlers.get(name) || []).slice()) {
         try {
           handler(...args);
         } catch (error) {

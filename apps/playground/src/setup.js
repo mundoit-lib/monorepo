@@ -32,7 +32,7 @@ config.db = db;
 config.clientId = env.VITE_CLIENT_ID || '';
 config.clientSecret = env.VITE_CLIENT_SECRET || '';
 
-// Igual que el boot de axios de las apps reales (angel-alvarez-frontend):
+// Igual que el boot de axios de las apps reales (*-frontend):
 // pre-setear host/database en localStorage, que es de donde los leen
 // histrixApi (host()/currentDb()) y DatabaseSelector.
 if (typeof localStorage !== 'undefined' && host) {

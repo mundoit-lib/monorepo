@@ -1,8 +1,8 @@
 # 03 — Componentes y widgets
 
-Listado de lo que vive en `ui/src/components/`. Todos los componentes top-level inyectan funciones de `useApi()` (ver `04-servicios.md`) vía `setup()`, lo que les da acceso a `axios` y a `auth` configurados por la app consumidora.
+Listado de lo que vive en `src/components/`. Todos los componentes top-level inyectan funciones de `useApi()` (ver `04-servicios.md`) vía `setup()`, lo que les da acceso a `axios` y a `auth` configurados por la app consumidora.
 
-## Componentes top-level (`ui/src/components/`)
+## Componentes top-level (`src/components/`)
 
 | Componente | Propósito | Props principales | Eventos emitidos |
 |---|---|---|---|
@@ -29,7 +29,7 @@ Listado de lo que vive en `ui/src/components/`. Todos los componentes top-level 
 | **InputPassword** | Input con toggle show/hide y validaciones de fuerza. | (ver fichero) | `show`, `hide` |
 | **ExportForm** | Diálogo de export usado desde `HistrixTable`: formatos `xls` (Excel), `pdf`, `csv` (con delimitador configurable) y `xml`, definidos en `core/export.js` (`EXPORT_FORMATS`). Arma parámetros y nombre de archivo con `core/export.js` y descarga con `useApi().downloadAppData`; si falla, muestra el error con `$q.notify`. | `path`, `query`, `exportQuery`, `schema` | `close` |
 
-## Widgets (`ui/src/components/widgets/`)
+## Widgets (`src/components/widgets/`)
 
 | Widget | Propósito | Notas |
 |---|---|---|
@@ -47,7 +47,7 @@ Listado de lo que vive en `ui/src/components/`. Todos los componentes top-level 
 | **profileMenu** | Menú de perfil con rutas a `profile`, `systemSettings`, `about`. | — |
 | **profileMenuItems** | Variante items-only del menú de perfil. Acepta prop `mini`. | — |
 
-## Exposición pública (`ui/src/index.js`)
+## Exposición pública (`src/index.js`)
 
 `install(app, options)` (Vue 3) registra iterando una lista única **34 de los 35 componentes**; queda afuera `HistrixUnsupported`, que es interno de `HistrixApp`. El tag global de cada uno es su `name:` (`app.component(c.name, c)`). Los 34 son también named exports del import raíz y tienen subpath en `package.json -> exports`. `options` acepta `notify` (notifier propio; por defecto, uno con Quasar) y `onUnauthorized` (qué hacer ante un 401); ver `04-servicios.md`.
 
@@ -59,4 +59,4 @@ Eventos que la librería dispara por el bus global `$events` (`@mundoit-lib/plug
 - **Lazy components**: `HistrixApp` y `HistrixFileManager` se cargan con `defineLazyComponent(() => import(...))` (helper propio en `services/asyncComponents.js`) para evitar ciclos de import y reducir el bundle inicial.
 - **Localización del estado de DB**: `localStorage.database` y `localStorage.host` son la fuente de verdad runtime; `config.js` sólo aporta defaults desde env.
 - **`v-model` Vue 3**: los componentes editables emiten `update:modelValue` (NO el `input` de Vue 2 — eso quedó roto tras la migración y se corrigió el 2026-06-08 en `HistrixField`, `HistrixForm`, `HistrixTable`, `HistrixCalendar` y `DatabaseSelector`, que además pasó su prop `value`→`modelValue`). Al agregar un componente con `v-model`, usar `modelValue` + `emit('update:modelValue')` y declararlo en `emits`.
-- **Lógica del motor en `ui/src/core/`**: la lógica pura (fórmulas, condiciones y `data-formulas`, claves, tipos de pantalla/campo, options, filtros, export, fechas, visibilidad, íconos, links, URIs del schema, valores) vive en módulos testeables en `core/`; los componentes delegan en ellos vía wrappers finos. Ver `06-estado-actual.md`.
+- **Lógica del motor en `src/core/`**: la lógica pura (fórmulas, condiciones y `data-formulas`, claves, tipos de pantalla/campo, options, filtros, export, fechas, visibilidad, íconos, links, URIs del schema, valores) vive en módulos testeables en `core/`; los componentes delegan en ellos vía wrappers finos. Ver `06-estado-actual.md`.

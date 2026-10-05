@@ -2,7 +2,7 @@
 
 ## Cómo se consume
 
-Esta librería **se distribuye como código fuente**. El tarball de npm contiene `ui/src/` con los `.vue` sin compilar (`files: ["src"]` en `ui/package.json`); las apps clientes los importan y **su propio bundler los compila** (Vue 3 + Quasar 2).
+Esta librería **se distribuye como código fuente**. El tarball de npm contiene `src/` con los `.vue` sin compilar y los tipos de `types/` (`files` en `package.json`); las apps clientes los importan y **su propio bundler los compila** (Vue 3 + Quasar 2).
 
 Entradas del paquete:
 
@@ -16,53 +16,44 @@ Entradas del paquete:
 
 > Hasta v0.0.199 los campos `main`/`module` apuntaban a un `dist/` que nunca se publicó (el import raíz fallaba). Desde v0.1.0 apuntan a `src/index.esm.js` y el import raíz funciona.
 
-**No hay build step.** El pipeline Rollup legacy que vivía en `ui/build/` (ESM/CJS/UMD + CSS) se eliminó en la Fase 1 del plan de evolución; si alguna vez hace falta un bundle standalone, está en el historial de git (hasta `v0.0.199`).
+**No hay build step.** El pipeline Rollup legacy que vivía en `ui/build/` del repo viejo (ESM/CJS/UMD + CSS) se eliminó en la Fase 1 del plan de evolución; si alguna vez hace falta un bundle standalone, está en el historial de git (hasta `v0.0.199`).
 
 ## Versionado y publicación
 
-1. Bumpear `ui/package.json -> version` a mano.
-2. Commit: `Actualizar versión a 0.1.x; <cambios>`.
-3. `git tag v0.1.x && git push --tags` ← esto dispara CI.
-4. `.github/workflows/publish.yml` corre `npm publish` desde `ui/` con Node 24 y registry `https://registry.npmjs.org` (auth por OIDC: el workflow declara `id-token: write`).
+Igual que el resto del monorepo (`mundoit-lib/monorepo`, ver su README):
+
+1. El PR que cambia la librería bumpea `version` en `packages/histrix-component-vue/package.json`.
+2. Al mergear a `main`, `.github/workflows/publish.yml` corre los checks y `scripts/release.mjs`, que publica sólo las versiones que no están en npm (`pnpm pack` + `npm publish`, auth por OIDC trusted publishing) y crea el tag `histrix-component-vue@<version>`.
+3. `pnpm release:dry` en la raíz muestra qué se publicaría.
+
+No se publica a mano ni se crean tags a mano. Los tags `v0.x.y` son del repo viejo (`histrix-component-vue`, archivado).
 
 Reglas de versionado acordadas:
 
 - **`0.0.x`** — serie legacy Vue 2/Vue 3 vía `vue-demi`. Congelada; solo hotfixes críticos para apps Vue 2.
 - **`0.1.x`** — Vue 3 + Quasar 2 nativo (actual).
 
-### Hardening pendiente (opcional)
-
-No hay `provenance: true` ni `--access public` explícito en el `npm publish`. Si en algún momento se quiere endurecer el supply chain, agregar `npm publish --provenance --access public` al workflow.
-
 ## Desarrollo local: el playground
 
-`ui/dev/` es una app **Vite + Vue 3 + Quasar 2** que consume la librería local vía `link:..` (symlink vivo: editar `ui/src` se refleja con HMR) respetando los `exports` reales del paquete, igual que una app cliente. Reemplaza el flujo viejo de "probar pisando `node_modules` de un cliente".
+`apps/playground` (en el monorepo) es una app **Vite + Vue 3 + Quasar 2** que consume esta librería y los tres plugins por `workspace:*` (symlink vivo: editar `src/` se refleja con HMR) respetando los `exports` reales del paquete, igual que una app cliente.
 
 ```bash
-cd ui && pnpm install   # deps de la librería (link: no las instala solo)
-cd dev
-pnpm install
-cp .env.example .env    # host del backend, db, client_id/secret
-pnpm dev
+pnpm install                                            # en la raíz del monorepo
+cp apps/playground/.env.example apps/playground/.env    # host del backend, db, client_id/secret
+pnpm turbo run build --filter histrix-dev-playground    # buildea los plugins
+pnpm --filter histrix-dev-playground dev
 ```
 
-Funciones: login contra un backend Histrix real, y una ruta catch-all `/app/<path-del-xml>` que monta `<HistrixApp>` con cualquier pantalla. Detalle en `ui/dev/README.md`.
+Funciones: login contra un backend Histrix real, y una ruta catch-all `/app/<path-del-xml>` que monta `<HistrixApp>` con cualquier pantalla. Detalle en `apps/playground/README.md`.
 
-`pnpm build` dentro de `ui/dev/` compila **todos** los `.vue` de la librería con Vue 3 + Quasar 2 reales — es el smoke test de compilación más barato que tenemos (sin tests todavía; ver Fase 2 en `08-plan-evolucion.md`).
+`pnpm build` en la raíz también buildea el playground: compila **todos** los `.vue` de la librería con Vue 3 + Quasar 2 reales y corre en CI como smoke test de compilación.
 
-> El `npm publish` del CI no cambia: publicar no usa lockfile ni node_modules.
+## Tests, tipos y lint
 
-## Lint y format
-
-En la raíz:
-```
-pnpm check   # biome check --write --unsafe (lint + format + organize imports)
-pnpm lint    # biome lint --write
+```bash
+pnpm --filter @mundoit-lib/histrix-component-vue test       # Vitest (config de la raíz, TZ=UTC)
+pnpm --filter @mundoit-lib/histrix-component-vue typecheck  # tsc sobre types/ contra las fixtures
+pnpm lint                                                   # oxlint + oxfmt --check + sherif + knip
 ```
 
-Reglas Biome relevantes (`biome.json`):
-- Indent 2 espacios, line width 120, **CRLF**, comillas simples, sin trailing commas, sin punto y coma opcional.
-- `noUndeclaredVariables: error`, `noUnusedVariables: error` (correctness).
-- `noNamespace: error` (style), `noEmptyBlockStatements: error` (suspicious).
-- `useSortedClasses` (nursery, warn) sobre `class`/`className` y helpers `cn|cx|clsx`.
-- Usa `.gitignore` como `useIgnoreFile`.
+El formato es el del monorepo (`.oxfmtrc.json`): 2 espacios, 120 columnas, **LF**, comillas simples, sin trailing commas. Como el paquete no tiene build, turbo no le corre `build`, `check:exports` ni `size`.

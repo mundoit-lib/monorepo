@@ -8,10 +8,10 @@ import Unocss from 'unocss/vite';
 import { defineConfig } from 'vite';
 
 const here = dirname(fileURLToPath(import.meta.url));
-// La librería vive un nivel arriba (ui/) y se enlaza como `link:..` (symlink
-// vivo: editar ui/src se refleja al instante). Sus componentes .vue están en
-// ui/src/ y Vite tiene que poder leerlos a través del symlink de node_modules.
-const libRoot = resolve(here, '..');
+// Raíz del monorepo: la librería (packages/histrix-component-vue) y los plugins
+// llegan por `workspace:*` (symlink vivo: editar su src se refleja al instante)
+// y Vite tiene que poder leer sus .vue a través del symlink de node_modules.
+const monorepoRoot = resolve(here, '..', '..');
 
 // Resolución portable (npm y pnpm) del Quasar 2 del playground. Con pnpm el
 // layout físico de node_modules es distinto (symlinks a .pnpm/), así que nunca
@@ -28,14 +28,14 @@ export default defineConfig({
       sassVariables: fileURLToPath(new URL('./src/quasar-variables.sass', import.meta.url))
     }),
     // Utility classes estilo Tailwind, como en todas las apps de Mundo IT
-    // (config en unocss.config.js, espejo de angel-alvarez-frontend).
+    // (config en unocss.config.js, espejo del de las apps *-frontend).
     Unocss()
   ],
 
   resolve: {
-    // Una sola copia de vue / vue-demi / quasar en todo el grafo, aunque la
-    // librería symlinkeada (ui/) tenga su propio node_modules con copias.
-    dedupe: ['vue', 'vue-demi', 'quasar', '@vuelidate/core', '@vuelidate/validators'],
+    // Una sola copia de vue / quasar en todo el grafo, aunque la librería
+    // del workspace tenga su propio node_modules con copias.
+    dedupe: ['vue', 'quasar', '@vuelidate/core', '@vuelidate/validators'],
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
       // El @quasar/vite-plugin inyecta imports profundos `quasar/src/...`
@@ -58,22 +58,15 @@ export default defineConfig({
     // plugin de Vue en lugar de tratarla como dependencia ya construida.
     exclude: ['@mundoit-lib/histrix-component-vue'],
     // Estas sí conviene pre-bundlearlas (la lib las importa internamente).
-    include: [
-      '@vuelidate/core',
-      '@vuelidate/validators',
-      'vue-demi',
-      'echarts',
-      'vue-echarts',
-      '@quasar/quasar-ui-qcalendar'
-    ]
+    include: ['@vuelidate/core', '@vuelidate/validators', 'echarts', 'vue-echarts', '@quasar/quasar-ui-qcalendar']
   },
 
   server: {
     port: 5180,
     fs: {
-      // Permitir que el dev server sirva archivos de la raíz de la librería
-      // (ui/) a través del symlink link:.. y del repo en general.
-      allow: [here, libRoot, resolve(here, '..', '..')]
+      // Permitir que el dev server sirva archivos del monorepo (la librería y los
+      // plugins del workspace) a través de los symlinks de node_modules.
+      allow: [monorepoRoot]
     }
   }
 });

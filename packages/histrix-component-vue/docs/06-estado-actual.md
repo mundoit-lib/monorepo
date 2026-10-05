@@ -1,5 +1,7 @@
 # 06 — Estado actual y notas
 
+> Foto tomada en el repo viejo, antes de la mudanza al monorepo (HD-7548): las rutas `ui/…`, Biome y los tags `v*` son de ese repo. Hoy el código está en `packages/histrix-component-vue` y el playground en `apps/playground`.
+
 > Snapshot al **2026-10-01**, `main` (hasta `c3066e9`), `ui/package.json` en v**0.1.3** (sin tag todavía; la última publicada en npm es 0.1.2). Base: la auditoría del 2026-09-30 (`09-auditoria-2026-09-30.md`, local), actualizada con lo que se mergeó el 2026-10-01.
 
 ## Fotografía (2026-10-01)
@@ -18,7 +20,7 @@
 | Los 4 core | `HistrixTable` ~1.480 · `HistrixField` ~1.080 · `HistrixForm` ~810 · `HistrixApp` ~790 |
 | `eval` / `new Function` | 0 |
 
-Consumidores en Vue 3 (`@mundoit-lib/histrix-component-vue`): tork-frontend (0.1.2), angel-alvarez-frontend (0.1.0), rodamar, transcaden y prosilo (0.0.19x, ya en Vue 3.5 + Quasar 2: pueden subir a 0.1.x sin migrar framework). Los clientes Quasar 1 siguen en las librerías viejas.
+Consumidores en Vue 3 (`@mundoit-lib/histrix-component-vue`): las apps `*-frontend` de Mundo IT, unas en 0.1.x y otras en 0.0.19x (ya en Vue 3.5 + Quasar 2: pueden subir a 0.1.x sin migrar framework). Los clientes Quasar 1 siguen en las librerías viejas.
 
 ## Junio–octubre 2026, por commit
 

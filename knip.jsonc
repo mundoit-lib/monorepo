@@ -8,6 +8,26 @@
     "packages/*": {
       // Tests de tipos: los toma typecheck.include de vitest.config.ts, que el plugin de vitest de knip no lee.
       "entry": ["src/**/*.test-d.ts"]
+    },
+    "packages/histrix-component-vue": {
+      // Fuente publicada tal cual (JS + .vue, sin build): las entradas son los `exports` del package.json.
+      // types/check es el proyecto tsc de su `typecheck`.
+      "entry": ["types/check/*.ts"],
+      // Enlazan los plugins del workspace: sin esto pnpm resuelve sus peers opcionales con las 1.x de npm.
+      "ignoreDependencies": [
+        "@mundoit-lib/plugin-vue-auth",
+        "@mundoit-lib/plugin-vue-axios",
+        "@mundoit-lib/plugin-vue-event"
+      ]
+    },
+    "apps/playground": {
+      // Scripts de mantenimiento que se corren a mano con node (capturar fixtures, cobertura de jseval).
+      "entry": ["scripts/*.mjs"]
     }
+  },
+  "ignoreIssues": {
+    // Código heredado del repo histrix-component-vue: exports internos sin uso y `export` + `export default`
+    // del mismo valor. Se limpian aparte, sin mezclarlo con la mudanza.
+    "packages/histrix-component-vue/src/**": ["exports", "duplicates"]
   }
 }

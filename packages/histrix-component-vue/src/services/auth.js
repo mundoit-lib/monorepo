@@ -24,7 +24,7 @@ export function createAuthAdapter(impl = {}) {
   const notify = (user) => {
     if (user === last) return;
     last = user;
-    for (const cb of [...listeners]) {
+    for (const cb of Array.from(listeners)) {
       try {
         cb(user);
       } catch (error) {

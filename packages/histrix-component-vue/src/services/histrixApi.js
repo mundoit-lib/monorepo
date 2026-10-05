@@ -412,7 +412,7 @@ export function createHistrixClient(options = {}) {
         const response = await getData(url);
         if (Array.isArray(response.data)) return response.data;
         return response.data?.favorites ?? [];
-      } catch (_error) {
+      } catch {
         return [];
       }
     },
@@ -423,7 +423,7 @@ export function createHistrixClient(options = {}) {
         const response = await getData(url);
         const keys = Array.isArray(response.data) ? response.data : (response.data?.favorites ?? []);
         return { keys };
-      } catch (_error) {
+      } catch {
         return { keys: [] };
       }
     },
@@ -434,7 +434,7 @@ export function createHistrixClient(options = {}) {
       try {
         const response = await getData(url);
         favorites = Array.isArray(response.data) ? response.data : (response.data?.favorites ?? []);
-      } catch (_error) {
+      } catch {
         favorites = [];
       }
       favorites.push({ menuId, uri, name });
@@ -451,7 +451,7 @@ export function createHistrixClient(options = {}) {
       try {
         const response = await getData(url);
         favorites = Array.isArray(response.data) ? response.data : (response.data?.favorites ?? []);
-      } catch (_error) {
+      } catch {
         return null;
       }
       const index = favorites.findIndex((item) => item.menuId === menuId);

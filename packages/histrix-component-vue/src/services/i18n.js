@@ -26,7 +26,7 @@ export function createHistrixI18n({ locale = 'es', messages = {} } = {}) {
   const current = isRef(locale) ? locale : ref(locale || 'es');
   const dictionaries = { ...defaultMessages };
   for (const [lang, dict] of Object.entries(messages || {})) {
-    dictionaries[lang] = { ...(dictionaries[lang] || {}), ...dict };
+    dictionaries[lang] = { ...dictionaries[lang], ...dict };
   }
   const t = (key, params) => {
     const text = dictionaries[current.value]?.[key] ?? dictionaries.es[key] ?? key;

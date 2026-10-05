@@ -60,10 +60,10 @@ export function buildFieldQueries(fields, values, externalQuery = {}) {
     for (const relation of field.update_fields) {
       if (relation.parentField) {
         const parent = queries[relation.parentField] || {};
-        parent[relation.field] = { ...(parent[relation.field] || {}), [relation.targetField]: value };
+        parent[relation.field] = { ...parent[relation.field], [relation.targetField]: value };
         queries[relation.parentField] = parent;
       } else {
-        queries[relation.field] = { ...(queries[relation.field] || {}), [relation.targetField]: value };
+        queries[relation.field] = { ...queries[relation.field], [relation.targetField]: value };
       }
     }
   }

@@ -422,7 +422,7 @@ export function parseFormula(formula) {
   try {
     const tokens = tokenize(clean(formula));
     if (tokens.length > 0) tree = parse(tokens);
-  } catch (_e) {
+  } catch {
     tree = null;
   }
   if (cache.size >= CACHE_MAX) cache.clear();
@@ -460,7 +460,7 @@ export function evaluateFormula(formula, getValue, opts = {}) {
   let result;
   try {
     result = run(tree, { getValue, row: opts.row, parent: opts.parent });
-  } catch (_e) {
+  } catch {
     return undefined; // campo faltante o error en tiempo de evaluación (p. ej. toFixed(200))
   }
   if (typeof result === 'number') {

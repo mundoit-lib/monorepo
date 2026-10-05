@@ -9,7 +9,10 @@ const enRaiz = process.cwd() === import.meta.dirname;
 export default defineConfig({
   test: {
     environment: 'node',
-    include: ['**/src/**/*.test.ts'],
+    // .test.js: histrix-component-vue es JavaScript (fuente publicada tal cual, sin build).
+    include: ['**/src/**/*.test.ts', '**/src/**/*.test.js'],
+    // TZ fijo: los tests de fechas de histrix-component-vue preservan el workaround de timezone del motor.
+    env: { TZ: 'UTC' },
     passWithNoTests: true,
     // Tests de tipos (expectTypeOf, @ts-expect-error): los valida tsc con el tsconfig del paquete.
     typecheck: {

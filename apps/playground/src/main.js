@@ -16,7 +16,7 @@ import '@quasar/extras/material-icons/material-icons.css';
 import 'quasar/src/css/index.sass';
 
 // Plugins @mundoit-lib — mismo patrón que los boot files de las apps reales
-// (referencia: angel-alvarez-frontend/src/boot/{axios,auth,events}.js).
+// (src/boot/{axios,auth,events}.js de una app *-frontend).
 import { install as authPlugin } from '@mundoit-lib/plugin-vue-auth';
 import { axiosInstance, install as axiosPlugin } from '@mundoit-lib/plugin-vue-axios';
 // v1.0.2+ exporta named `eventsPlugin` (la 1.0.0 de las apps viejas tenía default export).

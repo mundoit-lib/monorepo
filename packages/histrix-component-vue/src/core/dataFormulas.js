@@ -36,7 +36,7 @@ export function parseDataFormulas(raw) {
   try {
     const parsed = JSON.parse(decodeEntities(raw));
     return Array.isArray(parsed) ? parsed : [];
-  } catch (_e) {
+  } catch {
     return [];
   }
 }

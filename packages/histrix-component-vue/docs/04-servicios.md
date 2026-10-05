@@ -100,7 +100,7 @@ Los componentes no deberían llamar a Quasar para avisar: usan un **notifier iny
 
 ### Export (`core/export.js`)
 
-La parte testeable del export vive en `ui/src/core/export.js` (27 tests); el service sólo hace la descarga binaria (Blob + `<a download>`).
+La parte testeable del export vive en `src/core/export.js` (27 tests); el service sólo hace la descarga binaria (Blob + `<a download>`).
 
 | Export | Qué hace |
 |---|---|
@@ -122,7 +122,7 @@ Refactorizada en `d2fa119`. Hoy la API:
 
 ## `services/histrix-bearer.js`
 
-Driver "bearer token" para `@mundoit-lib/plugin-vue-auth`: `request()` setea `Authorization: Bearer {token}` y `response()` extrae `access_token` del payload OAuth del login. En la Fase 1 se redujo al mínimo funcional (se eliminó el código comentado y un cálculo roto de expiración que nunca se usó). Las apps lo pasan como `authDriver` al configurar el plugin (el playground `ui/dev/` lo hace así). El manejo fino de `refresh_token`/`expires_in` sigue pendiente.
+Driver "bearer token" para `@mundoit-lib/plugin-vue-auth`: `request()` setea `Authorization: Bearer {token}` y `response()` extrae `access_token` del payload OAuth del login. En la Fase 1 se redujo al mínimo funcional (se eliminó el código comentado y un cálculo roto de expiración que nunca se usó). Las apps lo pasan como `authDriver` al configurar el plugin (el playground `apps/playground` lo hace así). El manejo fino de `refresh_token`/`expires_in` sigue pendiente.
 
 ## `services/asyncComponents.js`
 
@@ -134,7 +134,7 @@ Usado por `HistrixApp` (mapa `schema.type` → componente), `HistrixField` y `Hi
 
 ## Peers opcionales: `$events` y `$router`
 
-Además de los peers obligatorios, `ui/package.json` declara dos **peers opcionales** (`peerDependenciesMeta`). Los componentes que los usan sólo funcionan si la app los instaló:
+Además de los peers obligatorios, `package.json` declara dos **peers opcionales** (`peerDependenciesMeta`). Los componentes que los usan sólo funcionan si la app los instaló:
 
 - **`@mundoit-lib/plugin-vue-event`** (bus `$events`): `HistrixForm`, `HistrixTable`, `HistrixExpansionMenu`, `FormLoginNotStyles` y `HistrixLoginSplit` disparan eventos por ahí (lista en `03-componentes.md`). `HistrixLoginSplit` chequea que exista; el resto falla si no está.
 - **`vue-router@^4`** (`$router`): `HistrixApp` (redirect), `HistrixForm`, `HistrixList`, `HistrixTable`, `HistrixTree`, `HistrixExpansionMenu` y `HistrixMenuSearch` navegan con `push`/`replace`.

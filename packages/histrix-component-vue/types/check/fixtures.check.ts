@@ -1,6 +1,6 @@
 /**
- * Validación local de los tipos contra las fixtures reales (no se publica):
- *   pnpm dlx -p typescript tsc -p ui/types/check
+ * Validación de los tipos contra las fixtures reales (no se publica):
+ *   pnpm --filter @mundoit-lib/histrix-component-vue typecheck (lo corre `pnpm typecheck`)
  */
 import type { AppDataResponse, HistrixFieldSchema, SchemaResponse } from '../index';
 

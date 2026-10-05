@@ -1,29 +1,23 @@
 # Histrix Dev Playground
 
 App Vite + Vue 3 + Quasar 2 + **UnoCSS** para **smoke-testear** la librería
-`@mundoit-lib/histrix-component-vue` (enlazada como `link:..` desde `ui/` —
-symlink vivo: editar `ui/src` se refleja al instante con HMR)
-contra un backend Histrix real.
+`@mundoit-lib/histrix-component-vue` contra un backend Histrix real. La librería
+y los tres plugins (`plugin-vue-axios`, `plugin-vue-auth`, `plugin-vue-event`)
+llegan por `workspace:*` desde `packages/`: editar su código se refleja al
+instante con HMR (los plugins, después de `pnpm build`).
 
 La configuración replica el patrón de las **apps reales de Mundo IT**
-(referencia: `angel-alvarez-frontend`): mismos plugins (`plugin-vue-axios`,
-`plugin-vue-auth` con sus defaults, `plugin-vue-event`), mismo mapeo de env,
-mismo guard de router, y UnoCSS (presetUno + presetWind) para clases utility
-estilo Tailwind que conviven con Quasar (`unocss.config.js`).
+(`*-frontend`): mismos plugins con sus defaults, mismo mapeo de env, mismo guard
+de router, y UnoCSS (presetUno + presetWind) para clases utility estilo Tailwind
+que conviven con Quasar (`unocss.config.js`).
 
 La librería es *source-only*: sus componentes `.vue` se compilan en vivo con el
 plugin de Vue de Vite (por eso está en `optimizeDeps.exclude`).
 
-> **Package manager: pnpm** (como todo el repo). Con `link:..` pnpm **no**
-> instala las dependencias de la librería enlazada, por eso `ui/` tiene su
-> propio `pnpm install` (ver "Correr").
-
 ## Configuración
 
-1. El `.env` ya viene cargado con el backend de prueba de **Angel Álvarez**
-   (host, db, credenciales OAuth y usuario de prueba — copiados de
-   `angel-alvarez-frontend`). Para apuntar a otro backend, editalo o
-   regeneralo desde el ejemplo:
+1. El `.env` no se versiona. Crealo desde el ejemplo y completá host, base y
+   credenciales OAuth de un backend de prueba:
 
    ```bash
    cp .env.example .env
@@ -49,24 +43,16 @@ plugin de Vue de Vite (por eso está en `optimizeDeps.exclude`).
 
 ## Correr
 
-```bash
-# 1. Deps de la librería (una vez, o cuando cambien sus dependencies):
-cd ui && pnpm install
+Desde la raíz del monorepo (un solo `pnpm install` para todo el workspace):
 
-# 2. Playground:
-cd dev
+```bash
 pnpm install
-pnpm dev         # http://localhost:5180
+pnpm turbo run build --filter histrix-dev-playground      # buildea los plugins (dependsOn ^build) y el playground
+pnpm --filter histrix-dev-playground dev                  # http://localhost:5180
 ```
 
-`pnpm build` y `pnpm preview` también están disponibles. `pnpm build` compila
-**todos** los `.vue` de la librería — es el smoke test de compilación del repo.
-
-> pnpm 10 bloquea los postinstall de dependencias por defecto. Los necesarios
-> (`esbuild`, `vue-demi`) ya están autorizados en `package.json -> pnpm.onlyBuiltDependencies`.
-> El de `@mundoit-lib/plugin-vue-auth` (`npx vue-demi-fix`) queda bloqueado a
-> propósito: es innecesario acá (vue-demi ya queda en modo Vue 3 y `dedupe`
-> fuerza la copia del playground).
+`pnpm build` en la raíz también buildea el playground: compila **todos** los
+`.vue` de la librería y es el smoke test de compilación en CI.
 
 ## Uso
 
@@ -80,8 +66,8 @@ pnpm dev         # http://localhost:5180
 
 - `vite.config.js` define `process.env: {}` porque `config.js` de la librería
   lee `process.env.*` (en el browser no existe `process`).
-- `resolve.dedupe` garantiza una sola copia de `vue`/`vue-demi`/`quasar`/Vuelidate
-  aunque `ui/node_modules` tenga las suyas; el alias `quasar/src/` se resuelve
+- `resolve.dedupe` garantiza una sola copia de `vue`/`quasar`/Vuelidate
+  aunque la librería del workspace tenga las suyas en su `node_modules`; el alias `quasar/src/` se resuelve
   con `require.resolve` (portable entre npm y pnpm — nunca rutas a mano).
 - Plugins `@mundoit-lib/plugin-vue-axios` (HTTP) y `@mundoit-lib/plugin-vue-auth`
   (auth) se instalan en [`src/main.js`](./src/main.js) con la **misma forma que
@@ -89,8 +75,8 @@ pnpm dev         # http://localhost:5180
   `{ plugins: { http: axiosInstance, router } }` — sus defaults ya son los
   correctos para Histrix (`tokenDefaultKey: 'accessToken'`, driver que extrae
   `res.data.access_token`).
-- `$events` lo provee `@mundoit-lib/plugin-vue-event` (v1.0.2: named export
-  `eventsPlugin`; la 1.0.0 de apps viejas usaba default export). La librería
+- `$events` lo provee `@mundoit-lib/plugin-vue-event` (named export
+  `eventsPlugin`). La librería
   avisa por ahí `login-ok`, `loaded-user`, `update-favorit`, etc. Es opcional:
   con `VITE_NO_EVENTS=1 pnpm dev` no se instala y la librería usa su bus interno
   (así se prueba una app sin `plugin-vue-event`).

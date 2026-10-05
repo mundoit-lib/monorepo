@@ -73,7 +73,7 @@ export function messageFromData(data) {
     if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
       try {
         return messageFromData(JSON.parse(trimmed));
-      } catch (_e) {
+      } catch {
         // No era JSON: se trata como texto.
       }
     }

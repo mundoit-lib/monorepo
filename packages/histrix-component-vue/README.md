@@ -221,17 +221,17 @@ Dentro de un `textarea`, un `contenteditable` o un `QEditor` no se intercepta ni
 
 ## Desarrollo
 
-El playground vive en `dev/` (Vite + Quasar 2, consume esta librería vía `link:..`). Todo el repo usa **pnpm**:
+La librería vive en el monorepo [`mundoit-lib/monorepo`](https://github.com/mundoit-lib/monorepo) (`packages/histrix-component-vue`). El playground está en `apps/playground` (Vite + Quasar 2) y consume esta librería y los tres plugins por `workspace:*`. Desde la raíz del monorepo:
 
 ```bash
-pnpm install           # deps de la librería (en ui/)
-cd dev
 pnpm install
-cp .env.example .env   # completar host/db/credenciales
-pnpm dev
+cp apps/playground/.env.example apps/playground/.env   # completar host/db/credenciales
+pnpm turbo run build --filter histrix-dev-playground   # buildea los plugins
+pnpm --filter histrix-dev-playground dev
+pnpm --filter @mundoit-lib/histrix-component-vue test
 ```
 
-La documentación interna completa (arquitectura, contrato del schema, trampas del backend) está en el [repo](https://github.com/mundoit-lib/histrix-component-vue), carpeta `docs/`.
+La documentación interna (arquitectura, componentes, servicios, plan de evolución) está en [`docs/`](https://github.com/mundoit-lib/monorepo/tree/main/packages/histrix-component-vue/docs).
 
 ## Licencia
 

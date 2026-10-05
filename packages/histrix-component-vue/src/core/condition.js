@@ -221,7 +221,7 @@ export function evaluateCondition(formula, getValue) {
 
   try {
     return truthy(evalRPN(toRPN(normalizeUnary(resolved))));
-  } catch (_e) {
+  } catch {
     return false;
   }
 }

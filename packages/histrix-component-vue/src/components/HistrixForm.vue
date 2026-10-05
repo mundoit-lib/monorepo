@@ -443,7 +443,7 @@ export default {
   watch: {
     editedItem: {
       handler(_data) {
-        this.localValues = { ...this.editedItem, ...{} };
+        this.localValues = { ...this.editedItem };
       },
       deep: true
     },
@@ -473,7 +473,7 @@ export default {
   methods: {
     refresh() {
       this.localSchema = this.schema;
-      this.localValues = { ...this.editedItem, ...{} };
+      this.localValues = { ...this.editedItem };
 
       Object.keys(this.query).map((key) => {
         this.localValues[key] = this.query[key];
@@ -550,7 +550,7 @@ export default {
       return evaluateFormula(formula, (k) => this.localValues[k]);
     },
     reset() {
-      this.localValues = { ...this.editedItem, ...{} };
+      this.localValues = { ...this.editedItem };
       this.setDefaultValues();
     },
     fillFields(targets) {

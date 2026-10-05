@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`fixture 'abm' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture abm > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "id_presup_motivo": {
@@ -36,7 +36,7 @@ exports[`fixture 'abm' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'abm-mini' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture abm-mini > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "id_stklista": {
@@ -94,7 +94,7 @@ exports[`fixture 'abm-mini' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'arbol' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture arbol > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "comportamiento": {
@@ -252,7 +252,7 @@ exports[`fixture 'arbol' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'ayuda' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture ayuda > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "ctbnombre_cuenta": {
@@ -286,7 +286,7 @@ exports[`fixture 'ayuda' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'calendar' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture calendar > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "acreditacion_valor": {
@@ -424,7 +424,7 @@ exports[`fixture 'calendar' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'chart' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture chart > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "cantidad_cotizada": {
@@ -454,7 +454,7 @@ exports[`fixture 'chart' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'consulta-filtros' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture consulta-filtros > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "Orden_compa": {
@@ -607,7 +607,7 @@ exports[`fixture 'consulta-filtros' > resuelve los kinds sin tirar (snapshot) 1`
 }
 `;
 
-exports[`fixture 'consulta-paginada' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture consulta-paginada > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "cajmovimiento_id": {
@@ -658,7 +658,7 @@ exports[`fixture 'consulta-paginada' > resuelve los kinds sin tirar (snapshot) 1
 }
 `;
 
-exports[`fixture 'crud' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture crud > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "Composicion": {
@@ -990,7 +990,7 @@ exports[`fixture 'crud' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'crud-helper-link' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture crud-helper-link > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "descripcion": {
@@ -1022,7 +1022,7 @@ exports[`fixture 'crud-helper-link' > resuelve los kinds sin tirar (snapshot) 1`
 }
 `;
 
-exports[`fixture 'crud-update-fields' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture crud-update-fields > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "domicilio_sucursal": {
@@ -1099,7 +1099,7 @@ exports[`fixture 'crud-update-fields' > resuelve los kinds sin tirar (snapshot) 
 }
 `;
 
-exports[`fixture 'dashboard' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture dashboard > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {},
   "keys": [],
@@ -1109,7 +1109,7 @@ exports[`fixture 'dashboard' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'ficha-prefetch' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture ficha-prefetch > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "fcs_grid": {
@@ -1174,7 +1174,7 @@ exports[`fixture 'ficha-prefetch' > resuelve los kinds sin tirar (snapshot) 1`] 
 }
 `;
 
-exports[`fixture 'fichaing-formulas' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture fichaing-formulas > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "cantidad": {
@@ -1249,7 +1249,7 @@ exports[`fixture 'fichaing-formulas' > resuelve los kinds sin tirar (snapshot) 1
 }
 `;
 
-exports[`fixture 'fichaing-ing' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture fichaing-ing > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "alta_movimiento": {
@@ -1469,7 +1469,7 @@ exports[`fixture 'fichaing-ing' > resuelve los kinds sin tirar (snapshot) 1`] = 
 }
 `;
 
-exports[`fixture 'grid' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture grid > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "acreditacion_valor": {
@@ -1580,7 +1580,7 @@ exports[`fixture 'grid' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'ing' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture ing > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "_ORDEN": {
@@ -1648,7 +1648,7 @@ exports[`fixture 'ing' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'livegrid' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture livegrid > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "cantidad_articulos": {
@@ -1785,7 +1785,7 @@ exports[`fixture 'livegrid' > resuelve los kinds sin tirar (snapshot) 1`] = `
 }
 `;
 
-exports[`fixture 'treetable' > resuelve los kinds sin tirar (snapshot) 1`] = `
+exports[`fixture treetable > resuelve los kinds sin tirar (snapshot) 1`] = `
 {
   "fields": {
     "cuenta_superior_id": {

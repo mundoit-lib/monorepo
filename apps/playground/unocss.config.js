@@ -1,5 +1,5 @@
 // Config UnoCSS — espejo de la que usan las apps reales de Mundo IT
-// (ver angel-alvarez-frontend/unocss.config.js): clases utility estilo
+// (ver el unocss.config.js de las apps *-frontend): clases utility estilo
 // Tailwind (presetUno + presetWind) conviviendo con Quasar sin conflictos.
 import { presetUno } from '@unocss/preset-uno';
 import { presetWind } from '@unocss/preset-wind';

@@ -72,12 +72,11 @@ describe.each(fixtures)('fixture $name', ({ schemaResponse, schema, data }) => {
   });
 
   it('options_sorted: las claves con espacio quedan sin espacio', () => {
-    for (const field of Object.values(fields)) {
-      if (!field.options_sorted) continue;
-      for (const { value } of mapDictOptions(field.options_sorted, false).data) {
-        if (typeof value === 'string') expect(value).toBe(value.trim());
-      }
-    }
+    const conEspacio = Object.values(fields)
+      .filter((field) => field.options_sorted)
+      .flatMap((field) => mapDictOptions(field.options_sorted, false).data.map(({ value }) => value))
+      .filter((value) => typeof value === 'string' && value !== value.trim());
+    expect(conEspacio).toEqual([]);
   });
 
   it('data-formulas: evalúa contra la primera fila sin tirar', () => {
