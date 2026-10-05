@@ -38,19 +38,12 @@
               :label="localSchema.title"
               class="bg-primary text-white"
             >
-              <q-tooltip anchor="top middle" self="bottom middle">
-                Solapa principal {{ localSchema.title }}
-              </q-tooltip>
+              <q-tooltip anchor="top middle" self="bottom middle"> Solapa principal {{ localSchema.title }} </q-tooltip>
             </q-tab>
             <span v-else>
               {{ localSchema.title }}
             </span>
-            <q-tab
-              v-for="tab in innerTabs"
-              :name="tab.name"
-              v-bind:key="tab.name"
-              :label="tab.title || tab.name"
-            >
+            <q-tab v-for="tab in innerTabs" :name="tab.name" v-bind:key="tab.name" :label="tab.title || tab.name">
               <q-tooltip anchor="top middle" self="bottom middle">
                 Click para mas información con respecto a {{ tab.title }}
               </q-tooltip>
@@ -69,21 +62,11 @@
                 >
                   <q-item dense>
                     <q-item-section>
-                      <q-item-label
-                        v-if="
-                          editedRow &&
-                          editedRow[field.name] &&
-                          editedRow[field.name]['link']
-                        "
-                      >
+                      <q-item-label v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']">
                         {{ field.title }}
                       </q-item-label>
                       <HistrixCell
-                        v-if="
-                          editedRow &&
-                          editedRow[field.name] &&
-                          editedRow[field.name]['link']
-                        "
+                        v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']"
                         :path="path"
                         :props="editedRow[field.name]"
                         :schema="field"
@@ -110,10 +93,7 @@
                         v-else-if="!localSchema.readonly"
                       >
                         <template v-slot:slot-top-field-histrixapp="props">
-                          <slot
-                            name="slot-top-field-histrixapp"
-                            :props="props.props"
-                          />
+                          <slot name="slot-top-field-histrixapp" :props="props.props" />
                         </template>
                       </HistrixField>
                       <div v-else>
@@ -124,11 +104,7 @@
                 </div>
               </div>
             </q-tab-panel>
-            <q-tab-panel
-              v-for="field in innerTabs"
-              :name="field.name"
-              v-bind:key="field.name"
-            >
+            <q-tab-panel v-for="field in innerTabs" :name="field.name" v-bind:key="field.name">
               <HistrixField
                 :model-value="localValues[field.name]"
                 @update:model-value="localValues[field.name] = $event"

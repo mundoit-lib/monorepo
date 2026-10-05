@@ -2,8 +2,8 @@
   "name": "histrix-dev-playground",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "description": "Playground Vite + Vue 3 + Quasar para smoke-testear @mundoit-lib/histrix-component-vue contra un backend Histrix real",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -33,6 +33,9 @@
     "vite": "^5.4.0"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["esbuild", "vue-demi"]
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "vue-demi"
+    ]
   }
 }

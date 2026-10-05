@@ -1,8 +1,8 @@
 <template>
-  <div  class="q-pa-md">
-    <q-card bordered padding >
+  <div class="q-pa-md">
+    <q-card bordered padding>
       <q-item v-for="log in data" v-bind:key="log">
-       <q-item-section> {{ log }} </q-item-section>
+        <q-item-section> {{ log }} </q-item-section>
       </q-item>
     </q-card>
   </div>

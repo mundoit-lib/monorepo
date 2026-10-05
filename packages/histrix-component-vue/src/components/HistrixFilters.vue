@@ -1,6 +1,5 @@
 <template>
   <div class="histrix-filters full-width" @histrix-clear="onClearKey">
-
     <!-- Búsqueda avanzada: varios filtros dentro de un acordeón -->
     <template v-if="filterCount > 1">
       <q-expansion-item
@@ -13,11 +12,7 @@
       >
         <div class="histrix-filters__body q-pa-md">
           <div class="row q-col-gutter-sm">
-            <div
-              v-for="field in filters"
-              v-bind:key="field.uid"
-              class="col-xs-12 col-sm-6"
-            >
+            <div v-for="field in filters" v-bind:key="field.uid" class="col-xs-12 col-sm-6">
               <HistrixField
                 class="full-width"
                 dense
@@ -29,10 +24,7 @@
               />
             </div>
           </div>
-          <div
-            v-if="schema.filters[0] && !autoFilter"
-            class="row justify-end q-mt-md"
-          >
+          <div v-if="schema.filters[0] && !autoFilter" class="row justify-end q-mt-md">
             <q-btn
               class="histrix-filters__btn"
               color="secondary"
@@ -48,16 +40,8 @@
     </template>
 
     <!-- Filtro único: campo + botón en línea (desktop) / apilados (celular) -->
-    <div
-      v-else-if="filterCount == 1"
-      class="row items-center"
-      style="gap: 8px;"
-    >
-      <div
-        v-for="field in filters"
-        v-bind:key="field.uid"
-        class="col-xs-12 col-sm-auto"
-      >
+    <div v-else-if="filterCount == 1" class="row items-center" style="gap: 8px">
+      <div v-for="field in filters" v-bind:key="field.uid" class="col-xs-12 col-sm-auto">
         <HistrixField
           class="full-width"
           :model-value="field.valor"

@@ -5,8 +5,8 @@
       <div class="text-h6 q-mt-sm">Pantalla no implementada en el playground</div>
       <div class="text-body2 text-grey-7 q-mt-sm">
         El formulario de login de la librería enlaza a
-        <code>{{ name }}</code> (registro / recupero de contraseña). Este
-        playground es solo para smoke-test, así que es un stub.
+        <code>{{ name }}</code> (registro / recupero de contraseña). Este playground es solo para smoke-test, así que es
+        un stub.
       </div>
       <q-btn class="q-mt-md" color="primary" no-caps label="Volver al login" :to="{ name: 'login' }" />
     </q-card>

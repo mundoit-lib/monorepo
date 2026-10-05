@@ -4,7 +4,9 @@
       <h1 class="content__title">{{ t('menu.favorites') }}</h1>
     </div>
     <div class="content">
-      <q-btn v-for="item in favoritItems.keys" :key="item.menuId" :to="{ path: `/auth${item.uri}` }">{{item.name}}</q-btn>
+      <q-btn v-for="item in favoritItems.keys" :key="item.menuId" :to="{ path: `/auth${item.uri}` }">{{
+        item.name
+      }}</q-btn>
     </div>
   </div>
 </template>

@@ -1,13 +1,11 @@
 <template>
   <div>
-    <q-select map-options
-     v-model="localValue" :options="dbinfo" v-bind="$attrs" :disabled="state == 'error'"
-     />
+    <q-select map-options v-model="localValue" :options="dbinfo" v-bind="$attrs" :disabled="state == 'error'" />
     <q-banner dense inline-actions class="bg-red text-white" v-if="state == 'error'">
-      {{message}}
+      {{ message }}
     </q-banner>
     <q-banner dense inline-actions class="bg-green text-white" v-else>
-      {{message}}
+      {{ message }}
     </q-banner>
   </div>
 </template>

@@ -1,9 +1,5 @@
 <template>
-  <q-dialog
-    :model-value="modelValue"
-    :maximized="maximized"
-    @update:model-value="setOpen"
-  >
+  <q-dialog :model-value="modelValue" :maximized="maximized" @update:model-value="setOpen">
     <q-card class="column no-wrap" :style="cardStyle">
       <q-bar class="bg-primary text-white">
         <div class="ellipsis">{{ title || query?._title || '' }}</div>

@@ -14,24 +14,10 @@
       <span class="hms-trigger-text">{{ placeholderText }}</span>
       <span v-if="shortcut" class="hms-kbd">{{ shortcutLabel }}</span>
     </button>
-    <q-btn
-      v-else
-      flat
-      round
-      dense
-      icon="search"
-      :aria-label="placeholderText"
-      @click="open = true"
-    />
+    <q-btn v-else flat round dense icon="search" :aria-label="placeholderText" @click="open = true" />
 
     <!-- ───────────── PALETTE ───────────── -->
-    <q-dialog
-      v-model="open"
-      position="top"
-      transition-show="jump-down"
-      transition-hide="jump-up"
-      @show="onShow"
-    >
+    <q-dialog v-model="open" position="top" transition-show="jump-down" transition-hide="jump-up" @show="onShow">
       <div class="hms-panel" @keydown="onKey">
         <div class="hms-search">
           <q-icon name="search" size="20px" class="hms-search-icon" />
@@ -75,19 +61,10 @@
                 <div v-if="r.path.length" class="hms-item-path">
                   <span v-for="(p, pi) in r.path" :key="pi" class="hms-crumb">
                     <span v-html="highlight(p)" />
-                    <q-icon
-                      v-if="pi < r.path.length - 1"
-                      name="chevron_right"
-                      size="13px"
-                      class="hms-crumb-sep"
-                    />
+                    <q-icon v-if="pi < r.path.length - 1" name="chevron_right" size="13px" class="hms-crumb-sep" />
                   </span>
                 </div>
-                <div
-                  v-else-if="r.subtitle"
-                  class="hms-item-path"
-                  v-html="highlight(r.subtitle)"
-                />
+                <div v-else-if="r.subtitle" class="hms-item-path" v-html="highlight(r.subtitle)" />
               </div>
               <q-icon name="keyboard_return" size="15px" class="hms-item-enter" />
             </div>
@@ -95,7 +72,9 @@
 
           <div v-else-if="query" class="hms-empty">
             <q-icon name="search_off" size="30px" class="hms-empty-icon" />
-            <div>{{ t('menuSearch.noResults') }} <strong>«{{ query }}»</strong></div>
+            <div>
+              {{ t('menuSearch.noResults') }} <strong>«{{ query }}»</strong>
+            </div>
           </div>
           <div v-else class="hms-empty">
             <q-icon name="travel_explore" size="30px" class="hms-empty-icon" />
@@ -226,14 +205,10 @@ export default {
       for (const it of this.items) {
         let score = -1;
         const pos = it._labelF.indexOf(q);
-        if (pos === 0)
-          score = 0; // empieza con
-        else if (pos > 0 && /\s/.test(it._labelF[pos - 1]))
-          score = 1; // inicio de palabra
-        else if (pos > 0)
-          score = 2; // contiene (label)
-        else if (it._subF.includes(q))
-          score = 3; // subtítulo
+        if (pos === 0) score = 0; // empieza con
+        else if (pos > 0 && /\s/.test(it._labelF[pos - 1])) score = 1; // inicio de palabra
+        else if (pos > 0) score = 2; // contiene (label)
+        else if (it._subF.includes(q)) score = 3; // subtítulo
         else if (it._pathF.includes(q)) score = 4; // ruta/breadcrumb
         if (score >= 0) {
           scored.push({ it, score, pos: pos < 0 ? 9999 : pos });
@@ -419,7 +394,9 @@ export default {
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
 }
 .hms-trigger:hover {
   background: rgba(255, 255, 255, 0.24);
@@ -454,7 +431,9 @@ export default {
   background: #fff;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.32), 0 4px 12px rgba(15, 23, 42, 0.16);
+  box-shadow:
+    0 20px 60px rgba(15, 23, 42, 0.32),
+    0 4px 12px rgba(15, 23, 42, 0.16);
 }
 
 /* Barra de búsqueda */
@@ -530,7 +509,9 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .hms-item--active .hms-item-icon {
   background: var(--q-primary);

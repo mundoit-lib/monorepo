@@ -6,31 +6,15 @@
     <q-card-section class="row" v-if="!loading">
       <span class="col-2">{{ schema.title }}</span>
       <q-space />
-      <HistrixFilters
-        v-if="schema.filters[0]"
-        dense
-        :schema="schema"
-        @filter-data="getData(xmlUrl($event))"
-      />
+      <HistrixFilters v-if="schema.filters[0]" dense :schema="schema" @filter-data="getData(xmlUrl($event))" />
     </q-card-section>
     <q-separator inset></q-separator>
     <q-card-section v-if="loading">
       <q-skeleton :style="styles" square />
     </q-card-section>
     <q-card-section v-if="showCharts">
-      <div
-        class="q-pa-md"
-        v-bind:key="chart.id"
-        v-for="chart in schema.charts"
-        :style="styles"
-      >
-        <v-chart
-          ref="chart"
-          :style="styles"
-          :option="chartOptions[chart.id]"
-          autoresize
-          v-if="!loading"
-        />
+      <div class="q-pa-md" v-bind:key="chart.id" v-for="chart in schema.charts" :style="styles">
+        <v-chart ref="chart" :style="styles" :option="chartOptions[chart.id]" autoresize v-if="!loading" />
       </div>
     </q-card-section>
   </q-card>

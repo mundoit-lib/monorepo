@@ -10,7 +10,7 @@
         </q-toolbar>
         <q-card-section class="inset-shadow">
           <div class="text-caption">{{ getEventDate(event) }}</div>
-          <div v-if="event.fulltitle && event.fulltitle !== event.title"class="q-mt-sm" style="white-space: pre-line">
+          <div v-if="event.fulltitle && event.fulltitle !== event.title" class="q-mt-sm" style="white-space: pre-line">
             {{ event.fulltitle }}
           </div>
         </q-card-section>
@@ -21,34 +21,12 @@
     </q-dialog>
     <q-toolbar>
       <q-toolbar-title>
-        <HistrixFilters
-          dense
-          :schema="schema"
-          v-on:filter-data="applyFilter"
-        />
+        <HistrixFilters dense :schema="schema" v-on:filter-data="applyFilter" />
       </q-toolbar-title>
 
-      <q-btn
-        flat
-        dense
-        :label="t('calendar.today')"
-        class="q-mx-md"
-        @click="calendarToday"
-      ></q-btn>
-      <q-btn
-        flat
-        dense
-        round
-        icon="keyboard_arrow_left"
-        @click="calendarPrev"
-      ></q-btn>
-      <q-btn
-        flat
-        dense
-        round
-        icon="keyboard_arrow_right"
-        @click="calendarNext"
-      ></q-btn>
+      <q-btn flat dense :label="t('calendar.today')" class="q-mx-md" @click="calendarToday"></q-btn>
+      <q-btn flat dense round icon="keyboard_arrow_left" @click="calendarPrev"></q-btn>
+      <q-btn flat dense round icon="keyboard_arrow_right" @click="calendarNext"></q-btn>
       <span class="q-mr-xl q-toolbar__title nowrap">{{ title }}</span>
       <q-select
         v-model="calendarView"

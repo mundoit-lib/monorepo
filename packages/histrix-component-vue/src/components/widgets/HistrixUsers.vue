@@ -1,29 +1,18 @@
 <template>
-    <div  class="q-gutter-md" flat >
-    <q-list class="q-px-sm" >
-      <q-item-label header><q-avatar   icon="people" /> Contactos ({{total}}) Online ({{online.length}})</q-item-label>
-      <q-input v-model="search" type="search"  dense >
-        <template v-slot:append >
+  <div class="q-gutter-md" flat>
+    <q-list class="q-px-sm">
+      <q-item-label header
+        ><q-avatar icon="people" /> Contactos ({{ total }}) Online ({{ online.length }})</q-item-label
+      >
+      <q-input v-model="search" type="search" dense>
+        <template v-slot:append>
           <q-icon name="search" />
         </template>
       </q-input>
-      <q-item
-        dense
-        v-for="contact in filteredItems"
-        :key="contact.id"
-        clickable
-        v-ripple
-      >
+      <q-item dense v-for="contact in filteredItems" :key="contact.id" clickable v-ripple>
         <q-item-section avatar>
-          <q-avatar
-            color="primary"
-            text-color="white"
-          >
-            <img
-              v-if="contact.foto.length == 0"
-              alt=""
-              :src="HOST + contact.foto"
-            />
+          <q-avatar color="primary" text-color="white">
+            <img v-if="contact.foto.length == 0" alt="" :src="HOST + contact.foto" />
             <span v-else>
               {{ contact.Nombre[0] }}
             </span>
@@ -34,23 +23,14 @@
           <q-item-label>{{ contact.fullname }}</q-item-label>
         </q-item-section>
 
-        <q-item-section
-          side
-          top
-        >
-          <q-item-label caption>{{ contact.time}}</q-item-label>
-          <q-icon
-            name="chat_bubble"
-            :color="contact.isUp?'green':'black'"
-          />
+        <q-item-section side top>
+          <q-item-label caption>{{ contact.time }}</q-item-label>
+          <q-icon name="chat_bubble" :color="contact.isUp ? 'green' : 'black'" />
         </q-item-section>
       </q-item>
     </q-list>
-
   </div>
-
 </template>
-
 
 <script>
 import { date } from 'quasar';

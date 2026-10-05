@@ -1,12 +1,6 @@
 <template>
   <div class="histrix-table">
-    <HistrixApp
-      v-if="schema.header"
-      :path="headerPath"
-      :query="this.$route.query"
-      :title="this.title"
-      class="col"
-    />
+    <HistrixApp v-if="schema.header" :path="headerPath" :query="this.$route.query" :title="this.title" class="col" />
 
     <!-- Form del renglón arriba de la grilla (formMode inline/vertical):
          siempre visible, como el `ing` del legacy. -->
@@ -26,7 +20,7 @@
       :loading="loading"
       :visible-columns="visibleColumns"
       row-key="_id"
-      class=" fit"
+      class="fit"
       v-model:expanded="expanded"
       :hide-bottom="data.length > 0"
       :_hide-top="data.length < pagination.rowsPerPage"
@@ -164,22 +158,14 @@
 
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th auto-width class="bg-primary" v-if="schema.inline_detail"
-            >1</q-th
-          >
-          <q-th
-            auto-width
-            v-if="showActions"
-            class="bg-primary text-white"
-          ></q-th>
+          <q-th auto-width class="bg-primary" v-if="schema.inline_detail">1</q-th>
+          <q-th auto-width v-if="showActions" class="bg-primary text-white"></q-th>
 
           <q-th
             v-for="col in props.cols"
             :key="col.name"
             :props="props"
-            :style="
-              schema.fields[col.name]['column_style'] + ';text-align:center;'
-            "
+            :style="schema.fields[col.name]['column_style'] + ';text-align:center;'"
           >
             <!-- <HistrixField standout dense class="bg-grey text-white" v-model="field.valor" :schema="schema.fields[col.name]" clearable  /> -->
             <q-checkbox
@@ -199,7 +185,7 @@
       <!--- TABLE BODY -->
       <template v-slot:body="props">
         <q-tr :props="props" @click="selectRow(props, $event)" :class="rowClass(props)">
-          <q-td style="width:10px;" v-if="schema.inline_detail">
+          <q-td style="width: 10px" v-if="schema.inline_detail">
             <q-btn
               v-if="hasDetail(props)"
               size="xs"
@@ -209,11 +195,7 @@
               :icon="props.expand ? 'remove' : 'add'"
             />
           </q-td>
-          <q-td
-            key="actions"
-            v-if="showActions"
-            class="action-cell"
-          >
+          <q-td key="actions" v-if="showActions" class="action-cell">
             <q-btn
               flat
               rounded
@@ -269,9 +251,7 @@
               dense
               hide-bottom-space
               v-on:field-change="rowChange"
-              v-if="
-                getFieldAttribute(props.key, cell.name, 'editable') && isGrid
-              "
+              v-if="getFieldAttribute(props.key, cell.name, 'editable') && isGrid"
             />
             <HistrixCell
               v-else
@@ -286,12 +266,7 @@
         </q-tr>
         <q-tr v-if="props.expand" :props="props">
           <q-td colspan="100%" class="bg-grey-12 qa-pa-xs">
-            <HistrixApp
-              name="detail"
-              inner="true"
-              :path="detailPath(props)"
-              :query="detailQuery(props)"
-            />
+            <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
           </q-td>
         </q-tr>
       </template>
@@ -305,10 +280,7 @@
             :class="'histrix-grid-card' + (props.selected ? ' histrix-grid-card--selected' : '')"
           >
             <div class="histrix-grid-body">
-              <template
-                v-for="(cell, idx) in props.cols.filter((row) => row.name)"
-                :key="cell.name"
-              >
+              <template v-for="(cell, idx) in props.cols.filter((row) => row.name)" :key="cell.name">
                 <div
                   v-if="
                     idx === 0 ||
@@ -349,9 +321,7 @@
               </template>
             </div>
 
-            <template
-              v-if="showActions || hasDetail(props)"
-            >
+            <template v-if="showActions || hasDetail(props)">
               <q-separator class="histrix-grid-sep" />
               <div class="histrix-grid-actions">
                 <q-btn
@@ -402,12 +372,7 @@
               </div>
             </template>
             <div v-if="props.expand" class="histrix-grid-detail">
-              <HistrixApp
-                name="detail"
-                inner="true"
-                :path="detailPath(props)"
-                :query="detailQuery(props)"
-              />
+              <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
             </div>
           </component>
         </div>
@@ -416,17 +381,13 @@
       <template v-slot:bottom-row="props">
         <q-tr :props="props" v-if="data.length > 0">
           <q-th auto-width v-if="schema.inline_detail"> </q-th>
-          <q-th
-            auto-width
-            v-if="showActions"
-            class="bg-primary text-white"
-          ></q-th>
+          <q-th auto-width v-if="showActions" class="bg-primary text-white"></q-th>
 
           <q-th
             v-for="col in props.cols.filter((col) => col.name !== 'desc')"
             :key="col.name"
             :class="col.classes + ' text-bold'"
-            style="text-align:right;"
+            style="text-align: right"
           >
             <span v-if="isSumColumn(col) && columnTotals[col.name]">
               {{ formatCell(col, columnTotals[col.name]) }}
@@ -447,7 +408,7 @@
 
     <q-dialog v-model="dialog" position="top">
       <q-card style="auto">
-        <q-card-section class="row items-center ">
+        <q-card-section class="row items-center">
           <div>
             <div class="text-weight-bold">{{ message }}</div>
           </div>

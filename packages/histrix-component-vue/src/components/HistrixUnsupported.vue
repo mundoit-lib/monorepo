@@ -6,7 +6,8 @@
     <div class="text-subtitle2">{{ t('unsupported.title') }}</div>
     <div class="text-caption">
       {{ t('unsupported.description') }}
-      <b>{{ schema?.type || t('unsupported.noType') }}</b>.
+      <b>{{ schema?.type || t('unsupported.noType') }}</b
+      >.
     </div>
     <div v-if="path" class="text-caption text-grey-7">{{ path }}</div>
   </q-banner>

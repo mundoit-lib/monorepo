@@ -1,13 +1,23 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
   "version": "0.1.3",
-  "author": "Luis M. Melgratti <luis@mundoit.com.ar>",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "license": "MIT",
+  "author": "Luis M. Melgratti <luis@mundoit.com.ar>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mundoit-lib/histrix-component-vue"
+  },
+  "files": [
+    "src",
+    "types/*.d.ts",
+    "!src/**/__fixtures__",
+    "!src/**/__snapshots__",
+    "!src/**/*.test.js"
+  ],
   "main": "src/index.esm.js",
   "module": "src/index.esm.js",
   "types": "./types/index.d.ts",
-  "files": ["src", "types/*.d.ts", "!src/**/__fixtures__", "!src/**/__snapshots__", "!src/**/*.test.js"],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -197,10 +207,6 @@
   },
   "scripts": {
     "dev": "cd dev && pnpm dev"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mundoit-lib/histrix-component-vue"
   },
   "dependencies": {
     "@quasar/quasar-ui-qcalendar": "^4.1.2",

@@ -17,7 +17,7 @@
         @blur="onNumericBlur"
         :inputmode="numericInputMode"
         v-bind="$attrs"
-        style="flex: 1;"
+        style="flex: 1"
         v-on:computed-total="onComputedTotal"
         @filter="filterFn"
         bottom-slots
@@ -51,7 +51,7 @@
           impact: 'Impact',
           lucida_grande: 'Lucida Grande',
           times_new_roman: 'Times New Roman',
-          verdana: 'Verdana',
+          verdana: 'Verdana'
         }"
         :size="size"
         :use-chips="isMultiple"
@@ -66,28 +66,15 @@
         :borderless="isDisabled"
         :autocomplete="autoComplet"
       >
-        <span
-          v-if="histrixType === 'check'"
-          v-html="hint"
-          class="text-blue text-bold text-caption q-ml-md"
-        ></span>
+        <span v-if="histrixType === 'check'" v-html="hint" class="text-blue text-bold text-caption q-ml-md"></span>
         <template v-slot:hint>
           <div v-html="hint" :title="hint" class="text-blue text-bold"></div>
         </template>
 
         <template v-slot:before v-if="histrixType === 'q-file'">
           <q-avatar size="100px">
-            <q-img
-              :src="previewUrl"
-              v-if="previewUrl"
-              @click="showImage = true"
-            />
-            <q-img
-              _v-else-if="value"
-              :src="thumb"
-              spinner-color="grey"
-              @click="showImage = true"
-            />
+            <q-img :src="previewUrl" v-if="previewUrl" @click="showImage = true" />
+            <q-img _v-else-if="value" :src="thumb" spinner-color="grey" @click="showImage = true" />
           </q-avatar>
           <q-dialog v-model="showImage">
             <q-card style="width: 700px; max-width: 80vw">
@@ -108,45 +95,35 @@
           <span class="q-pa-xs text-caption" v-if="isRadio">
             {{ label }}
           </span>
-          <q-icon
-            name="search"
-            class="cursor-pointer"
-            v-if="fieldSchema.helpContainer"
-            @click="showHelp = true"
-          />
+          <q-icon name="search" class="cursor-pointer" v-if="fieldSchema.helpContainer" @click="showHelp = true" />
           <q-menu
-          v-if="fieldSchema.helpContainer"
-          v-model="showHelp"
-          no-parent-event
-          no-focus
-          no-refocus
-          anchor="bottom left"
-          self="top left"
-          transition-show="scale"
-          transition-hide="scale"
-        >
-          <HistrixHelp
-            :help-container="fieldSchema.helpContainer"
-            :form-values="row"
-            :label="label"
-            :term="localValue"
-            v-on:select-row="selectRow"
-          />
-        </q-menu>
+            v-if="fieldSchema.helpContainer"
+            v-model="showHelp"
+            no-parent-event
+            no-focus
+            no-refocus
+            anchor="bottom left"
+            self="top left"
+            transition-show="scale"
+            transition-hide="scale"
+          >
+            <HistrixHelp
+              :help-container="fieldSchema.helpContainer"
+              :form-values="row"
+              :label="label"
+              :term="localValue"
+              v-on:select-row="selectRow"
+            />
+          </q-menu>
         </template>
 
         <!-- in control button -->
         <template v-slot:append>
           <!-- EXTERNAL HELP POPUP -->
 
-
           <!-- DATE CONTROL POPUP -->
           <q-icon name="event" class="cursor-pointer" v-if="isDate">
-            <q-popup-proxy
-              ref="qDateProxy"
-              transition-show="scale"
-              transition-hide="scale"
-            >
+            <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
               <q-date
                 mask="DD/MM/YYYY"
                 :locale="dateLocale"
@@ -158,24 +135,12 @@
           </q-icon>
 
           <!-- IMAGE FOLDER -->
-          <q-icon
-            v-if="histrixType === 'q-file'"
-            name="close"
-            @click.stop="localValue = null"
-            class="cursor-pointer"
-          />
+          <q-icon v-if="histrixType === 'q-file'" name="close" @click.stop="localValue = null" class="cursor-pointer" />
 
           <!-- TIME CONTROL POPUP -->
           <q-icon name="access_time" class="cursor-pointer" v-if="isTime">
-            <q-popup-proxy
-              ref="timeProxy"
-              transition-show="scale"
-              transition-hide="scale"
-            >
-              <q-time
-                v-model="localValue"
-                @input="() => $refs.timeProxy.hide()"
-              />
+            <q-popup-proxy ref="timeProxy" transition-show="scale" transition-hide="scale">
+              <q-time v-model="localValue" @input="() => $refs.timeProxy.hide()" />
             </q-popup-proxy>
           </q-icon>
           <q-icon name="event" class="cursor-pointer" v-if="isDateTime">
@@ -206,27 +171,20 @@
         </template>
       </component>
       <div v-if="isViewAddButton">
-        <q-btn
-          round
-          class="q-ml-xs"
-          dense
-          color="green"
-          icon="add"
-          @click="openAdd"
-        />
+        <q-btn round class="q-ml-xs" dense color="green" icon="add" @click="openAdd" />
       </div>
     </div>
 
     <q-dialog v-model="openNew" ref="formDialog" full-width @update:model-value="showDialog" @input="showDialog">
-        <HistrixApp
-          :inner="false"
-          :path="dialog.path"
-          :query="dialog.query"
-          :title="dialog.title"
-          @process-finish="fetchData"
-          class="bg-white"
-          :editedIndex="-1"
-        />
+      <HistrixApp
+        :inner="false"
+        :path="dialog.path"
+        :query="dialog.query"
+        :title="dialog.title"
+        @process-finish="fetchData"
+        class="bg-white"
+        :editedIndex="-1"
+      />
     </q-dialog>
   </div>
 </template>

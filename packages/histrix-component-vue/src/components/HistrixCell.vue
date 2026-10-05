@@ -17,10 +17,7 @@
       </q-dialog>
     </div>
     <q-btn
-      v-else-if="
-        (col.value && col.value.link && col.value.text) ||
-        (col.link && col.value)
-      "
+      v-else-if="(col.value && col.value.link && col.value.text) || (col.link && col.value)"
       :_to="link"
       class="fit"
       dense
@@ -31,25 +28,16 @@
         $emit('open-popup', {
           link: col.value && col.value.link ? col.value.link : null,
           title: col.value.text,
-          parameters: col.value['linkParameters'],
+          parameters: col.value['linkParameters']
         })
       "
     >
       {{ text }}
     </q-btn>
     <q-icon v-else-if="isCheck" :name="checkIcon"> </q-icon>
-    <q-linear-progress
-      v-else-if="isProgress"
-      :value="col.value.value / 100"
-      color="accent"
-      size="20px"
-    >
+    <q-linear-progress v-else-if="isProgress" :value="col.value.value / 100" color="accent" size="20px">
       <div class="absolute-full flex flex-center">
-        <q-badge
-          color="transparent"
-          text-color="black"
-          :label="col.value.value"
-        />
+        <q-badge color="transparent" text-color="black" :label="col.value.value" />
       </div>
     </q-linear-progress>
     <div v-else v-html="formatedValue" :class="schema.class"></div>

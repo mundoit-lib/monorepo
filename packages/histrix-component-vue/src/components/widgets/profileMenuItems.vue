@@ -1,32 +1,30 @@
 <template>
   <q-list>
-       <q-expansion-item
+    <q-expansion-item
       dense
       :content-inset-level="0.3"
       :_header-inset-level="1"
-        group="Personal"
-        expand-separator
-        icon="person"
-        :label-lines="1"
-        :label="t('profile.personalSettings')"
-        :caption="t('profile.userMenu')"
-        class="capitalize"
-      >
-
-      <HistrixMenu level="phpmen-fsm" :filter="false" :mini="mini"/>
-    
-      </q-expansion-item>
-        <q-item v-for="item in items" :key="item.to.name" tag="a" :to="item.to">
-          <q-item-section avatar>
-            <q-icon :name="item.icon" />
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>
-              <span v-text="item.label"></span>
-            </q-item-label>
-            <q-item-label caption></q-item-label>
-          </q-item-section>
-        </q-item>
+      group="Personal"
+      expand-separator
+      icon="person"
+      :label-lines="1"
+      :label="t('profile.personalSettings')"
+      :caption="t('profile.userMenu')"
+      class="capitalize"
+    >
+      <HistrixMenu level="phpmen-fsm" :filter="false" :mini="mini" />
+    </q-expansion-item>
+    <q-item v-for="item in items" :key="item.to.name" tag="a" :to="item.to">
+      <q-item-section avatar>
+        <q-icon :name="item.icon" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>
+          <span v-text="item.label"></span>
+        </q-item-label>
+        <q-item-label caption></q-item-label>
+      </q-item-section>
+    </q-item>
   </q-list>
 </template>
 

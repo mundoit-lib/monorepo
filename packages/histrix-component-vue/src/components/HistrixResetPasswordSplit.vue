@@ -482,7 +482,9 @@ export default {
   font-size: 0.95rem;
   color: #111827;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   background: #fff;
 }
 .htx-auth__input:focus {
@@ -601,7 +603,9 @@ export default {
   animation: htx-auth-spin 0.6s linear infinite;
 }
 @keyframes htx-auth-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Panel derecho */

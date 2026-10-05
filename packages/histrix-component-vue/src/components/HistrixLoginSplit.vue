@@ -106,19 +106,19 @@
           <p v-if="errorMsg" class="htx-login__error">{{ errorMsg }}</p>
 
           <!-- Botón: color por prop, vía :style -->
-          <button type="submit" class="htx-login__submit" :style="{ backgroundColor: primaryColor }" :disabled="loading">
+          <button
+            type="submit"
+            class="htx-login__submit"
+            :style="{ backgroundColor: primaryColor }"
+            :disabled="loading"
+          >
             <span v-if="loading" class="htx-login__spinner" aria-hidden="true" />
             {{ loading ? txt.loadingLabel : txt.submitLabel }}
           </button>
 
           <!-- Acciones secundarias: registro y recuperar contraseña (opcionales) -->
           <div v-if="showRegister || showForgotPassword" class="htx-login__actions">
-            <router-link
-              v-if="showRegister"
-              :to="registerTo"
-              class="htx-login__link"
-              :style="{ color: primaryColor }"
-            >
+            <router-link v-if="showRegister" :to="registerTo" class="htx-login__link" :style="{ color: primaryColor }">
               {{ txt.registerLabel }}
             </router-link>
             <router-link
@@ -436,7 +436,9 @@ export default {
   font-size: 0.95rem;
   color: #111827;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
   background: #fff;
 }
 .htx-login__input:focus {
@@ -551,7 +553,9 @@ export default {
   animation: htx-login-spin 0.6s linear infinite;
 }
 @keyframes htx-login-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Panel derecho */

@@ -52,11 +52,7 @@
               <q-item-label class="featured-row-label capitalize">
                 <span v-html="decodeHTML(node.label).toLowerCase()" />
               </q-item-label>
-              <q-item-label
-                v-if="node.subtitle"
-                caption
-                class="featured-row-sub capitalize"
-              >
+              <q-item-label v-if="node.subtitle" caption class="featured-row-sub capitalize">
                 <span v-html="decodeHTML(node.subtitle).toLowerCase()" />
               </q-item-label>
             </q-item-section>
@@ -107,10 +103,7 @@
         </q-item>
       </q-expansion-item>
 
-      <q-separator
-        v-if="isRoot && (featured.length || (isFavorite && favorit.keys.length))"
-        class="menu-divider"
-      />
+      <q-separator v-if="isRoot && (featured.length || (isFavorite && favorit.keys.length))" class="menu-divider" />
 
       <!-- ÁRBOL DE NAVEGACIÓN -->
       <div v-for="node in data" :key="node.menuId || node.key">
@@ -131,11 +124,7 @@
               <q-item-label class="menu-branch-label capitalize">
                 <span v-html="decodeHTML(node.label).toLowerCase()" />
               </q-item-label>
-              <q-item-label
-                v-if="node.subtitle"
-                caption
-                class="capitalize"
-              >
+              <q-item-label v-if="node.subtitle" caption class="capitalize">
                 <span v-html="decodeHTML(node.subtitle).toLowerCase()" />
               </q-item-label>
             </q-item-section>
@@ -150,12 +139,7 @@
           />
         </q-expansion-item>
 
-        <q-item
-          v-else
-          :to="nodeUri(node)"
-          class="menu-leaf"
-          @click="refrest(nodeUri(node))"
-        >
+        <q-item v-else :to="nodeUri(node)" class="menu-leaf" @click="refrest(nodeUri(node))">
           <q-item-section avatar class="menu-leaf-avatar">
             <q-icon v-if="node.icon" :name="node.icon" size="20px" />
             <span v-else class="menu-leaf-dot" />
@@ -482,7 +466,9 @@ export default {
   border-radius: 8px;
   margin: 1px 8px;
   min-height: 36px;
-  transition: background 0.15s ease, color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
 }
 .menu-leaf:hover {
   background: rgba(15, 23, 42, 0.045);
@@ -544,7 +530,9 @@ export default {
 .fav-star {
   opacity: 0;
   transform: scale(0.8);
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
 }
 .menu-leaf:hover .fav-star,
 .menu-leaf:focus-within .fav-star,
@@ -555,7 +543,9 @@ export default {
 }
 .fav-star-btn {
   color: #b6c0cf;
-  transition: color 0.16s ease, transform 0.16s ease;
+  transition:
+    color 0.16s ease,
+    transform 0.16s ease;
 }
 .fav-star:hover .fav-star-btn {
   color: var(--fav-gold);

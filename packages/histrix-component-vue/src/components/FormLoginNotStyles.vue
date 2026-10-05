@@ -1,101 +1,106 @@
 <template>
   <q-form @submit.prevent="submitLogin">
     <slot name="format">
-        <div class="row">
-          <div class="col-xs-12 q-mb-sm">
-            <div class="img" v-if="isSelectDataBase">
-            <q-img
-          :src="imglogo"
-          class="logo"
-        />
-      </div>
-            <q-select v-if="isSelectDataBase" outlined v-model="db" map-options emit-value :options="infoDB" :label="t('login.database')" />
-            <q-input
-              inverted-light
-              :label="t('login.emailLabel')"
-              id="email"
-              autofocus
-              required
-              type="text"
-              autocomplete="username"
-              v-model="form.email"
-              name="email"
-              class="full-width"
-              :before="[
-                {
-                  icon: 'person',
-                },
-              ]"
-            >
-              <template v-slot:prepend>
-                <q-icon name="email" />
-              </template>
-            </q-input>
+      <div class="row">
+        <div class="col-xs-12 q-mb-sm">
+          <div class="img" v-if="isSelectDataBase">
+            <q-img :src="imglogo" class="logo" />
           </div>
-          <div class="col-xs-12 q-mb-sm">
-            <q-input
-              :label="t('login.passwordLabel')"
-              id="password"
-              inverted-light
-              autocomplete="current-password"
-              :type="IsPasswordView ? 'password' : 'text'"
-              v-model="form.password"
-              name="password"
-              class="full-width"
-              :before="[{ icon: 'lock' }]"
-            >
-              <template v-slot:prepend>
-                <q-icon name="vpn_key" />
-              </template>
-              <template v-slot:append>
-                <q-icon
-                  :name="IsPasswordView ? 'visibility_off' : 'visibility'"
-                  class="cursor-pointer"
-                  @click="IsPasswordView = !IsPasswordView"
-                />
-              </template>
-            </q-input>
-          </div>
-          <br />
-          <div class="col-xs-12 q-mb-sm text-center">
+          <q-select
+            v-if="isSelectDataBase"
+            outlined
+            v-model="db"
+            map-options
+            emit-value
+            :options="infoDB"
+            :label="t('login.database')"
+          />
+          <q-input
+            inverted-light
+            :label="t('login.emailLabel')"
+            id="email"
+            autofocus
+            required
+            type="text"
+            autocomplete="username"
+            v-model="form.email"
+            name="email"
+            class="full-width"
+            :before="[
+              {
+                icon: 'person'
+              }
+            ]"
+          >
+            <template v-slot:prepend>
+              <q-icon name="email" />
+            </template>
+          </q-input>
+        </div>
+        <div class="col-xs-12 q-mb-sm">
+          <q-input
+            :label="t('login.passwordLabel')"
+            id="password"
+            inverted-light
+            autocomplete="current-password"
+            :type="IsPasswordView ? 'password' : 'text'"
+            v-model="form.password"
+            name="password"
+            class="full-width"
+            :before="[{ icon: 'lock' }]"
+          >
+            <template v-slot:prepend>
+              <q-icon name="vpn_key" />
+            </template>
+            <template v-slot:append>
+              <q-icon
+                :name="IsPasswordView ? 'visibility_off' : 'visibility'"
+                class="cursor-pointer"
+                @click="IsPasswordView = !IsPasswordView"
+              />
+            </template>
+          </q-input>
+        </div>
+        <br />
+        <div class="col-xs-12 q-mb-sm text-center">
+          <q-btn
+            icon="chevron_right"
+            class="q-pl-md q-pr-md q-pt-sm q-pb-sm full-width"
+            :disable="btnLoading"
+            type="submit"
+            :loading="btnLoading"
+            color="positive"
+            size="md"
+            :label="t('login.submit')"
+          >
+          </q-btn>
+          <div class="row text-center">
             <q-btn
-              icon="chevron_right"
-              class="q-pl-md q-pr-md q-pt-sm q-pb-sm full-width"
-              :disable="btnLoading"
-              type="submit"
-              :loading="btnLoading"
-              color="positive"
-              size="md"
-              :label="t('login.submit')"
+              v-if="!isRegister"
+              size="sm"
+              flat
+              class="col q-ma-md bg-accent"
+              color="white"
+              :to="{ name: 'register', query: { t: new Date().getTime() } }"
             >
+              <span class="q-ml-xs">{{ t('login.register') }}</span>
             </q-btn>
-            <div class="row text-center">
-              <q-btn
-                v-if="!isRegister"
-                size="sm"
-                flat
-                class="col q-ma-md bg-accent"
-                color="white"
-                :to="{ name: 'register', query: { t: new Date().getTime() } }"
-              >
-                <span class="q-ml-xs">{{ t('login.register') }}</span>
-              </q-btn>
 
-              <q-btn
-                size="sm"
-                flat
-                class="q-ma-md col"
-                color="primary"
-                v-close-popup
-                :to="{ name: 'mail-reset-password' }"
-              >
-                <span class="q-ml-xs">{{ t('login.forgotPassword') }}</span>
-              </q-btn>
-            </div>
+            <q-btn
+              size="sm"
+              flat
+              class="q-ma-md col"
+              color="primary"
+              v-close-popup
+              :to="{ name: 'mail-reset-password' }"
+            >
+              <span class="q-ml-xs">{{ t('login.forgotPassword') }}</span>
+            </q-btn>
           </div>
         </div>
-      </slot>
-      </q-form>
+      </div>
+    </slot>
+  </q-form>
 </template>
 
 <script>
@@ -397,9 +402,9 @@ export default {
 </script>
 
 <style scoped>
-.img{
-  margin-left:auto;
-  margin-right:auto;
+.img {
+  margin-left: auto;
+  margin-right: auto;
   max-width: 300px;
   display: block;
   max-height: 300px;

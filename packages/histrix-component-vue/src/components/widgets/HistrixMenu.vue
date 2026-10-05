@@ -1,17 +1,12 @@
 <template>
-  <div >
+  <div>
     <q-input dense standout v-model="filterString" class="q-ma-md" v-if="filter">
       <template v-slot:append>
         <q-icon v-if="filterString === ''" name="search" />
-        <q-icon
-          v-else
-          name="clear"
-          class="cursor-pointer"
-          @click="filterString = ''"
-        />
+        <q-icon v-else name="clear" class="cursor-pointer" @click="filterString = ''" />
       </template>
     </q-input>
-    <q-skeleton  square height="300px" v-if="loading"/>
+    <q-skeleton square height="300px" v-if="loading" />
     <q-tree
       v-if="!loading"
       :nodes="tree"
@@ -24,20 +19,14 @@
       :filter="filterString"
     >
       <template v-slot:default-header="prop">
-        <q-item
-          clickable
-          dense
-          :to="nodeUri(prop)"
-          v-if="prop.node.uri != ''"
-          
-        >
-        <q-icon v-if="prop.node.icon" :name="prop.node.icon" color="blue-8" _size="28px" class="q-mr-sm" />
+        <q-item clickable dense :to="nodeUri(prop)" v-if="prop.node.uri != ''">
+          <q-icon v-if="prop.node.icon" :name="prop.node.icon" color="blue-8" _size="28px" class="q-mr-sm" />
           <span class="capitalize" v-html="prop.node.label.toLowerCase()"></span>
         </q-item>
-        <q-item  dense v-else >
+        <q-item dense v-else>
           <q-icon v-if="prop.node.icon" :name="prop.node.icon" color="blue-8" _size="28px" class="q-mr-sm" />
-          <span class="capitalize" v-html="prop.node.label.toLowerCase()"></span></q-item>
-
+          <span class="capitalize" v-html="prop.node.label.toLowerCase()"></span
+        ></q-item>
       </template>
     </q-tree>
   </div>

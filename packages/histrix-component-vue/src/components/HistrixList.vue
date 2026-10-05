@@ -1,25 +1,25 @@
 <template>
-<div>
-  <div >
-    <q-toolbar class="bg-primary text-white ">
-      <q-toolbar-title><q-avatar  text-color="white" icon="rss_feed" />{{ schema.title}}</q-toolbar-title>
-    </q-toolbar>
-    <div v-if="schema.filters[0]" dense>
-      <HistrixFilters dense :schema="schema" v-on:filter-data="getData(xmlUrl($event))"/>
+  <div>
+    <div>
+      <q-toolbar class="bg-primary text-white">
+        <q-toolbar-title><q-avatar text-color="white" icon="rss_feed" />{{ schema.title }}</q-toolbar-title>
+      </q-toolbar>
+      <div v-if="schema.filters[0]" dense>
+        <HistrixFilters dense :schema="schema" v-on:filter-data="getData(xmlUrl($event))" />
+      </div>
+    </div>
+    <div class="_q-pa-md q-gutter-md" outline>
+      <q-list outline bordered>
+        <q-item v-for="(row, index) in data" v-bind:key="index" clickable @click="editItem(row)">
+          <q-item-section v-for="(field, index) in row" v-bind:key="index">
+            <q-item-label :innerHTML="field._">
+              {{ field._ }}
+            </q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
     </div>
   </div>
-  <div class="_q-pa-md q-gutter-md" outline >
-    <q-list outline  bordered>
-      <q-item v-for="(row, index) in data" v-bind:key="index" clickable @click="editItem(row)">
-        <q-item-section v-for="(field, index) in row" v-bind:key="index">
-          <q-item-label :innerHTML="field._">
-            {{ field._ }}
-          </q-item-label>
-        </q-item-section>
-      </q-item>
-    </q-list>
-  </div>
-</div>
 </template>
 
 <script>

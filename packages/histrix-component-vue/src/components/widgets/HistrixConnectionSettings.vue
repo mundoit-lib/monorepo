@@ -1,45 +1,29 @@
 <template>
+  <div class="col q-pa-md text-center">
+    <h5>{{ t('connection.title') }}</h5>
+    <q-form @submit="save">
+      <q-input v-model="host" class="q-mt-sm" :label="t('connection.path')" :hint="t('connection.pathHint')"></q-input>
 
-      <div
-        class="col q-pa-md
-                 text-center "
-      >
-        <h5>{{ t('connection.title') }}</h5>
-        <q-form @submit="save">
-          <q-input
-            v-model="host"
-            class="q-mt-sm"
-            :label="t('connection.path')"
-            :hint="t('connection.pathHint')"
-          ></q-input>
+      <DatabaseSelector
+        :host="host"
+        :label="t('connection.database')"
+        :model-value="database"
+        @update:model-value="database = $event"
+        :hint="t('connection.databaseHint')"
+      />
+      <br />
 
-          <DatabaseSelector
-            :host="host"
-            :label="t('connection.database')"
-            :model-value="database"
-            @update:model-value="database = $event"
-            :hint="t('connection.databaseHint')"
-          />
-          <br />
-
-          <q-btn
-            class="  bg-primary"
-            text-color="white"
-            icon="save"
-            v-close-popup="3"
-            type="submit"
-            :label="t('common.save')"
-          ></q-btn>
-                    <q-btn
-            flat
-            text-color="primary"
-            v-close-popup="3"
-
-            :label="t('common.cancel')"
-          ></q-btn>
-        </q-form>
-      </div>
-  
+      <q-btn
+        class="bg-primary"
+        text-color="white"
+        icon="save"
+        v-close-popup="3"
+        type="submit"
+        :label="t('common.save')"
+      ></q-btn>
+      <q-btn flat text-color="primary" v-close-popup="3" :label="t('common.cancel')"></q-btn>
+    </q-form>
+  </div>
 </template>
 
 <script>

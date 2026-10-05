@@ -2,24 +2,23 @@
   <div>
     <q-card flat bordered>
       <q-toolbar class="bg-orange text-white shadow-2">
-        <q-toolbar-title
-          ><q-avatar text-color="white" icon="folder" round />{{path}}</q-toolbar-title>
+        <q-toolbar-title><q-avatar text-color="white" icon="folder" round />{{ path }}</q-toolbar-title>
       </q-toolbar>
       <q-card-section>
-      <VueFileAgent
-      ref="fileAgent"
-      :uploadUrl="uploadUrl" 
-      :thumbnailSize="120"
-      @beforedelete="onBeforeDelete($event)"
-      @delete="onDelete($event)"
-      :deletable="true"
-      theme="list"
-      :uploadHeaders="uploadHeaders"
-      helpText="Elija o arrastre aquí sus archivos"
-      :model-value="files"
-      @update:model-value="files = $event">
-      </VueFileAgent>
-          
+        <VueFileAgent
+          ref="fileAgent"
+          :uploadUrl="uploadUrl"
+          :thumbnailSize="120"
+          @beforedelete="onBeforeDelete($event)"
+          @delete="onDelete($event)"
+          :deletable="true"
+          theme="list"
+          :uploadHeaders="uploadHeaders"
+          helpText="Elija o arrastre aquí sus archivos"
+          :model-value="files"
+          @update:model-value="files = $event"
+        >
+        </VueFileAgent>
       </q-card-section>
     </q-card>
   </div>
@@ -80,16 +79,16 @@ export default {
 };
 </script>
 <style>
-  .my-file-agent .file-preview-wrapper .file-preview {
-    width: calc(100% - 50px); /* 50px: width of the button */
-  }
-  .my-file-agent .file-preview-button {
-    position: absolute;
-    z-index: 11;
-    width: 50px;
-    height: 100%;
-    right: 0;
-    background: yellow;
-    border: 2px solid red;
-  }
+.my-file-agent .file-preview-wrapper .file-preview {
+  width: calc(100% - 50px); /* 50px: width of the button */
+}
+.my-file-agent .file-preview-button {
+  position: absolute;
+  z-index: 11;
+  width: 50px;
+  height: 100%;
+  right: 0;
+  background: yellow;
+  border: 2px solid red;
+}
 </style>

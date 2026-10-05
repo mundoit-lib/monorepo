@@ -2,8 +2,8 @@
   <q-page class="q-pa-lg">
     <div class="text-h5 q-mb-sm">Playground de @mundoit-lib/histrix-component-vue</div>
     <div class="text-body2 text-grey-8 q-mb-lg">
-      Smoke-test de la librería contra un backend Histrix real. Logueate y abrí
-      un XML por su path para montar <code>&lt;HistrixApp&gt;</code>.
+      Smoke-test de la librería contra un backend Histrix real. Logueate y abrí un XML por su path para montar
+      <code>&lt;HistrixApp&gt;</code>.
     </div>
 
     <q-banner v-if="!loggedIn" class="bg-orange-1 text-orange-9 q-mb-lg" rounded>
@@ -28,15 +28,7 @@
         @keyup.enter="open"
       >
         <template v-slot:append>
-          <q-btn
-            flat
-            dense
-            icon="open_in_new"
-            label="Abrir"
-            no-caps
-            :disable="!path"
-            @click="open"
-          />
+          <q-btn flat dense icon="open_in_new" label="Abrir" no-caps :disable="!path" @click="open" />
         </template>
       </q-input>
 
@@ -58,10 +50,18 @@
     <q-card flat bordered class="q-pa-md q-mt-lg" style="max-width: 720px">
       <div class="text-subtitle1 q-mb-sm">Configuración activa</div>
       <div class="text-caption text-grey-8">
-        <div>host (config.apiUrl): <code>{{ cfg.apiUrl || '—' }}</code></div>
-        <div>db (config.db): <code>{{ cfg.db || '—' }}</code></div>
-        <div>apiUrl efectivo: <code>{{ apiUrlPreview }}</code></div>
-        <div>clientId: <code>{{ cfg.clientId ? '••• set' : '—' }}</code></div>
+        <div>
+          host (config.apiUrl): <code>{{ cfg.apiUrl || '—' }}</code>
+        </div>
+        <div>
+          db (config.db): <code>{{ cfg.db || '—' }}</code>
+        </div>
+        <div>
+          apiUrl efectivo: <code>{{ apiUrlPreview }}</code>
+        </div>
+        <div>
+          clientId: <code>{{ cfg.clientId ? '••• set' : '—' }}</code>
+        </div>
       </div>
     </q-card>
   </q-page>

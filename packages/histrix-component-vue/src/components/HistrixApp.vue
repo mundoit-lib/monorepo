@@ -4,12 +4,7 @@
       <q-pdfviewer v-bind="$attrs" v-model="show" :src="pdfSrc" type="html5" />
     </div>
     <q-dialog class="fit" v-model="showPdfPopup">
-      <q-pdfviewer
-        v-bind="$attrs"
-        v-model="showPdfPopup"
-        :src="pdfSrc"
-        type="html5"
-      />
+      <q-pdfviewer v-bind="$attrs" v-model="showPdfPopup" :src="pdfSrc" type="html5" />
     </q-dialog>
     <template v-if="!isPdf">
       <q-splitter
@@ -32,10 +27,12 @@
               :schema="schema"
               :finalStep="finalStep"
               :model-value="localValue"
-              @update:model-value="($event) => {
-                localValue = $event
-                $emit('update:model-value', $event)
-              }"
+              @update:model-value="
+                ($event) => {
+                  localValue = $event;
+                  $emit('update:model-value', $event);
+                }
+              "
               :inner="inner"
               :title="title"
               :url="xmlUrl"
@@ -77,19 +74,8 @@
               </div>
             </div>
           </div>
-          <q-stepper
-            v-if="hasStepper"
-            v-model="step"
-            keep-alive
-            color="primary"
-            animated
-          >
-            <q-step
-              :name="1"
-              :title="title || schema.title"
-              icon="settings"
-              :done="step > 1"
-            >
+          <q-stepper v-if="hasStepper" v-model="step" keep-alive color="primary" animated>
+            <q-step :name="1" :title="title || schema.title" icon="settings" :done="step > 1">
               <component
                 ref="main"
                 v-bind:is="histrixComponent"
@@ -99,10 +85,12 @@
                 :resources="resources"
                 :schema="schema"
                 :model-value="localValue"
-                @update:model-value="($event) => {
-                  localValue = $event
-                  $emit('update:model-value', $event)
-                }"
+                @update:model-value="
+                  ($event) => {
+                    localValue = $event;
+                    $emit('update:model-value', $event);
+                  }
+                "
                 :inner="inner"
                 :title="title"
                 :url="xmlUrl"
@@ -122,29 +110,15 @@
               ></component>
 
               <q-stepper-navigation>
-                <q-btn
-                  @click="advanceStep"
-                  color="primary"
-                  :label="t('app.continue')"
-                  icon="navigate_next"
-                />
+                <q-btn @click="advanceStep" color="primary" :label="t('app.continue')" icon="navigate_next" />
               </q-stepper-navigation>
             </q-step>
 
-            <q-step
-              :name="2"
-              :title="t('app.confirmation')"
-              icon="done_all"
-              :done="step > 2"
-            >
+            <q-step :name="2" :title="t('app.confirmation')" icon="done_all" :done="step > 2">
               <HistrixApp
                 ref="detail"
                 v-if="schema.process_next_step.xml != ''"
-                :path="
-                  schema.process_next_step.dir +
-                  '/' +
-                  schema.process_next_step.xml
-                "
+                :path="schema.process_next_step.dir + '/' + schema.process_next_step.xml"
                 :query="processNextStepQuery"
                 :finalStep="true"
                 v-on:advance-step="finishStep"
@@ -158,12 +132,7 @@
                   icon="navigate_before"
                   class="q-ml-sm"
                 />
-                <q-btn
-                  @click="finishStep"
-                  color="primary"
-                  :label="t('app.confirm')"
-                  icon="check"
-                />
+                <q-btn @click="finishStep" color="primary" :label="t('app.confirm')" icon="check" />
               </q-stepper-navigation>
             </q-step>
           </q-stepper>
@@ -177,13 +146,7 @@
             v-on:process-finish="refreshMaster"
           />
           <q-page-sticky position="bottom-right" :offset="[20, 10]">
-            <q-btn
-              icon="arrow_back"
-              color="accent"
-              fab
-              @click="closeDetail()"
-              v-if="smallscreen && isDetailOpened"
-            />
+            <q-btn icon="arrow_back" color="accent" fab @click="closeDetail()" v-if="smallscreen && isDetailOpened" />
           </q-page-sticky>
         </template>
       </q-splitter>
@@ -211,9 +174,7 @@
       <q-layout view="Lhh lpR fff" container class="bg-white">
         <q-header class="bg-primary">
           <q-toolbar>
-            <q-toolbar-title>{{
-              innerQuery._title || this.dialogTitle
-            }}</q-toolbar-title>
+            <q-toolbar-title>{{ innerQuery._title || this.dialogTitle }}</q-toolbar-title>
             <q-btn flat @click="linkDialog = false" round dense icon="close" />
           </q-toolbar>
         </q-header>

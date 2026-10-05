@@ -3,12 +3,7 @@
     <div class="row">
       <div class="caption">{{ title }}</div>
       <div class="col-4">
-        <HistrixFilters
-          _v-if="schema.filters[0]"
-          dense
-          :schema="schema"
-          v-on:filter-data="getData(xmlUrl($event))"
-        />
+        <HistrixFilters _v-if="schema.filters[0]" dense :schema="schema" v-on:filter-data="getData(xmlUrl($event))" />
       </div>
       <div class="col-5 right-align">
         <q-btn
@@ -20,24 +15,8 @@
           :title="t('common.export')"
           @click="$emit('export')"
         />
-        <q-btn
-          flat
-          round
-          dense
-          icon="print"
-          :title="t('common.print')"
-          @click="$emit('print')"
-        />
-        <q-btn
-          fab
-          color="red"
-          icon="add"
-          :title="t('common.new')"
-          v-if="canInsert"
-          @click="addItem()"
-          no-caps
-        >
-        </q-btn>
+        <q-btn flat round dense icon="print" :title="t('common.print')" @click="$emit('print')" />
+        <q-btn fab color="red" icon="add" :title="t('common.new')" v-if="canInsert" @click="addItem()" no-caps> </q-btn>
       </div>
     </div>
     <div class="row">
@@ -78,22 +57,8 @@
           </q-td>
 
           <q-td key="actions">
-            <q-btn
-              icon="edit"
-              v-if="canUpdate"
-              color="blue"
-              @click="editItem(props.item)"
-              size="sm"
-              no-caps
-            />
-            <q-btn
-              icon="cancel"
-              v-if="canDelete"
-              color="red"
-              @click="deleteItem(props.item)"
-              size="sm"
-              no-caps
-            />
+            <q-btn icon="edit" v-if="canUpdate" color="blue" @click="editItem(props.item)" size="sm" no-caps />
+            <q-btn icon="cancel" v-if="canDelete" color="red" @click="deleteItem(props.item)" size="sm" no-caps />
           </q-td>
         </template>
       </q-hierarchy>

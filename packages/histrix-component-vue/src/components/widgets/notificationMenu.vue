@@ -5,10 +5,7 @@
     </q-badge>
     <q-avatar icon="notifications">
       <q-menu anchor="bottom left" self="top left">
-        <div
-          v-for="notification in notifications"
-          v-bind:key="notification.idMensaje"
-        >
+        <div v-for="notification in notifications" v-bind:key="notification.idMensaje">
           <q-item clickable>
             <q-item-section avatar>
               <q-icon :name="'person'" color="primary" />
@@ -28,9 +25,7 @@
           </q-item>
           <q-separator inset />
         </div>
-        <q-chip v-if="notificationCount == 0" icon="notifications"
-          >{{ t('notifications.empty') }}</q-chip
-        >
+        <q-chip v-if="notificationCount == 0" icon="notifications">{{ t('notifications.empty') }}</q-chip>
       </q-menu>
     </q-avatar>
     <q-tooltip>{{ t('notifications.tooltip') }}</q-tooltip>

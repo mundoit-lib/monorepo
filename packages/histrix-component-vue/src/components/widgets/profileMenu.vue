@@ -3,7 +3,7 @@
     <q-avatar icon="account_circle">
       <q-menu anchor="bottom left" self="top left">
         <q-item>
-          <HistrixMenu level="phpmen-fsm" :filter="false"/>
+          <HistrixMenu level="phpmen-fsm" :filter="false" />
         </q-item>
 
         <q-item v-for="item in items" :key="item.to.name" tag="a" :to="item.to">

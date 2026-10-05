@@ -13,9 +13,7 @@
     </div>
     <q-separator class="q-mb-md" />
 
-    <q-banner v-if="!path" class="bg-red-1 text-red-9" rounded>
-      No se especificó un path de XML.
-    </q-banner>
+    <q-banner v-if="!path" class="bg-red-1 text-red-9" rounded> No se especificó un path de XML. </q-banner>
 
     <!--
       HistrixPage es lo que reemplaza el pages/Histrix.vue de cada app: monta
@@ -25,12 +23,7 @@
       porque ya estamos dentro de un q-page.
       key fuerza el remount al cambiar de path o al apretar refresh.
     -->
-    <HistrixPage
-      v-else
-      :key="`${path}#${reloadKey}`"
-      :path="path"
-      :page="false"
-    />
+    <HistrixPage v-else :key="`${path}#${reloadKey}`" :path="path" :page="false" />
 
     <!-- Misma app en un diálogo: se cierra sola en process-finish/closepopup. -->
     <HistrixAppDialog v-model="dialog" :path="path" :query="$route.query" :width="900" @finish="reloadKey++" />
