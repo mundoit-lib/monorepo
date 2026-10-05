@@ -60,6 +60,7 @@
     "oidc-client-ts": "^3.5.0"
   },
   "devDependencies": {
+    "@mundoit-lib/plugin-vue-axios": "workspace:*",
     "@mundoit-lib/tsconfig": "workspace:*",
     "@mundoit-lib/tsdown-config": "workspace:*"
   },
