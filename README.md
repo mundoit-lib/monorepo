@@ -8,7 +8,7 @@ Librerías frontend de Mundo IT. Cada carpeta de `packages/` es un paquete npm i
 | [`packages/plugin-vue-auth`](packages/plugin-vue-auth) | Autenticación OAuth2 password grant contra Histrix (`useAuth`, `$auth`) | `@mundoit-lib/plugin-vue-auth` |
 | [`packages/plugin-vue-axios`](packages/plugin-vue-axios) | Instancia de axios compartida (`$axios`, `getAxiosInstance`, `setDatabase`) | `@mundoit-lib/plugin-vue-axios` |
 
-`tooling/` guarda configuración compartida que no se publica: [`tooling/typescript`](tooling/typescript) (`@mundoit-lib/tsconfig`, privado) tiene el `base.json` y el `library.json` que extiende cada paquete.
+`tooling/` guarda configuración compartida que no se publica: [`tooling/typescript`](tooling/typescript) (`@mundoit-lib/tsconfig`, privado) tiene el `base.json` y el `library.json` que extiende cada paquete, y [`tooling/tsdown`](tooling/tsdown) (`@mundoit-lib/tsdown-config`, privado) exporta `libraryConfig({ entry })` con la config de build común (ESM `.js` + CJS `.cjs`, `platform: 'neutral'`, `es2022`, sin minificar: minifica el bundler de la app).
 
 Próximo en entrar: `@mundoit-lib/histrix-component-vue` (hoy en [`mundoit-lib/histrix-component-vue`](https://github.com/mundoit-lib/histrix-component-vue)), cuando termine el plan HD-7515.
 
@@ -51,7 +51,7 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 
 ## Agregar un paquete
 
-1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsdown.config.ts` (copiar uno existente: ESM `.js` + CJS `.cjs`, `platform: 'neutral'`) y `tsconfig.json` con solo `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }` (más `"@mundoit-lib/tsconfig": "workspace:*"` en `devDependencies`). Las opciones de compilación van en `tooling/typescript`, no en el paquete.
+1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsdown.config.ts` con solo `export default libraryConfig({ entry: ['src/index.ts'] })` (importado de `@mundoit-lib/tsdown-config`) y `tsconfig.json` con solo `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }` (más `"@mundoit-lib/tsconfig": "workspace:*"` y `"@mundoit-lib/tsdown-config": "workspace:*"` en `devDependencies`). Las opciones de compilación y de build van en `tooling/typescript` y `tooling/tsdown`, no en el paquete.
 2. Scripts mínimos: `build` (tsdown), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`) y `check:exports` (`publint && attw --pack . --profile node16`). Turbo los toma solos.
 3. Las devDependencies compartidas (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `knip`) viven en la raíz: no repetirlas.
 

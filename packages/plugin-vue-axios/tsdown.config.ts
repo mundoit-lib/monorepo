@@ -1,15 +1,3 @@
-import { defineConfig } from 'tsdown';
+import { libraryConfig } from '@mundoit-lib/tsdown-config';
 
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm', 'cjs'],
-  // Navegador y bundlers: ESM en .js y CJS en .cjs (el paquete es "type": "module").
-  platform: 'neutral',
-  fixedExtension: false,
-  dts: true,
-  clean: true,
-  target: 'node14',
-  minify: true,
-  // default + exports con nombre a propósito (compatibilidad con 1.x).
-  outputOptions: { exports: 'named' }
-});
+export default libraryConfig({ entry: ['src/index.ts'] });

@@ -60,6 +60,9 @@ importers:
       '@mundoit-lib/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
+      '@mundoit-lib/tsdown-config':
+        specifier: workspace:*
+        version: link:../../tooling/tsdown
 
   packages/plugin-vue-axios:
     dependencies:
@@ -73,6 +76,9 @@ importers:
       '@mundoit-lib/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
+      '@mundoit-lib/tsdown-config':
+        specifier: workspace:*
+        version: link:../../tooling/tsdown
 
   packages/plugin-vue-event:
     dependencies:
@@ -86,6 +92,15 @@ importers:
       '@mundoit-lib/tsconfig':
         specifier: workspace:*
         version: link:../../tooling/typescript
+      '@mundoit-lib/tsdown-config':
+        specifier: workspace:*
+        version: link:../../tooling/tsdown
+
+  tooling/tsdown:
+    devDependencies:
+      '@mundoit-lib/tsconfig':
+        specifier: workspace:*
+        version: link:../typescript
 
   tooling/typescript: {}
 

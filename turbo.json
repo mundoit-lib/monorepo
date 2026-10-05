@@ -11,7 +11,8 @@
         "tsdown.config.ts",
         "tsconfig.json",
         "package.json",
-        "$TURBO_ROOT$/tooling/typescript/**"
+        "$TURBO_ROOT$/tooling/typescript/**",
+        "$TURBO_ROOT$/tooling/tsdown/**"
       ],
       "outputs": ["dist/**"]
     },
