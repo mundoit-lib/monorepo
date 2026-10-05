@@ -11,7 +11,7 @@
 | Versión publicada en npm | 0.1.2 (`v0.1.0`, `v0.1.1`, `v0.1.2` en jun/jul 2026) |
 | Sin publicar desde `v0.1.2` | `0cb74fe`, `6501433` y los merges de HD-7517, HD-7520, HD-7518, HD-7523, HD-7524 y HD-7527 (tabla de abajo) |
 | Componentes `.vue` | **38** (25 top-level + 13 widgets) |
-| Registrados por `install()` | 34 (todos menos `HistrixUnsupported`, interno de `HistrixApp`) |
+| Registrados por `install()` | 37 (todos menos `HistrixUnsupported`, interno de `HistrixApp`) |
 | Subpaths de componentes en `exports` | 37 (+ `plugin`, `.` y 3 services: `config`, `histrixApi`, `notify`) |
 | Módulos puros `core/` | **21** (+21 archivos de test) |
 | Tests | **21 archivos, 310 tests, 0 fallos** (Vitest) |

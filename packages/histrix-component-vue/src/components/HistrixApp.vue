@@ -710,15 +710,18 @@ export default {
       this.dialogTitle = `${data.title}: ${title}`;
     },
     /**
-     * Pide el PDF y lo deja en un blob URL nuevo; el anterior se revoca.
+     * Pide el PDF y lo deja en un blob URL nuevo. El anterior se libera antes
+     * de pedir, así el visor no muestra el PDF viejo mientras llega el nuevo.
      */
     fetchPDF() {
+      this.pdfUrls ??= createBlobUrlHolder();
+      this.pdfUrls.revoke();
+      this.pdfSrc = '';
+      this.pdfBlob = null;
       this.getAppPdf(this.path, this.query)
         .then((res) => {
-          const blob = new Blob([res.data], {
-            type: res.headers?.['content-type'] || 'application/pdf'
-          });
-          this.pdfUrls ??= createBlobUrlHolder();
+          // Siempre PDF: con application/octet-stream el iframe lo descargaría en vez de mostrarlo.
+          const blob = new Blob([res.data], { type: 'application/pdf' });
           this.pdfBlob = blob;
           this.pdfFilename = pdfFilename(res.headers?.['content-disposition'], this.title || this.schema.title);
           this.pdfSrc = this.pdfUrls.set(blob);
