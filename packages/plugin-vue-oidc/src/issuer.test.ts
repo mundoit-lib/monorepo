@@ -25,3 +25,12 @@ describe('tenantFromIssuer', () => {
     expect(tenantFromIssuer('https://h/')).toEqual({ host: 'https://h', db: '' });
   });
 });
+
+describe('resolveIssuer: valores raros', () => {
+  it('codifica la db y no interpreta $ como patrón de replace', () => {
+    expect(resolveIssuer({ host: 'https://h', db: 'a/b?c#d' })).toBe('https://h/api/db/a%2Fb%3Fc%23d');
+    expect(resolveIssuer({ host: 'https://h', db: "x$'y" })).toBe("https://h/api/db/x%24'y");
+    expect(resolveIssuer({ host: 'https://h$&', db: 'x' })).toBe('https://h$&/api/db/x');
+    expect(tenantFromIssuer('https://h/api/db/a%2Fb')).toEqual({ host: 'https://h', db: 'a/b' });
+  });
+});

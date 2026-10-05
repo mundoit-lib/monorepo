@@ -14,10 +14,16 @@ export const DEFAULT_ISSUER_TEMPLATE = '{host}/api/db/{db}';
 
 const trimSlash = (url: string): string => url.replace(/\/+$/, '');
 
-/** URL del issuer sin barra final. Con un tenant, reemplaza `{host}` y `{db}` en la plantilla. */
+/**
+ * URL del issuer sin barra final. Con un tenant, reemplaza `{host}` y `{db}` en la plantilla; `db` va codificada
+ * (`encodeURIComponent`) para que un valor con `/`, `?` o `#` no cambie la URL. Reemplazo por función: un `$` en
+ * el host o la db no se interpreta como patrón de `String.replace`.
+ */
 export function resolveIssuer(issuer: OidcIssuer, template: string = DEFAULT_ISSUER_TEMPLATE): string {
   if (typeof issuer === 'string') return trimSlash(issuer);
-  return trimSlash(template.replace('{host}', trimSlash(issuer.host)).replace('{db}', issuer.db));
+  const host = trimSlash(issuer.host);
+  const db = encodeURIComponent(issuer.db);
+  return trimSlash(template.replace('{host}', () => host).replace('{db}', () => db));
 }
 
 /**
@@ -29,5 +35,5 @@ export function tenantFromIssuer(issuer: string): IssuerTenant {
   const marker = '/api/db/';
   const index = url.indexOf(marker);
   if (index === -1) return { host: url, db: '' };
-  return { host: url.slice(0, index), db: url.slice(index + marker.length).split('/')[0] ?? '' };
+  return { host: url.slice(0, index), db: decodeURIComponent(url.slice(index + marker.length).split('/')[0] ?? '') };
 }

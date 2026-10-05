@@ -137,6 +137,19 @@ describe('createOidcAuth: issuer y UserManager', () => {
     expect(auth.getIssuer()).toBeNull();
   });
 
+  it('setIssuer descarta también el usuario de la app y notifica una sola vez con null', () => {
+    const storage = memoryStorage();
+    const auth = createOidcAuth({ issuer: 'https://a', storage });
+    auth.setUser({ id: 1 });
+    last().emitLoaded(fakeUser());
+    const seen: unknown[] = [];
+    auth.onUserChange((u) => seen.push(u));
+    auth.setIssuer('https://b');
+    expect(auth.user()).toBeNull();
+    expect(storage.getItem('user')).toBeNull();
+    expect(seen).toEqual([null]);
+  });
+
   it('los eventos de un manager que dejó de ser el actual no tocan la sesión', () => {
     const auth = createOidcAuth({ issuer: 'https://a' });
     const a = last();
@@ -227,6 +240,23 @@ describe('createOidcAuth: restore y renew', () => {
     expect(auth.getToken()).toBe('at-3');
   });
 
+  it('renew y restore comparten una sola renovación en vuelo por manager', async () => {
+    const auth = createOidcAuth({ issuer: 'https://a' });
+    let resolve!: (u: OidcUser) => void;
+    last().signinSilent.mockReturnValue(new Promise<OidcUser | null>((r) => (resolve = r)));
+    last().getUser.mockResolvedValue(fakeUser({ expired: true }));
+    const p1 = auth.renew();
+    const p2 = auth.renew();
+    const p3 = auth.restore();
+    await vi.waitFor(() => expect(last().signinSilent).toHaveBeenCalledTimes(1));
+    resolve(fakeUser({ access_token: 'at-9' }));
+    expect((await Promise.all([p1, p2, p3])).map((u) => u?.access_token)).toEqual(['at-9', 'at-9', 'at-9']);
+    // Terminada, la siguiente vuelve a pegarle al issuer.
+    last().signinSilent.mockResolvedValue(fakeUser({ access_token: 'at-10' }));
+    expect((await auth.renew())?.access_token).toBe('at-10');
+    expect(last().signinSilent).toHaveBeenCalledTimes(2);
+  });
+
   it('getToken y check siguen el vencimiento del token guardado', async () => {
     const auth = createOidcAuth({ issuer: 'https://a' });
     const user = fakeUser();
@@ -315,6 +345,30 @@ describe('createOidcAuth: logout', () => {
     expect(auth.user()).toBeNull();
     expect(seen).toEqual([null]);
     expect(auth.navigate).toHaveBeenCalledWith('/login');
+  });
+
+  it('navigate por defecto sólo acepta rutas de la app', () => {
+    const auth = createOidcAuth();
+    const href = vi.fn();
+    vi.stubGlobal('window', {
+      location: {
+        set href(v: string) {
+          href(v);
+        },
+        origin: 'https://app'
+      }
+    });
+    try {
+      auth.navigate('/login');
+      auth.navigate('//evil.com');
+      auth.navigate('https://evil.com');
+      auth.navigate('javascript:alert(1)');
+      auth.navigate('');
+      expect(href).toHaveBeenCalledTimes(1);
+      expect(href).toHaveBeenCalledWith('/login');
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('con end_session_endpoint en el discovery: signoutRedirect', async () => {

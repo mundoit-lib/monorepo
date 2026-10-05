@@ -38,6 +38,10 @@ const defaultStorage = (): OidcStorage => (typeof localStorage === 'undefined' ?
 
 const origin = (): string => (typeof window === 'undefined' ? '' : window.location.origin);
 
+/** Ruta relativa al origin de la app: empieza con una sola `/` (ni `//host`, ni esquema, ni `javascript:`). */
+const isAppPath = (target: unknown): target is string =>
+  typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') && !target.startsWith('/\\');
+
 /** `expired` es `undefined` si el token no trae `expires_at`: se lo trata como vigente. */
 const isLive = (user: OidcUser | null): user is OidcUser => Boolean(user && user.expired !== true);
 
@@ -128,6 +132,14 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     return manager;
   };
 
+  /** Borra usuario de la app y sesión OIDC juntos: una sola notificación con null, sin pasar por los claims. */
+  const clearLocal = (): void => {
+    appUser = null;
+    storage.removeItem(userKey);
+    session = null;
+    notify();
+  };
+
   const setIssuer = (next: OidcIssuer | null): void => {
     const authority = next === null ? null : resolveIssuer(next, options.issuerTemplate);
     if (authority === issuer) return;
@@ -145,7 +157,9 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
       }
       manager = um;
     }
-    setSession(null);
+    // La key del usuario de la app no depende del issuer: al cambiar de tenant se descarta con la sesión,
+    // si no `user()` seguiría devolviendo el usuario del tenant anterior.
+    clearLocal();
   };
 
   const setUser = (user: TUser | null): void => {
@@ -155,17 +169,32 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
     notify();
   };
 
-  const renewWith = async (um: UserManager): Promise<OidcUser | null> => {
-    const user = await um.signinSilent();
-    if (um === manager) setSession(user);
-    return isLive(user) ? user : null;
+  /**
+   * Una sola renovación en vuelo por manager. Con rotación de refresh token, dos `signinSilent` a la vez
+   * (un 401 mientras corre el `automaticSilentRenew`, dos 401 seguidos) gastarían el mismo refresh token:
+   * el segundo falla con `invalid_grant` y se pierde la sesión. oidc-client-ts no lo serializa.
+   */
+  const renewing = new Map<UserManager, Promise<OidcUser | null>>();
+  const renewWith = (um: UserManager): Promise<OidcUser | null> => {
+    const inflight = renewing.get(um);
+    if (inflight) return inflight;
+    const promise = um
+      .signinSilent()
+      .then((user) => {
+        if (um === manager) setSession(user);
+        return isLive(user) ? user : null;
+      })
+      .finally(() => renewing.delete(um));
+    renewing.set(um, promise);
+    return promise;
   };
 
   const auth: OidcAuth<TUser> = {
     __histrixAuth: true,
 
     navigate(target) {
-      if (target && typeof window !== 'undefined') window.location.href = target;
+      // Sólo rutas de la app (`/...`, no `//host` ni `javascript:`): el redirect puede venir de un query param.
+      if (isAppPath(target) && typeof window !== 'undefined') window.location.href = target;
     },
 
     async login(loginOptions: OidcLoginOptions | OidcLoginCredentials = {}) {
@@ -207,11 +236,7 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
 
     async logout(logoutOptions: OidcLogoutOptions = {}) {
       const um = manager;
-      // Usuario y sesión se borran juntos: una sola notificación con null, sin pasar por los claims OIDC.
-      appUser = null;
-      storage.removeItem(userKey);
-      session = null;
-      notify();
+      clearLocal();
       if (!um) return;
       const endSession = logoutOptions.endSession === false ? undefined : await endSessionEndpoint(um);
       if (endSession) {

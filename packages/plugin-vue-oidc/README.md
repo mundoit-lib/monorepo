@@ -46,13 +46,13 @@ router.replace(redirect);
 | `login({ redirect })` | `signinRedirect` con `state.redirect`. La promesa no resuelve: la página navega al authorize. |
 | `handleCallback(url?)` | Canjea el code, guarda la sesión y devuelve `{ user, redirect }`. |
 | `restore()` | Carga la sesión guardada; si venció y hay refresh token, la renueva. `null` sin sesión. |
-| `renew()` | Fuerza una renovación con refresh token (p. ej. ante un 401). |
-| `logout({ redirect, endSession })` | Borra tokens y usuario local. Si el discovery trae `end_session_endpoint`, redirige ahí; si no, llama a `navigate(redirect)`. |
+| `renew()` | Fuerza una renovación con refresh token (p. ej. ante un 401). Una sola renovación en vuelo por issuer: llamadas simultáneas comparten la misma promesa, así no se gasta dos veces el refresh token rotado. |
+| `logout({ redirect, endSession })` | Borra tokens y usuario local. Si el discovery trae `end_session_endpoint`, redirige ahí; si no, llama a `navigate(redirect)`. El `navigate` por defecto sólo acepta rutas de la app (`/...`, nunca `//host` ni otro esquema). |
 | `getToken()` / `token()` | Access token vigente o `null`. |
 | `user()` / `setUser(u)` | Usuario de la app guardado en `storage` bajo `user` (la key que lee `useHistrixSession`). Sin usuario de la app, `user()` devuelve los claims (`profile`) de la sesión OIDC. |
 | `check()` | Hay sesión OIDC con access token sin vencer. |
 | `onUserChange(cb)` | Cambios de `user()`; devuelve el unsubscribe. |
-| `setIssuer(issuer \| null)` / `getIssuer()` | Multi-tenant: un `UserManager` por issuer; cambiar descarta la sesión del anterior. |
+| `setIssuer(issuer \| null)` / `getIssuer()` | Multi-tenant: un `UserManager` por issuer; cambiar descarta la sesión y el usuario de la app del anterior. |
 | `getUserManager()` | El `UserManager` actual, para usos avanzados. |
 
 `resolveIssuer({ host, db })` y `tenantFromIssuer(url)` convierten entre tenant e issuer con la plantilla
