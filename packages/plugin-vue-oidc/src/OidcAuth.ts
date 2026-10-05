@@ -143,6 +143,7 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
   const setIssuer = (next: OidcIssuer | null): void => {
     const authority = next === null ? null : resolveIssuer(next, options.issuerTemplate);
     if (authority === issuer) return;
+    const previous = issuer;
     manager?.stopSilentRenew();
     issuer = authority;
     if (authority === null) {
@@ -158,8 +159,9 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
       manager = um;
     }
     // La key del usuario de la app no depende del issuer: al cambiar de tenant se descarta con la sesión,
-    // si no `user()` seguiría devolviendo el usuario del tenant anterior.
-    clearLocal();
+    // si no `user()` seguiría devolviendo el usuario del tenant anterior. En la primera asignación (arranque
+    // de la app, `createOidcAuth({ issuer })`) no hay tenant anterior: el usuario persistido se conserva.
+    if (previous !== null) clearLocal();
   };
 
   const setUser = (user: TUser | null): void => {

@@ -137,6 +137,20 @@ describe('createOidcAuth: issuer y UserManager', () => {
     expect(auth.getIssuer()).toBeNull();
   });
 
+  it('la primera asignación del issuer conserva el usuario persistido (arranque de la app)', () => {
+    const storage = memoryStorage();
+    storage.setItem('user', JSON.stringify({ id: 7 }));
+    const auth = createOidcAuth<{ id: number }>({ issuer: 'https://a', storage });
+    expect(auth.user()).toEqual({ id: 7 });
+    expect(storage.getItem('user')).toBe('{"id":7}');
+
+    const later = createOidcAuth<{ id: number }>({ storage });
+    later.setIssuer('https://a');
+    expect(later.user()).toEqual({ id: 7 });
+    later.setIssuer(null);
+    expect(storage.getItem('user')).toBeNull();
+  });
+
   it('setIssuer descarta también el usuario de la app y notifica una sola vez con null', () => {
     const storage = memoryStorage();
     const auth = createOidcAuth({ issuer: 'https://a', storage });
