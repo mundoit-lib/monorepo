@@ -24,7 +24,7 @@
  */
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve as resolvePath, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from 'playwright-core';
 
@@ -67,11 +67,17 @@ try {
   process.exit(2);
 }
 
+const dist = join(pkg, 'dist');
 const server = createServer(async (req, res) => {
-  const path = new URL(req.url, APP).pathname;
+  const path = decodeURIComponent(new URL(req.url, APP).pathname);
   try {
     if (path === '/vendor/oidc-client-ts.js') return send(res, 200, 'text/javascript', oidcShim);
-    if (path.startsWith('/dist/')) return send(res, 200, 'text/javascript', await readFile(join(pkg, path)));
+    if (path.startsWith('/dist/')) {
+      // Sólo archivos dentro de dist/: un `..` (codificado o no) no sale de ahí.
+      const file = resolvePath(pkg, `.${path}`);
+      if (!file.startsWith(`${dist}${sep}`)) return send(res, 403, 'text/plain', 'fuera de dist/');
+      return send(res, 200, 'text/javascript', await readFile(file));
+    }
     if (files[path]) return send(res, 200, files[path][1], await readFile(files[path][0]));
     return send(res, 200, 'text/html', await readFile(join(here, 'smoke/index.html')));
   } catch (error) {

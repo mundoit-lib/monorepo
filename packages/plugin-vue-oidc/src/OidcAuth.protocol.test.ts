@@ -234,25 +234,31 @@ describe('protocolo: restore', () => {
     );
   });
 
-  it('refresh con error transitorio (502): null sin avisar, y el próximo restore renueva', async () => {
-    const storage = memoryStorage();
-    await loginAt(makeAuth(storage), demo);
-    vi.setSystemTime(Date.now() + ONE_HOUR + 60_000);
-    vi.spyOn(console, 'warn').mockImplementation(() => {});
-    demo.failNext('server_error');
+  it.each([
+    ['un 502 del issuer', 'server_error'],
+    ['un error de red', 'network']
+  ] as const)(
+    'refresh con error transitorio (%s): null sin avisar, y el próximo restore renueva',
+    async (_, failure) => {
+      const storage = memoryStorage();
+      await loginAt(makeAuth(storage), demo);
+      vi.setSystemTime(Date.now() + ONE_HOUR + 60_000);
+      vi.spyOn(console, 'warn').mockImplementation(() => {});
+      demo.failNext(failure);
 
-    const auth = makeAuth(storage);
-    const expired = vi.fn();
-    auth.onSessionExpired(expired);
+      const auth = makeAuth(storage);
+      const expired = vi.fn();
+      auth.onSessionExpired(expired);
 
-    expect(await auth.restore()).toBeNull();
-    expect(expired).not.toHaveBeenCalled();
+      expect(await auth.restore()).toBeNull();
+      expect(expired).not.toHaveBeenCalled();
 
-    const restored = await auth.restore();
-    expect(restored).not.toBeNull();
-    expect(auth.check()).toBe(true);
-    expect(refreshRequests(demo)).toHaveLength(2);
-  });
+      const restored = await auth.restore();
+      expect(restored).not.toBeNull();
+      expect(auth.check()).toBe(true);
+      expect(refreshRequests(demo)).toHaveLength(2);
+    }
+  );
 });
 
 describe('protocolo: renew y rotación del refresh token', () => {
