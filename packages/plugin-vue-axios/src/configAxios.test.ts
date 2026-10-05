@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { App } from 'vue';
 import { axiosInstance, getAxiosInstance, initializeAxios, setBaseURL, setDatabase } from './configAxios';
 import { install } from './index';
-import type { HttpClient } from './types';
+import type { HttpClient } from './http';
 
 type Reply = { status: number; data?: unknown } | 'network';
 
