@@ -1,0 +1,73 @@
+{
+  "name": "@mundoit-lib/plugin-vue-oidc",
+  "version": "0.1.0",
+  "description": "OIDC authentication (authorization code + PKCE over oidc-client-ts) for Mundo IT Vue 3 apps, compatible with the histrix-component-vue auth contract. Internal use at Mundo IT; published on npm for easier distribution. Not recommended for external use.",
+  "keywords": [
+    "auth",
+    "histrix",
+    "internal",
+    "oidc",
+    "pkce",
+    "vue",
+    "vue3"
+  ],
+  "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-oidc#readme",
+  "bugs": {
+    "url": "https://github.com/mundoit-lib/monorepo/issues"
+  },
+  "license": "MIT",
+  "author": "@mundoit-lib",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mundoit-lib/monorepo.git",
+    "directory": "packages/plugin-vue-oidc"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "vitest run --config ../../vitest.config.ts",
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "check:exports": "publint && attw --pack . --profile node16",
+    "size": "size-limit"
+  },
+  "dependencies": {
+    "oidc-client-ts": "^3.5.0"
+  },
+  "devDependencies": {
+    "@mundoit-lib/tsconfig": "workspace:*",
+    "@mundoit-lib/tsdown-config": "workspace:*"
+  },
+  "size-limit": [
+    {
+      "name": "ESM (gzip)",
+      "path": "dist/index.js",
+      "limit": "4 kB",
+      "gzip": true,
+      "ignore": [
+        "oidc-client-ts"
+      ]
+    }
+  ]
+}

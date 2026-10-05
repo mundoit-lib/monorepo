@@ -219,6 +219,19 @@ importers:
         specifier: workspace:*
         version: link:../../tooling/tsdown
 
+  packages/plugin-vue-oidc:
+    dependencies:
+      oidc-client-ts:
+        specifier: ^3.5.0
+        version: 3.5.0
+    devDependencies:
+      '@mundoit-lib/tsconfig':
+        specifier: workspace:*
+        version: link:../../tooling/typescript
+      '@mundoit-lib/tsdown-config':
+        specifier: workspace:*
+        version: link:../../tooling/tsdown
+
   tooling/tsdown:
     devDependencies:
       '@mundoit-lib/tsconfig':
@@ -2057,6 +2070,10 @@ packages:
     engines: {node: '>=6'}
     hasBin: true
 
+  jwt-decode@4.0.0:
+    resolution: {integrity: sha512-+KJGIyHgkGuIq3IEBNftfhW/LfWhXUIY6OmyVWjliu5KH1y0fw7VQ8YndE2O4qZdMSd9SqbnC8GOcZEy0Om7sA==}
+    engines: {node: '>=18'}
+
   knip@6.39.0:
     resolution: {integrity: sha512-Y7g6Ve1ATMox1u1v+gx3z9LTlvzVLTJISm/LVn9TgBU4qc7OoC63AWGO8qCFPVDDdaqlYdXkDDvvO1METBfTRw==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -2229,6 +2246,10 @@ packages:
 
   ofetch@1.5.1:
     resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
+
+  oidc-client-ts@3.5.0:
+    resolution: {integrity: sha512-l2q8l9CTCTOlbX+AnK4p3M+4CEpKpyQhle6blQkdFhm0IsBqsxm15bYaSa11G7pWdsYr6epdsRZxJpCyCRbT8A==}
+    engines: {node: '>=18'}
 
   oxc-parser@0.150.0:
     resolution: {integrity: sha512-zwajKw1GUa57IOdafIS7/yOObGF2NihwIfZfs5yJTRprMSkiwhWOc/k+n8bwnUPbHr2/XsjfBO8KyTPaW3VpWg==}
@@ -4215,6 +4236,8 @@ snapshots:
 
   jsesc@3.1.0: {}
 
+  jwt-decode@4.0.0: {}
+
   knip@6.39.0:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.7)
@@ -4360,6 +4383,10 @@ snapshots:
       destr: 2.0.5
       node-fetch-native: 1.6.7
       ufo: 1.6.4
+
+  oidc-client-ts@3.5.0:
+    dependencies:
+      jwt-decode: 4.0.0
 
   oxc-parser@0.150.0:
     dependencies:
