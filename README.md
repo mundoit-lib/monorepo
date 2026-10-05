@@ -54,6 +54,7 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsdown.config.ts` con solo `export default libraryConfig({ entry: ['src/index.ts'] })` (importado de `@mundoit-lib/tsdown-config`) y `tsconfig.json` con solo `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }` (más `"@mundoit-lib/tsconfig": "workspace:*"` y `"@mundoit-lib/tsdown-config": "workspace:*"` en `devDependencies`). Las opciones de compilación y de build van en `tooling/typescript` y `tooling/tsdown`, no en el paquete.
 2. Scripts mínimos: `build` (tsdown), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`) y `check:exports` (`publint && attw --pack . --profile node16`). Turbo los toma solos.
 3. Las devDependencies compartidas (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `knip`) viven en la raíz: no repetirlas.
+4. Las `peerDependencies` compartidas (`vue`, `axios`) se declaran como `"vue": "catalog:peers"`: el rango vive en el catálogo de `pnpm-workspace.yaml` (`catalog:` para lo que se instala en la raíz, `catalogs.peers` para el mínimo soportado). `pnpm pack` lo resuelve al publicar.
 
 ## Historia
 

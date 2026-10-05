@@ -54,7 +54,7 @@ for (const dir of dirs) {
     continue;
   }
   console.log(`+ publicando ${id}`);
-  // pnpm pack reescribe `workspace:*` (p. ej. @mundoit-lib/tsconfig) a una versión real;
+  // pnpm pack reescribe `workspace:*` (p. ej. @mundoit-lib/tsconfig) y `catalog:` (vue, axios) a rangos reales;
   // npm publish lo dejaría tal cual en el manifiesto. Publica npm, por el trusted publishing.
   const packDir = mkdtempSync(join(tmpdir(), 'mundoit-release-'));
   try {

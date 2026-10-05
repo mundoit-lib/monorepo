@@ -97,6 +97,6 @@
     "@mundoit-lib/tsdown-config": "workspace:*"
   },
   "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "catalog:peers"
   }
 }
