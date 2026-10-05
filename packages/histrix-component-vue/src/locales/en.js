@@ -24,6 +24,13 @@ export default {
   'app.back': 'Back',
   'app.confirm': 'CONFIRM',
 
+  // HistrixPdfViewer
+  'pdf.download': 'Download',
+  'pdf.open': 'Open in new tab',
+  'pdf.share': 'Share',
+  'pdf.shareError': 'Could not share the PDF',
+  'pdf.notInline': 'This browser cannot show the PDF here. You can open, download or share it.',
+
   'unsupported.title': 'Unsupported screen type',
   'unsupported.description': 'This client version cannot display screens of type',
   'unsupported.noType': '(no type)',

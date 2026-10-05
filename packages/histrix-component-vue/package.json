@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "keywords": [
     "histrix",
@@ -107,6 +107,10 @@
     "./components/HistrixPasswordChange": {
       "import": "./src/components/HistrixPasswordChange.vue",
       "require": "./src/components/HistrixPasswordChange.vue"
+    },
+    "./components/HistrixPdfViewer": {
+      "import": "./src/components/HistrixPdfViewer.vue",
+      "require": "./src/components/HistrixPdfViewer.vue"
     },
     "./components/HistrixRegisterSplit": {
       "import": "./src/components/HistrixRegisterSplit.vue",

@@ -31,13 +31,13 @@ Peers opcionales (declarados en `peerDependenciesMeta`): son los adaptadores por
 
 ## Componentes
 
-37 componentes Vue 3. Salvo `HistrixUnsupported` (aviso interno de `HistrixApp` para tipos de pantalla sin componente), todos se registran con el plugin y se exportan desde la raíz y por subpath.
+38 componentes Vue 3. Salvo `HistrixUnsupported` (aviso interno de `HistrixApp` para tipos de pantalla sin componente), todos se registran con el plugin y se exportan desde la raíz y por subpath.
 
 | Grupo | Componentes |
 |---|---|
 | Páginas y diálogos | `HistrixPage` (página de app: path de la ruta, query y `_title`), `HistrixAppDialog` (app en un `q-dialog` con `v-model`; se cierra en `process-finish`/`closepopup` y emite `finish`) |
 | Pantallas schema-driven | `HistrixApp` (raíz: monta la pantalla según el schema), `HistrixForm`, `HistrixTable`, `HistrixTree`, `HistrixList`, `HistrixCalendar`, `HistrixDashboard`, `HistrixChart` |
-| Piezas de pantalla | `HistrixField`, `HistrixCell`, `HistrixFilters`, `HistrixHelp` (picker de ayudas), `ExportForm`, `HistrixUnsupported` |
+| Piezas de pantalla | `HistrixField`, `HistrixCell`, `HistrixFilters`, `HistrixHelp` (picker de ayudas), `HistrixPdfViewer` (visor de PDF nativo, ver [PDF](#pdf)), `ExportForm`, `HistrixUnsupported` |
 | Auth nativa (sin Quasar) | `HistrixLoginSplit`, `HistrixRegisterSplit`, `HistrixForgotPasswordSplit`, `HistrixResetPasswordSplit` |
 | Auth con Quasar | `LoginForm`, `FormLoginNotStyles`, `HistrixPasswordChange`, `InputPassword` |
 | Menú y shell | `HistrixMenu`, `HistrixExpansionMenu`, `HistrixMenuSearch` (buscador con Ctrl/⌘+K), `FavoritItems`, `profileMenu`, `profileMenuItems`, `notificationMenu` |
@@ -95,6 +95,25 @@ app.use(HistrixPlugin, {
 ```
 
 Para la sesión, `useHistrixSession()` devuelve `{ user, isLogged, login(u, p), logout(), refresh() }`. Es la única fuente de `user` y reemplaza a leer `localStorage.user`. Para las pantallas, `HistrixPage` reemplaza el `pages/Histrix.vue` de cada app y `HistrixAppDialog`, los `HistrixAppCard`. `HistrixList`/`HistrixTree` ya no navegan a la ruta `form`, que no existe: emiten `select` con `{ path, query }`. `HistrixField.resetField(names)` reemplaza al evento global `reset-field`.
+
+## PDF
+
+Las pantallas PDF (`schema.pdf` o la prop `pdf` de `HistrixApp`) y el botón de imprimir se ven con `HistrixPdfViewer`, que usa el visor nativo del navegador en un `<iframe>`, con Descargar y Abrir en pestaña nueva. Si el navegador no muestra PDFs en línea (`navigator.pdfViewerEnabled === false`: Chrome Android, algunas PWA de iOS), en lugar del iframe ofrece Compartir (Web Share con el archivo, si el dispositivo lo permite), Abrir y Descargar.
+
+```vue
+<HistrixPdfViewer v-model="open" :src="blobUrl" :blob="blob" filename="factura.pdf" />
+<HistrixPdfViewer inline :src="blobUrl" filename="factura.pdf" />
+```
+
+El blob URL es de quien lo crea (`HistrixApp` lo revoca al reemplazar el PDF y al desmontarse).
+
+**Desde 0.1.4 ya no hace falta `@quasar/qpdfviewer` ni `public/pdfjs`** (12 MB que la PWA precacheaba). Para sacarlo de una app:
+
+1. Actualizar a `@mundoit-lib/histrix-component-vue@^0.1.4`.
+2. `quasar ext remove @quasar/qpdfviewer` (saca la extensión de `package.json` y `quasar.extensions.json`).
+3. Borrar `public/pdfjs`.
+4. Si la app usa `<q-pdfviewer>` propio, cambiarlo por `HistrixPdfViewer` (importado de la lib).
+5. Buildear la PWA y verificar que el precache del service worker ya no incluye `pdfjs/`.
 
 ## Errores y notificaciones
 
