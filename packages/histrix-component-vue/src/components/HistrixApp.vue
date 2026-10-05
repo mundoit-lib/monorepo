@@ -316,6 +316,8 @@ export default {
     this.localValue = this.modelValue;
   },
   beforeUnmount() {
+    // Invalida la petición de PDF en curso y libera el blob URL.
+    this.pdfRequest = (this.pdfRequest || 0) + 1;
     this.pdfUrls?.revoke();
   },
   watch: {
@@ -712,14 +714,18 @@ export default {
     /**
      * Pide el PDF y lo deja en un blob URL nuevo. El anterior se libera antes
      * de pedir, así el visor no muestra el PDF viejo mientras llega el nuevo.
+     * Sólo cuenta la última petición: una respuesta vieja, o que llega
+     * después de desmontar, se descarta (`pdfRequest` cambió).
      */
     fetchPDF() {
+      const request = (this.pdfRequest = (this.pdfRequest || 0) + 1);
       this.pdfUrls ??= createBlobUrlHolder();
       this.pdfUrls.revoke();
       this.pdfSrc = '';
       this.pdfBlob = null;
       this.getAppPdf(this.path, this.query)
         .then((res) => {
+          if (request !== this.pdfRequest) return;
           // Siempre PDF: con application/octet-stream el iframe lo descargaría en vez de mostrarlo.
           const blob = new Blob([res.data], { type: 'application/pdf' });
           this.pdfBlob = blob;
@@ -727,6 +733,7 @@ export default {
           this.pdfSrc = this.pdfUrls.set(blob);
         })
         .catch((e) => {
+          if (request !== this.pdfRequest) return;
           this.notify.error(`${this.t('app.pdfError')}: ${e.message}`);
         });
     },
