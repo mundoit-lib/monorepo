@@ -227,6 +227,9 @@ importers:
       oidc-client-ts:
         specifier: ^3.5.0
         version: 3.5.0
+      vue:
+        specifier: catalog:peers
+        version: 3.5.43(typescript@5.9.3)
     devDependencies:
       '@mundoit-lib/plugin-vue-axios':
         specifier: workspace:*

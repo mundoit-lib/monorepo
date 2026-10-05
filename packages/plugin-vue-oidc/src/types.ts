@@ -1,4 +1,5 @@
 import type { User, UserManager, UserManagerSettings } from 'oidc-client-ts';
+import type { ComputedRef, ShallowRef } from 'vue';
 import type { OidcIssuer } from './issuer';
 
 /** Sesión OIDC (tokens + claims) tal como la guarda `oidc-client-ts`. */
@@ -102,6 +103,12 @@ export interface OidcAuth<TUser = Record<string, unknown>> extends HistrixAuthCo
   check(): boolean;
   /** Se dispara cuando cambia `user()`; devuelve el unsubscribe. */
   onUserChange(cb: (user: TUser | null) => void): () => void;
+  /**
+   * Se dispara cuando una sesión viva vence sin poder renovarse: el access token expiró y el refresh falló o no
+   * había, `restore()` encontró una sesión guardada que ya no sirve, o `renew()` falló. `logout()` no lo dispara.
+   * Devuelve el unsubscribe.
+   */
+  onSessionExpired(cb: () => void): () => void;
   /** Cambia de issuer en runtime (multi-tenant): un `UserManager` por issuer, la sesión del anterior se descarta. */
   setIssuer(issuer: OidcIssuer | null): void;
   /** Issuer actual resuelto, o `null`. */
@@ -110,4 +117,111 @@ export interface OidcAuth<TUser = Record<string, unknown>> extends HistrixAuthCo
   getUserManager(): UserManager | null;
   /** Cómo navegar en `logout({ redirect })`. Por defecto `window.location.href`; el plugin Vue lo cambia por el router. */
   navigate: (target: string) => void;
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Capa Vue. Los tipos del router son estructurales (lo que usa el plugin de vue-router 4), sin depender del paquete.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** Lo que el guard mira de una ruta de vue-router (`RouteLocationNormalized`). */
+export interface RouteLike {
+  path: string;
+  fullPath: string;
+  name?: unknown;
+  query?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
+  matched?: Array<{ meta?: Record<string, unknown> }>;
+}
+
+/** Destino de navegación: ruta (`'/login'`) u objeto de vue-router (`{ name: 'login' }`). */
+export type RouteTarget =
+  | string
+  | { path?: string; name?: unknown; query?: Record<string, unknown>; [key: string]: unknown };
+
+/** Lo que usa el plugin de vue-router 4 (sin depender del paquete). */
+export interface RouterLike {
+  push(to: RouteTarget): unknown;
+  replace(to: RouteTarget): unknown;
+  beforeEach(guard: (to: RouteLike, from: RouteLike) => unknown): unknown;
+  currentRoute?: { value: RouteLike };
+}
+
+export interface OidcGuardOptions {
+  /**
+   * A dónde manda sin sesión, con `query.redirect = to.fullPath`. Ruta, objeto de vue-router o función de la ruta
+   * bloqueada. Por defecto `/login`. Si es ruta u objeto con `name`, esa ruta se trata como pública (sin loop).
+   */
+  loginRoute?: RouteTarget | ((to: RouteLike) => RouteTarget);
+  /** Key de `meta` que marca una ruta como pública (no pide sesión). Por defecto `public`. */
+  publicMeta?: string;
+  /**
+   * Ruta de la vuelta del authorize, que pasa siempre (todavía no hay sesión y el guard la mandaría al login
+   * perdiendo el code). Por defecto, el path del `redirectUri` del `UserManager` actual (`/callback`).
+   * `false` para no eximir ninguna (la app la marca con `meta[publicMeta]`).
+   */
+  callbackRoute?: string | false;
+}
+
+export interface OidcPluginOptions extends OidcGuardOptions {
+  /** El núcleo (`createOidcAuth`), el mismo que se le pasa a histrix-component-vue. */
+  auth: OidcAuth<any>;
+  /** Con router: `logout({ redirect })` navega con `router.push` y se instala el guard (salvo `guard: false`). */
+  router?: RouterLike;
+  /** `false`: no instalar `createOidcGuard` en `router.beforeEach` (la app arma el suyo). Por defecto `true`. */
+  guard?: boolean;
+  /**
+   * `false`: no llamar a `restore()` al instalar. Para multi-tenant sin issuer al arrancar: la app llama a
+   * `oidc.restore()` después de `auth.setIssuer()`. Por defecto `true`.
+   */
+  restore?: boolean;
+  /** Se llama cuando la sesión vence sin renovarse (`auth.onSessionExpired`): para avisar y mandar al login. */
+  onSessionExpired?: () => void;
+  /** Nombre de la propiedad global (`this.$oidc`). `false` para no registrarla. Por defecto `$oidc`. */
+  globalProperty?: string | false;
+}
+
+/** Opciones de `login()` desde Vue: igual que `OidcLoginOptions`; sin `redirect`, toma `?redirect=` de la ruta actual. */
+export type VueOidcLoginOptions = OidcLoginOptions | OidcLoginCredentials;
+
+/**
+ * `$oidc` / `useOidc()` / `useOidcSession()`: el núcleo con estado reactivo. Misma forma que `useHistrixSession`
+ * de histrix-component-vue (`user`, `isLogged`, `login`, `logout`), así la app tiene una sola fuente de verdad.
+ */
+export interface VueOidc<TUser = Record<string, unknown>> {
+  /** El núcleo (`createOidcAuth`). */
+  readonly auth: OidcAuth<TUser>;
+  /** `auth.user()`: usuario de la app o claims de la sesión. Reactivo. */
+  readonly user: ShallowRef<TUser | null>;
+  /** `auth.check()`: hay sesión OIDC con access token vigente. Reactivo. */
+  readonly isLogged: ComputedRef<boolean>;
+  /** `true` cuando terminó el `restore()` inicial (o nunca se pidió). Reactivo. */
+  readonly ready: ShallowRef<boolean>;
+  /** Redirige al authorize. Sin `redirect`, usa `?redirect=` de la ruta actual si es una ruta de la app. */
+  login(options?: VueOidcLoginOptions): Promise<never>;
+  logout(options?: OidcLogoutOptions): Promise<void>;
+  /** Renovación con refresh token (p. ej. ante un 401). */
+  renew(): Promise<OidcUser | null>;
+  /** Carga la sesión guardada. El guard espera la última llamada antes de decidir la navegación inicial. */
+  restore(): Promise<OidcUser | null>;
+  /** Promesa del último `restore()` (resuelta si no hubo ninguno): lo que espera el guard. */
+  restoring(): Promise<unknown>;
+  /** Procesa `/callback`: canjea el code y actualiza el estado. Lo usa `useOidcCallback`. */
+  handleCallback(url?: string): Promise<OidcCallbackResult>;
+}
+
+export type OidcCallbackStatus = 'pending' | 'done' | 'error';
+
+export interface OidcCallbackOptions<TUser = Record<string, unknown>> {
+  /** URL a procesar. Por defecto `window.location.href`. */
+  url?: string;
+  /**
+   * Después de canjear el code y antes de navegar. La app genérica hace acá `session.refresh()` para traer `/me`.
+   * Si rechaza, el callback queda en error (la sesión OIDC ya está guardada).
+   */
+  onLogin?: (user: OidcUser, oidc: VueOidc<TUser>) => unknown | Promise<unknown>;
+  onError?: (error: unknown) => void;
+  /** Pisa el `redirect` que vino en `state`. */
+  redirect?: string;
+  /** `false`: no arrancar en `onMounted`; la app llama a `run()`. Por defecto `true`. */
+  immediate?: boolean;
 }

@@ -7,7 +7,11 @@ const FakeUserManager = vi.hoisted(() => {
   return class FakeUserManagerImpl {
     static instances: FakeUserManagerImpl[] = [];
     readonly settings: Record<string, unknown>;
-    private handlers = { loaded: new Set<(u: OidcUser) => void>(), unloaded: new Set<() => void>() };
+    private handlers = {
+      loaded: new Set<(u: OidcUser) => void>(),
+      unloaded: new Set<() => void>(),
+      expired: new Set<() => void>()
+    };
     events = {
       addUserLoaded: vi.fn((cb: (u: OidcUser) => void) => {
         this.handlers.loaded.add(cb);
@@ -17,7 +21,11 @@ const FakeUserManager = vi.hoisted(() => {
         this.handlers.unloaded.add(cb);
         return () => this.handlers.unloaded.delete(cb);
       }),
-      addSilentRenewError: vi.fn()
+      addSilentRenewError: vi.fn(),
+      addAccessTokenExpired: vi.fn((cb: () => void) => {
+        this.handlers.expired.add(cb);
+        return () => this.handlers.expired.delete(cb);
+      })
     };
     metadataService = { getEndSessionEndpoint: vi.fn(async () => undefined as string | undefined) };
     signinRedirect = vi.fn(async () => {});
@@ -39,6 +47,9 @@ const FakeUserManager = vi.hoisted(() => {
     }
     emitUnloaded() {
       for (const cb of this.handlers.unloaded) cb();
+    }
+    emitExpired() {
+      for (const cb of this.handlers.expired) cb();
     }
   };
 });
@@ -77,6 +88,9 @@ function memoryStorage(): OidcStorage & { map: Map<string, string> } {
 }
 
 const last = () => FakeUserManager.instances.at(-1)!;
+
+/** Forma del `ErrorResponse` de oidc-client-ts: el token endpoint contestó con un error OAuth. */
+const oauthError = (code: string) => Object.assign(new Error(code), { error: code, error_description: null });
 
 beforeEach(() => {
   FakeUserManager.instances = [];
@@ -337,6 +351,100 @@ describe('createOidcAuth: usuario de la app y onUserChange', () => {
     const storage = memoryStorage();
     storage.setItem('user', '{nope');
     expect(createOidcAuth({ storage }).user()).toBeNull();
+  });
+});
+
+describe('createOidcAuth: onSessionExpired', () => {
+  const withSession = async () => {
+    const auth = createOidcAuth({ issuer: 'https://h/api/db/x' });
+    const um = last();
+    um.getUser.mockResolvedValue(fakeUser());
+    await auth.restore();
+    const expired = vi.fn();
+    auth.onSessionExpired(expired);
+    return { auth, um, expired };
+  };
+
+  it('el access token vence sin renovarse: descarta la sesión y avisa', async () => {
+    const { auth, um, expired } = await withSession();
+    const users: unknown[] = [];
+    auth.onUserChange((u) => users.push(u));
+
+    um.emitExpired();
+
+    expect(expired).toHaveBeenCalledTimes(1);
+    expect(auth.check()).toBe(false);
+    expect(auth.getToken()).toBeNull();
+    expect(users).toEqual([null]);
+  });
+
+  it('renew rechazado por el issuer (ErrorResponse) avisa una vez; un segundo expired sin sesión no repite', async () => {
+    const { auth, um, expired } = await withSession();
+    um.signinSilent.mockRejectedValueOnce(oauthError('invalid_grant'));
+
+    await expect(auth.renew()).rejects.toThrow('invalid_grant');
+    um.emitExpired();
+
+    expect(expired).toHaveBeenCalledTimes(1);
+    expect(auth.check()).toBe(false);
+  });
+
+  it('renew que falla por red/timeout no descarta la sesión ni avisa: el token vigente sigue', async () => {
+    const { auth, um, expired } = await withSession();
+    um.signinSilent.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    await expect(auth.renew()).rejects.toThrow('Failed to fetch');
+
+    expect(expired).not.toHaveBeenCalled();
+    expect(auth.check()).toBe(true);
+    expect(auth.getToken()).toBe('at-1');
+  });
+
+  it('restore con sesión guardada vencida que no se puede renovar avisa (arranque de la app)', async () => {
+    const auth = createOidcAuth({ issuer: 'https://h/api/db/x' });
+    const um = last();
+    const expired = vi.fn();
+    auth.onSessionExpired(expired);
+
+    um.getUser.mockResolvedValue(fakeUser({ expired: true, refresh_token: undefined }));
+    expect(await auth.restore()).toBeNull();
+    expect(expired).toHaveBeenCalledTimes(1);
+
+    um.getUser.mockResolvedValue(fakeUser({ expired: true }));
+    um.signinSilent.mockRejectedValueOnce(oauthError('invalid_grant'));
+    expect(await auth.restore()).toBeNull();
+    expect(expired).toHaveBeenCalledTimes(2);
+
+    // Sin red al arrancar: no hay sesión, pero tampoco "venció": el refresh token puede servir después.
+    um.signinSilent.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    expect(await auth.restore()).toBeNull();
+    expect(expired).toHaveBeenCalledTimes(2);
+  });
+
+  it('sin sesión guardada, restore no avisa; logout tampoco; el unsubscribe corta', async () => {
+    const auth = createOidcAuth({ issuer: 'https://h/api/db/x' });
+    const um = last();
+    const expired = vi.fn();
+    const off = auth.onSessionExpired(expired);
+
+    expect(await auth.restore()).toBeNull();
+    um.getUser.mockResolvedValue(fakeUser());
+    await auth.restore();
+    await auth.logout();
+    expect(expired).not.toHaveBeenCalled();
+
+    await auth.restore();
+    off();
+    um.emitExpired();
+    expect(expired).not.toHaveBeenCalled();
+  });
+
+  it('el expired de un manager que dejó de ser el actual no avisa', async () => {
+    const { auth, um, expired } = await withSession();
+    auth.setIssuer('https://otro/api/db/y');
+    expired.mockClear();
+    um.emitExpired();
+    expect(expired).not.toHaveBeenCalled();
   });
 });
 

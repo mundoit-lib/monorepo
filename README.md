@@ -7,7 +7,7 @@ Librerías frontend de Mundo IT. Cada carpeta de `packages/` es un paquete npm i
 | [`packages/plugin-vue-event`](packages/plugin-vue-event) | Bus de eventos global (`$events`, opción `events:`) | `@mundoit-lib/plugin-vue-event` |
 | [`packages/plugin-vue-auth`](packages/plugin-vue-auth) | Autenticación OAuth2 password grant contra Histrix (`useAuth`, `$auth`) | `@mundoit-lib/plugin-vue-auth` |
 | [`packages/plugin-vue-axios`](packages/plugin-vue-axios) | Instancia de axios compartida (`$axios`, `getAxiosInstance`, `setDatabase`) | `@mundoit-lib/plugin-vue-axios` |
-| [`packages/plugin-vue-oidc`](packages/plugin-vue-oidc) | Autenticación OIDC (code + PKCE sobre `oidc-client-ts`, `createOidcAuth`) y http con Bearer y reintento con refresh ante 401 (`createOidcHttp`), compatible con el contrato de auth de histrix-component-vue | `@mundoit-lib/plugin-vue-oidc` |
+| [`packages/plugin-vue-oidc`](packages/plugin-vue-oidc) | Autenticación OIDC (code + PKCE sobre `oidc-client-ts`): `createOidcAuth`, http con Bearer y reintento con refresh ante 401 (`createOidcHttp`), plugin Vue con `useOidcSession`, componente de callback y guard de router; compatible con el contrato de auth de histrix-component-vue | `@mundoit-lib/plugin-vue-oidc` |
 | [`packages/histrix-component-vue`](packages/histrix-component-vue) | Componentes Vue 3 + Quasar 2 del cliente Histrix. Se publica la fuente (`.vue`/JS), sin build | `@mundoit-lib/histrix-component-vue` |
 
 `tooling/` guarda configuración compartida que no se publica: [`tooling/typescript`](tooling/typescript) (`@mundoit-lib/tsconfig`, privado) tiene el `base.json` y el `library.json` que extiende cada paquete, y [`tooling/tsdown`](tooling/tsdown) (`@mundoit-lib/tsdown-config`, privado) exporta `libraryConfig({ entry })` con la config de build común (ESM `.js` + CJS `.cjs`, `platform: 'neutral'`, `es2022`, sin minificar: minifica el bundler de la app).
@@ -42,7 +42,7 @@ Turborepo orquesta las tareas por paquete (`turbo.json`) y cachea en `.turbo/`: 
 | `plugin-vue-auth` | 5 kB | 3,1 kB |
 | `plugin-vue-axios` | 2 kB | 1,3 kB |
 | `plugin-vue-event` | 1,5 kB | 1,0 kB (`index.js` reexporta `plugin`, `eventBus` y `useEvents`, así que el bundle medido incluye los 4 subpaths) |
-| `plugin-vue-oidc` | 4 kB | 2,1 kB (sin `oidc-client-ts`, que es dependencia del paquete, ni `axios`) |
+| `plugin-vue-oidc` | 5 kB | 3,9 kB (sin `vue` ni `axios`, ni `oidc-client-ts`, que es dependencia del paquete) |
 
 Si un cambio se pasa, primero revisar qué entró al bundle (`pnpm --filter <paquete> exec size-limit --why` abre el reporte); si el peso es legítimo, subir el `limit` en el mismo PR y actualizar esta tabla.
 

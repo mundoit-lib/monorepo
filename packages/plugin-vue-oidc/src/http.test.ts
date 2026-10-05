@@ -8,7 +8,12 @@ import type { OidcUser } from './types';
 const FakeUserManager = vi.hoisted(() => {
   return class FakeUserManagerImpl {
     static instances: FakeUserManagerImpl[] = [];
-    events = { addUserLoaded: vi.fn(), addUserUnloaded: vi.fn(), addSilentRenewError: vi.fn() };
+    events = {
+      addUserLoaded: vi.fn(),
+      addUserUnloaded: vi.fn(),
+      addSilentRenewError: vi.fn(),
+      addAccessTokenExpired: vi.fn()
+    };
     signinSilent = vi.fn(async () => null as OidcUser | null);
     getUser = vi.fn(async () => null as OidcUser | null);
     stopSilentRenew = vi.fn();

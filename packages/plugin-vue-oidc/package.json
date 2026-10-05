@@ -1,7 +1,7 @@
 {
   "name": "@mundoit-lib/plugin-vue-oidc",
-  "version": "0.2.0",
-  "description": "OIDC authentication (authorization code + PKCE over oidc-client-ts) for Mundo IT Vue 3 apps, with an axios http client (Bearer + refresh retry on 401), compatible with the histrix-component-vue auth contract. Internal use at Mundo IT; published on npm for easier distribution. Not recommended for external use.",
+  "version": "0.3.0",
+  "description": "OIDC authentication (authorization code + PKCE over oidc-client-ts) for Mundo IT Vue 3 apps: core auth, axios http client (Bearer + refresh retry on 401), Vue plugin with useOidcSession, callback component and router guard, compatible with the histrix-component-vue auth contract. Internal use at Mundo IT; published on npm for easier distribution. Not recommended for external use.",
   "keywords": [
     "auth",
     "axios",
@@ -10,7 +10,9 @@
     "internal",
     "oidc",
     "pkce",
+    "plugin",
     "vue",
+    "vue-plugin",
     "vue3"
   ],
   "homepage": "https://github.com/mundoit-lib/monorepo/tree/main/packages/plugin-vue-oidc#readme",
@@ -63,17 +65,19 @@
     "@mundoit-lib/tsdown-config": "workspace:*"
   },
   "peerDependencies": {
-    "axios": "catalog:peers"
+    "axios": "catalog:peers",
+    "vue": "catalog:peers"
   },
   "size-limit": [
     {
       "name": "ESM (gzip)",
       "path": "dist/index.js",
-      "limit": "4 kB",
+      "limit": "5 kB",
       "gzip": true,
       "ignore": [
         "axios",
-        "oidc-client-ts"
+        "oidc-client-ts",
+        "vue"
       ]
     }
   ]
