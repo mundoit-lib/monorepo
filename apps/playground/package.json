@@ -20,6 +20,7 @@
     "axios": "catalog:",
     "quasar": "^2.16.0",
     "vue": "catalog:",
+    "vue-demi": "^0.13.11",
     "vue-router": "^4.4.0"
   },
   "devDependencies": {
