@@ -88,7 +88,8 @@ export const OidcPlugin = {
     // Antes del guard: la navegación inicial (app.use(router)) espera esta promesa, así al recargar no manda a /login.
     if (restore) void oidc.restore();
     if (router && guard) {
-      router.beforeEach(createOidcGuard(oidc, { loginRoute: rest.loginRoute, publicMeta: rest.publicMeta }));
+      const { loginRoute, publicMeta, callbackRoute } = rest;
+      router.beforeEach(createOidcGuard(oidc, { loginRoute, publicMeta, callbackRoute }));
     }
   }
 };

@@ -154,6 +154,12 @@ export interface OidcGuardOptions {
   loginRoute?: RouteTarget | ((to: RouteLike) => RouteTarget);
   /** Key de `meta` que marca una ruta como pública (no pide sesión). Por defecto `public`. */
   publicMeta?: string;
+  /**
+   * Ruta de la vuelta del authorize, que pasa siempre (todavía no hay sesión y el guard la mandaría al login
+   * perdiendo el code). Por defecto, el path del `redirectUri` del `UserManager` actual (`/callback`).
+   * `false` para no eximir ninguna (la app la marca con `meta[publicMeta]`).
+   */
+  callbackRoute?: string | false;
 }
 
 export interface OidcPluginOptions extends OidcGuardOptions {

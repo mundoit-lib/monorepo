@@ -42,6 +42,13 @@ const origin = (): string => (typeof window === 'undefined' ? '' : window.locati
 export const isAppPath = (target: unknown): target is string =>
   typeof target === 'string' && target.startsWith('/') && !target.startsWith('//') && !target.startsWith('/\\');
 
+/**
+ * El token endpoint contestó con un error OAuth (`ErrorResponse` de oidc-client-ts: `invalid_grant` por refresh token
+ * vencido, revocado o ya rotado; `invalid_client`…): la sesión no se va a poder renovar. Un fallo de red, un 5xx o un
+ * timeout no lo son: el refresh token sigue en storage y el próximo intento puede andar.
+ */
+const isDefinitiveError = (error: unknown): boolean => typeof (error as { error?: unknown } | null)?.error === 'string';
+
 /** `expired` es `undefined` si el token no trae `expires_at`: se lo trata como vigente. */
 const isLive = (user: OidcUser | null): user is OidcUser => Boolean(user && user.expired !== true);
 
@@ -211,7 +218,8 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
         return isLive(user) ? user : null;
       })
       .catch((error: unknown) => {
-        if (um === manager) expire();
+        // Sólo un rechazo definitivo del issuer tira la sesión; con un error transitorio el token vigente sigue.
+        if (um === manager && isDefinitiveError(error)) expire();
         throw error;
       })
       .finally(() => renewing.delete(um));
@@ -254,7 +262,7 @@ export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAut
         } catch (error) {
           console.warn('[oidc] no se pudo renovar la sesión', error);
           // renewWith ya avisó si había sesión en memoria; al arrancar sólo estaba en storage y hay que avisar acá.
-          if (um === manager && !hadSession) emitExpired();
+          if (um === manager && !hadSession && isDefinitiveError(error)) emitExpired();
           return null;
         }
       }

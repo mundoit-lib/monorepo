@@ -1,4 +1,5 @@
 import { type PropType, type SlotsType, defineComponent, h, onMounted, shallowRef } from 'vue';
+import { isAppPath } from './OidcAuth';
 import type { OidcCallbackOptions, OidcCallbackStatus, OidcUser, RouterLike } from './types';
 import { useOidc } from './vue';
 
@@ -46,7 +47,9 @@ export function useOidcCallback<TUser = Record<string, unknown>>(
       user.value = result.user;
       await options.onLogin?.(result.user, oidc);
       status.value = 'done';
-      navigate(options.redirect ?? result.redirect);
+      // El destino viene del `state` (lo que se pasó a login()) o de la app: sólo rutas de la app, nunca otro origen.
+      const target = options.redirect ?? result.redirect;
+      navigate(isAppPath(target) ? target : '/');
     } catch (e) {
       console.error('[oidc] callback', e);
       error.value = e;

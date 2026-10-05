@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createApp, defineComponent, h, nextTick } from 'vue';
 import { OidcCallback, OidcPlugin, describeCallbackError, useOidcCallback } from './index';
-import { fakeAuth, fakeRouter } from './test-utils';
+import { fakeAuth, fakeOidcUser, fakeRouter } from './test-utils';
 
 const flush = async () => {
   await new Promise((r) => setTimeout(r, 0));
@@ -99,6 +99,28 @@ describe('useOidcCallback', () => {
     await result.run();
     expect(router.replace).not.toHaveBeenCalled();
     expect(router.push).toHaveBeenCalledWith('/home');
+  });
+});
+
+describe('useOidcCallback: destino', () => {
+  it('un redirect que no es ruta de la app (otro origen, esquema) cae a "/"', async () => {
+    const router = fakeRouter();
+    let result!: ReturnType<typeof useOidcCallback>;
+    const Comp = defineComponent({
+      setup() {
+        result = useOidcCallback({ immediate: false }, router);
+        return () => null;
+      }
+    });
+    const { auth } = mount(Comp);
+    for (const redirect of ['//evil.com', 'https://evil.com/x', 'javascript:alert(1)']) {
+      auth.handleCallback.mockResolvedValueOnce({ user: fakeOidcUser(), redirect });
+      await result.run();
+      expect(router.replace).toHaveBeenLastCalledWith('/');
+    }
+    auth.handleCallback.mockResolvedValueOnce({ user: fakeOidcUser(), redirect: '/ok?x=1' });
+    await result.run();
+    expect(router.replace).toHaveBeenLastCalledWith('/ok?x=1');
   });
 });
 

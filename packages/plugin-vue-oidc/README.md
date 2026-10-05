@@ -63,7 +63,7 @@ PoC, donde el guard corría antes de restaurar).
 | `auth` | El núcleo (`createOidcAuth`). Obligatorio. |
 | `router` | Con router, `logout({ redirect })` navega con `router.push` y se instala `createOidcGuard` en `beforeEach`. |
 | `guard` | `false`: no instalar el guard (la app arma el suyo con `createOidcGuard`). Default `true`. |
-| `loginRoute` / `publicMeta` | Opciones del guard (abajo). |
+| `loginRoute` / `publicMeta` / `callbackRoute` | Opciones del guard (abajo). |
 | `restore` | `false`: no llamar a `restore()` al instalar. Multi-tenant sin issuer al arrancar: después de `auth.setIssuer()` la app llama a `useOidc().restore()`. Default `true`. |
 | `onSessionExpired` | Se llama cuando la sesión vence sin renovarse (`auth.onSessionExpired`). |
 | `globalProperty` | Nombre de la propiedad global (`this.$oidc`); `false` para no registrarla. Default `'$oidc'`. |
@@ -124,7 +124,8 @@ const { status, error, message, run, retry } = useOidcCallback({ onLogin, redire
 ```
 
 Canjea el code, guarda la sesión, espera `onLogin(user, oidc)` y navega a `state.redirect` (el `redirect` de
-`login()`) con `router.replace`; sin router usa `auth.navigate`. Si algo falla, `status` queda en `'error'` con un
+`login()`) con `router.replace`; sin router usa `auth.navigate`. Sólo navega a rutas de la app (`/...`); cualquier
+otro destino cae a `/`. Si algo falla, `status` queda en `'error'` con un
 `message` para la persona (`describeCallbackError`: code vencido o ya usado = `invalid_grant`, `invalid_client`,
 `access_denied`, state perdido, sin issuer) y `retry()` vuelve al authorize. Sin slot, el componente muestra
 `pendingText` ("Ingresando…") o el mensaje con un botón `retryText`, en HTML plano (clases `oidc-callback`,
@@ -139,7 +140,10 @@ import { createOidcGuard, useOidc } from '@mundoit-lib/plugin-vue-oidc';
 router.beforeEach(createOidcGuard(useOidc(), { loginRoute: '/login', publicMeta: 'public' }));
 ```
 
-Las rutas con `meta[publicMeta]` (en cualquier record de `matched`) y la propia ruta de login pasan. El resto espera
+Las rutas con `meta[publicMeta]` (en cualquier record de `matched`), la propia ruta de login y la del **callback**
+pasan. La del callback se toma del `redirectUri` del núcleo (`/callback` por defecto): la vuelta del authorize
+todavía no tiene sesión y, sin esta excepción, el guard la mandaría al login perdiendo el code. `callbackRoute`
+la cambia (`'/oidc/vuelta'`) o la apaga (`false`, y la app la marca con `meta[publicMeta]`). El resto espera
 `restoring()` y, sin sesión, devuelve `loginRoute` con `query.redirect = to.fullPath`. `loginRoute` puede ser una
 ruta (`'/login'`), un objeto de vue-router (`{ name: 'login' }`, se mezcla la `query`) o una función de la ruta
 bloqueada.
@@ -148,7 +152,9 @@ bloqueada.
 
 `auth.onSessionExpired(cb)` (y la opción `onSessionExpired` del plugin) se dispara cuando una sesión viva vence sin
 poder renovarse: el access token expiró y el refresh falló o no había, `restore()` encontró una sesión guardada que
-ya no sirve, o `renew()` falló. `logout()` no lo dispara. `isLogged` pasa a `false`; `user` conserva el usuario
+ya no sirve, o el issuer rechazó el refresh (`invalid_grant`: token vencido, revocado o ya rotado). Un fallo de red,
+un 5xx o un timeout en el refresh **no** lo disparan ni descartan la sesión: el token vigente sigue y el próximo
+intento puede andar. `logout()` no lo dispara. `isLogged` pasa a `false`; `user` conserva el usuario
 persistido hasta el próximo login o logout.
 
 ## Http: Bearer y reintento ante 401
@@ -202,7 +208,7 @@ router.replace(redirect);
 | `user()` / `setUser(u)` | Usuario de la app guardado en `storage` bajo `user` (la key que lee `useHistrixSession`). Sin usuario de la app, `user()` devuelve los claims (`profile`) de la sesión OIDC. |
 | `check()` | Hay sesión OIDC con access token sin vencer. |
 | `onUserChange(cb)` | Cambios de `user()`; devuelve el unsubscribe. |
-| `onSessionExpired(cb)` | La sesión venció sin renovarse (ver arriba); devuelve el unsubscribe. |
+| `onSessionExpired(cb)` | La sesión venció sin renovarse o el issuer rechazó el refresh (ver arriba; los errores de red no cuentan); devuelve el unsubscribe. |
 | `setIssuer(issuer \| null)` / `getIssuer()` | Multi-tenant: un `UserManager` por issuer; cambiar descarta la sesión y el usuario de la app del anterior. |
 | `getUserManager()` | El `UserManager` actual, para usos avanzados. |
 

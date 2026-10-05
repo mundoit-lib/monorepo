@@ -86,7 +86,7 @@ export function fakeAuth(): FakeAuth {
     },
     setIssuer: vi.fn(),
     getIssuer: () => 'https://h/api/db/x',
-    getUserManager: () => null,
+    getUserManager: () => ({ settings: { redirect_uri: 'https://app.test/callback' } }) as any,
 
     setSession(u) {
       session = u;

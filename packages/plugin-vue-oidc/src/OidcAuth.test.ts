@@ -89,6 +89,9 @@ function memoryStorage(): OidcStorage & { map: Map<string, string> } {
 
 const last = () => FakeUserManager.instances.at(-1)!;
 
+/** Forma del `ErrorResponse` de oidc-client-ts: el token endpoint contestó con un error OAuth. */
+const oauthError = (code: string) => Object.assign(new Error(code), { error: code, error_description: null });
+
 beforeEach(() => {
   FakeUserManager.instances = [];
 });
@@ -375,15 +378,26 @@ describe('createOidcAuth: onSessionExpired', () => {
     expect(users).toEqual([null]);
   });
 
-  it('renew que falla avisa una vez; un segundo expired sin sesión no repite', async () => {
+  it('renew rechazado por el issuer (ErrorResponse) avisa una vez; un segundo expired sin sesión no repite', async () => {
     const { auth, um, expired } = await withSession();
-    um.signinSilent.mockRejectedValueOnce(new Error('invalid_grant'));
+    um.signinSilent.mockRejectedValueOnce(oauthError('invalid_grant'));
 
     await expect(auth.renew()).rejects.toThrow('invalid_grant');
     um.emitExpired();
 
     expect(expired).toHaveBeenCalledTimes(1);
     expect(auth.check()).toBe(false);
+  });
+
+  it('renew que falla por red/timeout no descarta la sesión ni avisa: el token vigente sigue', async () => {
+    const { auth, um, expired } = await withSession();
+    um.signinSilent.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+    await expect(auth.renew()).rejects.toThrow('Failed to fetch');
+
+    expect(expired).not.toHaveBeenCalled();
+    expect(auth.check()).toBe(true);
+    expect(auth.getToken()).toBe('at-1');
   });
 
   it('restore con sesión guardada vencida que no se puede renovar avisa (arranque de la app)', async () => {
@@ -397,7 +411,12 @@ describe('createOidcAuth: onSessionExpired', () => {
     expect(expired).toHaveBeenCalledTimes(1);
 
     um.getUser.mockResolvedValue(fakeUser({ expired: true }));
-    um.signinSilent.mockRejectedValueOnce(new Error('invalid_grant'));
+    um.signinSilent.mockRejectedValueOnce(oauthError('invalid_grant'));
+    expect(await auth.restore()).toBeNull();
+    expect(expired).toHaveBeenCalledTimes(2);
+
+    // Sin red al arrancar: no hay sesión, pero tampoco "venció": el refresh token puede servir después.
+    um.signinSilent.mockRejectedValueOnce(new TypeError('Failed to fetch'));
     expect(await auth.restore()).toBeNull();
     expect(expired).toHaveBeenCalledTimes(2);
   });
