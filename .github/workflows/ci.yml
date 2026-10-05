@@ -37,6 +37,7 @@ jobs:
       - run: pnpm build
       - run: pnpm typecheck
       - run: pnpm check:exports
+      - run: pnpm size
       - run: pnpm test
       # turbo no borra entradas viejas: se podan antes de que actions/cache guarde la nueva.
       - name: Podar caché de turbo

@@ -87,7 +87,8 @@
     "test": "vitest run --config ../../vitest.config.ts",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "check:exports": "publint && attw --pack . --profile node16"
+    "check:exports": "publint && attw --pack . --profile node16",
+    "size": "size-limit"
   },
   "dependencies": {
     "mitt": "^3.0.1"
@@ -98,5 +99,17 @@
   },
   "peerDependencies": {
     "vue": "catalog:peers"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "ESM (gzip)",
+      "path": "dist/index.js",
+      "limit": "1.5 kB",
+      "gzip": true,
+      "ignore": [
+        "vue",
+        "mitt"
+      ]
+    }
+  ]
 }

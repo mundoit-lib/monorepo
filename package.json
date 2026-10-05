@@ -13,11 +13,13 @@
     "lint": "oxlint && oxfmt --check && sherif && knip",
     "lint:fix": "oxlint --fix && oxfmt --write && sherif --fix",
     "check:exports": "turbo run check:exports",
+    "size": "turbo run size",
     "release": "node scripts/release.mjs",
     "release:dry": "node scripts/release.mjs --dry-run"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
+    "@size-limit/preset-small-lib": "^14.1.0",
     "@types/node": "^24.0.0",
     "axios": "catalog:",
     "happy-dom": "^20.14.5",
@@ -26,6 +28,7 @@
     "oxlint": "^1.86.0",
     "publint": "^0.3.24",
     "sherif": "^1.13.0",
+    "size-limit": "^14.1.0",
     "tsdown": "^0.23.0",
     "turbo": "^2.11.5",
     "typescript": "^5.9.3",
@@ -33,7 +36,7 @@
     "vue": "catalog:"
   },
   "engines": {
-    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
+    "node": "^22.19.0 || ^24.11.0 || >=26.0.0"
   },
   "packageManager": "pnpm@11.20.0"
 }

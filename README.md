@@ -21,12 +21,25 @@ pnpm typecheck        # turbo → tsc --noEmit en cada paquete
 pnpm test             # turbo → vitest en cada paquete (packages/*/src/**/*.test.ts)
 pnpm lint             # oxlint + oxfmt --check + sherif + knip; pnpm lint:fix para corregir
 pnpm check:exports    # publint + are-the-types-wrong sobre el dist de cada paquete
+pnpm size             # size-limit sobre el dist ESM de cada paquete (falla si pasa el presupuesto)
 pnpm turbo run build --filter @mundoit-lib/plugin-vue-auth   # un solo paquete
 ```
 
-Node `^22.18.0 || ^24.11.0 || >=26.0.0` (lo que soportan tsdown y vitest; `.node-version` fija 24 para desarrollo y publish, CI prueba 22 y 24), pnpm 11 (el `packageManager` del `package.json` raíz fija la versión). Finales de línea LF.
+Node `^22.19.0 || ^24.11.0 || >=26.0.0` (lo que soportan tsdown, vitest y size-limit; `.node-version` fija 24 para desarrollo y publish, CI prueba 22 y 24), pnpm 11 (el `packageManager` del `package.json` raíz fija la versión). Finales de línea LF.
 
 Turborepo orquesta las tareas por paquete (`turbo.json`) y cachea en `.turbo/`: si un paquete no cambió, su `build`/`test` sale de caché. `--force` lo ignora.
+
+### Presupuesto de tamaño
+
+`pnpm size` (turbo → `size-limit` en cada paquete, después de `build`) mide la entry ESM (`dist/index.js`) bundleada, minificada y en gzip, sin las dependencias externas (`vue`, `axios`, `mitt`), que las trae la app. CI falla si un paquete pasa su presupuesto, que vive en el bloque `size-limit` de su `package.json`:
+
+| Paquete | Presupuesto (gzip) | Medido al fijarlo |
+|---|---|---|
+| `plugin-vue-auth` | 5 kB | 3,1 kB |
+| `plugin-vue-axios` | 2 kB | 1,3 kB |
+| `plugin-vue-event` | 1,5 kB | 1,0 kB (las 4 entries) |
+
+Si un cambio se pasa, primero revisar qué entró al bundle (`pnpm --filter <paquete> exec size-limit --why` abre el reporte); si el peso es legítimo, subir el `limit` en el mismo PR y actualizar esta tabla.
 
 ## Publicación
 
@@ -52,7 +65,7 @@ Hasta que eso no esté hecho, el workflow falla con `ENEEDAUTH`/`E404` en el pas
 ## Agregar un paquete
 
 1. `packages/<nombre>/` con `package.json` (`name` bajo `@mundoit-lib/`, `files: ["dist"]`, `publishConfig.access: public`, `repository.directory`), `src/`, `tsdown.config.ts` con solo `export default libraryConfig({ entry: ['src/index.ts'] })` (importado de `@mundoit-lib/tsdown-config`) y `tsconfig.json` con solo `{ "extends": "@mundoit-lib/tsconfig/library.json", "include": ["src"] }` (más `"@mundoit-lib/tsconfig": "workspace:*"` y `"@mundoit-lib/tsdown-config": "workspace:*"` en `devDependencies`). Las opciones de compilación y de build van en `tooling/typescript` y `tooling/tsdown`, no en el paquete.
-2. Scripts mínimos: `build` (tsdown), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`) y `check:exports` (`publint && attw --pack . --profile node16`). Turbo los toma solos.
+2. Scripts mínimos: `build` (tsdown), `test` (`vitest run --passWithNoTests`), `typecheck` (`tsc --noEmit`), `check:exports` (`publint && attw --pack . --profile node16`) y `size` (`size-limit`, con un bloque `size-limit` en el `package.json`: `path: "dist/index.js"`, `gzip: true`, `ignore` con las peers y `limit` con margen sobre lo medido). Turbo los toma solos.
 3. Las devDependencies compartidas (`tsdown`, `typescript`, `vitest`, `turbo`, `oxlint`, `oxfmt`, `sherif`, `knip`) viven en la raíz: no repetirlas.
 4. Las `peerDependencies` compartidas (`vue`, `axios`) se declaran como `"vue": "catalog:peers"`: el rango vive en el catálogo de `pnpm-workspace.yaml` (`catalog:` para lo que se instala en la raíz, `catalogs.peers` para el mínimo soportado). `pnpm pack` lo resuelve al publicar.
 

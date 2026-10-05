@@ -59,7 +59,8 @@
     "test": "vitest run --config ../../vitest.config.ts",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
-    "check:exports": "publint && attw --pack . --profile node16"
+    "check:exports": "publint && attw --pack . --profile node16",
+    "size": "size-limit"
   },
   "devDependencies": {
     "@mundoit-lib/tsconfig": "workspace:*",
@@ -68,5 +69,17 @@
   "peerDependencies": {
     "axios": "catalog:peers",
     "vue": "catalog:peers"
-  }
+  },
+  "size-limit": [
+    {
+      "name": "ESM (gzip)",
+      "path": "dist/index.js",
+      "limit": "2 kB",
+      "gzip": true,
+      "ignore": [
+        "vue",
+        "axios"
+      ]
+    }
+  ]
 }
