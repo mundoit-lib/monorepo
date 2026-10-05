@@ -17,6 +17,7 @@ import HistrixList from './components/HistrixList.vue';
 import HistrixLoginSplit from './components/HistrixLoginSplit.vue';
 import HistrixPage from './components/HistrixPage.vue';
 import HistrixPasswordChange from './components/HistrixPasswordChange.vue';
+import HistrixPdfViewer from './components/HistrixPdfViewer.vue';
 import HistrixRegisterSplit from './components/HistrixRegisterSplit.vue';
 import HistrixResetPasswordSplit from './components/HistrixResetPasswordSplit.vue';
 import HistrixTable from './components/HistrixTable.vue';
@@ -82,6 +83,7 @@ const components = [
   HistrixMenuSearch,
   HistrixNews,
   HistrixPasswordChange,
+  HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
   HistrixTable,
@@ -122,6 +124,7 @@ export {
   HistrixMenuSearch,
   HistrixNews,
   HistrixPasswordChange,
+  HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
   HistrixTable,
@@ -190,6 +193,7 @@ export default {
   HistrixMenuSearch,
   HistrixNews,
   HistrixPasswordChange,
+  HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
   HistrixTable,

@@ -27,6 +27,13 @@ export default {
   'app.back': 'Atras',
   'app.confirm': 'CONFIRMAR',
 
+  // HistrixPdfViewer
+  'pdf.download': 'Descargar',
+  'pdf.open': 'Abrir en pestaña nueva',
+  'pdf.share': 'Compartir',
+  'pdf.shareError': 'No se pudo compartir el PDF',
+  'pdf.notInline': 'Este navegador no muestra el PDF acá. Podés abrirlo, descargarlo o compartirlo.',
+
   // HistrixUnsupported
   'unsupported.title': 'Tipo de pantalla no soportado',
   'unsupported.description': 'Esta versión del cliente todavía no sabe mostrar pantallas de tipo',
