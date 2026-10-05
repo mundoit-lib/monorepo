@@ -9,6 +9,10 @@
       // Tests de tipos: los toma typecheck.include de vitest.config.ts, que el plugin de vitest de knip no lee.
       "entry": ["src/**/*.test-d.ts"]
     },
+    "packages/plugin-vue-oidc": {
+      // Smoke E2E manual contra el container local, fuera de `test` y de CI: el script de node y la página que sirve.
+      "entry": ["src/**/*.test-d.ts", "scripts/*.mjs", "scripts/smoke/page.js"]
+    },
     "packages/histrix-component-vue": {
       // Fuente publicada tal cual (JS + .vue, sin build): las entradas son los `exports` del package.json.
       // types/check es el proyecto tsc de su `typecheck`.

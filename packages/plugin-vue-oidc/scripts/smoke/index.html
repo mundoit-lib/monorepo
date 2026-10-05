@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>smoke plugin-vue-oidc</title>
+    <!-- Build browser (IIFE) de oidc-client-ts: define `window.oidc`. El shim /vendor/oidc-client-ts.js lo re-exporta como ESM. -->
+    <script src="/vendor/oidc-client-ts.global.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "oidc-client-ts": "/vendor/oidc-client-ts.js",
+          "axios": "/vendor/axios.js",
+          "vue": "/vendor/vue.js"
+        }
+      }
+    </script>
+    <style>
+      body {
+        font:
+          14px/1.4 system-ui,
+          sans-serif;
+        margin: 16px;
+      }
+      pre {
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>smoke plugin-vue-oidc</h1>
+    <pre id="out"></pre>
+    <script type="module" src="/smoke.js"></script>
+  </body>
+</html>

@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/plugin-vue-oidc",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "OIDC authentication (authorization code + PKCE over oidc-client-ts) for Mundo IT Vue 3 apps: core auth, axios http client (Bearer + refresh retry on 401), Vue plugin with useOidcSession, callback component and router guard, compatible with the histrix-component-vue auth contract. Internal use at Mundo IT; published on npm for easier distribution. Not recommended for external use.",
   "keywords": [
     "auth",
@@ -54,7 +54,8 @@
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "check:exports": "publint && attw --pack . --profile node16",
-    "size": "size-limit"
+    "size": "size-limit",
+    "smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
     "oidc-client-ts": "^3.5.0"
