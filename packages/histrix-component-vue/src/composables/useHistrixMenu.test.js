@@ -41,6 +41,7 @@ afterEach(() => {
   config.onNavigate = undefined;
   vi.clearAllMocks();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe('useHistrixMenu', () => {
@@ -75,6 +76,23 @@ describe('useHistrixMenu', () => {
     await flush();
     expect(menu.loading.value).toBe(false);
     expect(menu.tree.value).toEqual([]);
+  });
+
+  it('si getFavorites falla igual carga el menú y termina el loading', async () => {
+    api.getFavorites.mockRejectedValue(new Error('500'));
+    const menu = useHistrixMenu({ level: 'phpmen', favorites: true });
+    await flush();
+    expect(menu.loading.value).toBe(false);
+    expect(menu.tree.value).toEqual(tree);
+    expect(menu.favorites.value).toEqual([]);
+  });
+
+  it('elegir de nuevo la ruta actual (sin query) fuerza la recarga', () => {
+    vi.stubGlobal('location', { hash: '#/panel/vista' });
+    const menu = useHistrixMenu({ tree: [] });
+    menu.open(tree[1]);
+    menu.open(tree[1]);
+    expect(navigations.map((n) => n.to.hash)).toEqual([undefined, '#update', ' ']);
   });
 
   it('reload vuelve a pedir con el level actual (acepta getter)', async () => {

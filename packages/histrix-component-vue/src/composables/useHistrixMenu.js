@@ -75,7 +75,7 @@ const currentHashPath = () => {
   if (typeof location === 'undefined') return '';
   const hash = location.hash;
   const queryIndex = hash.indexOf('?');
-  return hash.slice(1, queryIndex);
+  return hash.slice(1, queryIndex === -1 ? undefined : queryIndex);
 };
 
 /**
@@ -162,28 +162,28 @@ export function useHistrixMenu({
   /** `@click` de un item con `:to="nodeUri(node)"`: cierra el drawer y recarga si es la ruta actual. */
   const onItemClick = (node) => select(nodeUri(node), { viaLink: true });
 
+  // Un error en los favoritos no bloquea el menú (ni al revés): cada pedido se loguea por su lado.
   const reload = async () => {
     loading.value = true;
-    const pending = [];
+    const pending = [
+      Promise.resolve()
+        .then(() => api.getMenu(toValue(level)))
+        .then((response) => {
+          tree.value = response?.data?.tree || [];
+          featured.value = response?.data?.featured || [];
+        })
+    ];
     if (favoritesOn()) {
       pending.push(
-        api.getFavorites().then((response) => {
-          favorites.value = response?.keys || [];
-        })
+        Promise.resolve()
+          .then(() => api.getFavorites())
+          .then((response) => {
+            favorites.value = response?.keys || [];
+          })
       );
     }
-    pending.push(
-      api
-        .getMenu(toValue(level))
-        .then((response) => {
-          tree.value = response.data?.tree || [];
-          featured.value = response.data?.featured || [];
-        })
-        .catch((err) => {
-          console.error(err);
-        })
-    );
-    await Promise.all(pending);
+    const results = await Promise.allSettled(pending);
+    for (const result of results) if (result.status === 'rejected') console.error(result.reason);
     loading.value = false;
   };
 

@@ -56,10 +56,10 @@
                 </q-item-section>
                 <q-item-section>
                   <q-item-label class="featured-row-label capitalize">
-                    <span v-html="m.label(node.label).toLowerCase()" />
+                    {{ m.label(node.label).toLowerCase() }}
                   </q-item-label>
                   <q-item-label v-if="node.subtitle" caption class="featured-row-sub capitalize">
-                    <span v-html="m.label(node.subtitle).toLowerCase()" />
+                    {{ m.label(node.subtitle).toLowerCase() }}
                   </q-item-label>
                 </q-item-section>
               </q-item>
@@ -147,10 +147,10 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="menu-branch-label capitalize">
-                  <span v-html="m.label(node.label).toLowerCase()" />
+                  {{ m.label(node.label).toLowerCase() }}
                 </q-item-label>
                 <q-item-label v-if="node.subtitle" caption class="capitalize">
-                  <span v-html="m.label(node.subtitle).toLowerCase()" />
+                  {{ m.label(node.subtitle).toLowerCase() }}
                 </q-item-label>
               </q-item-section>
             </slot>
