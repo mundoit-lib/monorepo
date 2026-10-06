@@ -102,6 +102,8 @@ auth.currentUser.value; // shallowRef
 | `fetch()` | Vuelve a pedir el usuario. |
 | `service` | El `AuthService` (también con `inject('mundoitAuth')`). |
 
+El usuario está tipado como `HistrixUser` (lo que devuelve `GET /me`, de `@mundoit-lib/plugin-vue-axios/http`; también se re-exporta desde acá). Si `/me` trae campos propios, se leen igual (índice abierto) o se tipan con `useAuth<MiUsuario>()` / `new AuthService<MiUsuario>(...)`. Desde 2.1 `user(obj)` pide un `HistrixUser` completo: si la app setea un usuario armado a mano, tiparlo con su propio genérico.
+
 ### Refresh
 
 El plugin es el único dueño del refresh:

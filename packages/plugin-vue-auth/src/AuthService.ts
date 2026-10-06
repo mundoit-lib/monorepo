@@ -3,6 +3,7 @@ import type {
   AuthOptions,
   AuthStorage,
   Endpoint,
+  HistrixUser,
   HttpClient,
   HttpRequestConfig,
   LoginOptions,
@@ -32,7 +33,7 @@ export const localStorageAdapter: AuthStorage = {
   }
 };
 
-export class AuthService<TUser = Record<string, unknown>> {
+export class AuthService<TUser = HistrixUser> {
   readonly config: AuthConfig;
   private http: HttpClient | null = null;
   private attached = new WeakSet<HttpClient>();

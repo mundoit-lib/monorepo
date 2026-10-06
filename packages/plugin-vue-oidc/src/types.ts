@@ -1,9 +1,12 @@
 import type { User, UserManager, UserManagerSettings } from 'oidc-client-ts';
+import type { HistrixUser } from '@mundoit-lib/plugin-vue-axios/http';
 import type { ComputedRef, ShallowRef } from 'vue';
 import type { OidcIssuer } from './issuer';
 
 /** Sesión OIDC (tokens + claims) tal como la guarda `oidc-client-ts`. */
 export type OidcUser = User;
+/** Usuario de `GET /me` de Histrix: el usuario por defecto de `user()`. */
+export type { HistrixUser };
 
 /** Storage sincrónico tipo `localStorage`: tokens de oidc-client-ts y usuario de la app. */
 export type OidcStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'>;
@@ -66,7 +69,7 @@ export interface OidcCallbackResult {
  * Contrato de auth de `histrix-component-vue` (`types/integration.d.ts`, `HistrixAuth`).
  * Se copia acá para que el test de tipos lo valide sin depender de la librería.
  */
-export interface HistrixAuthContract<TUser = Record<string, unknown>> {
+export interface HistrixAuthContract<TUser = HistrixUser> {
   login(credentials: { username: string; password: string; request?: unknown; redirect?: unknown }): Promise<unknown>;
   logout(options?: { redirect?: unknown }): unknown;
   user(): TUser | null;
@@ -76,7 +79,7 @@ export interface HistrixAuthContract<TUser = Record<string, unknown>> {
   onUserChange(cb: (user: TUser | null) => void): () => void;
 }
 
-export interface OidcAuth<TUser = Record<string, unknown>> extends HistrixAuthContract<TUser> {
+export interface OidcAuth<TUser = HistrixUser> extends HistrixAuthContract<TUser> {
   /**
    * Marca de `createAuthAdapter` de histrix-component-vue: `adaptAuth` lo usa tal cual, sin envolverlo.
    * Sin la marca, al tener `token()` y `onUserChange` lo tomaría por un `AuthService` y le pisaría `onUserChange`.
@@ -187,7 +190,7 @@ export type VueOidcLoginOptions = OidcLoginOptions | OidcLoginCredentials;
  * `$oidc` / `useOidc()` / `useOidcSession()`: el núcleo con estado reactivo. Misma forma que `useHistrixSession`
  * de histrix-component-vue (`user`, `isLogged`, `login`, `logout`), así la app tiene una sola fuente de verdad.
  */
-export interface VueOidc<TUser = Record<string, unknown>> {
+export interface VueOidc<TUser = HistrixUser> {
   /** El núcleo (`createOidcAuth`). */
   readonly auth: OidcAuth<TUser>;
   /** `auth.user()`: usuario de la app o claims de la sesión. Reactivo. */
@@ -211,7 +214,7 @@ export interface VueOidc<TUser = Record<string, unknown>> {
 
 export type OidcCallbackStatus = 'pending' | 'done' | 'error';
 
-export interface OidcCallbackOptions<TUser = Record<string, unknown>> {
+export interface OidcCallbackOptions<TUser = HistrixUser> {
   /** URL a procesar. Por defecto `window.location.href`. */
   url?: string;
   /**

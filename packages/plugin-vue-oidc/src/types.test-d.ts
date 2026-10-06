@@ -1,3 +1,4 @@
+import type { HistrixUser as AxiosHistrixUser } from '@mundoit-lib/plugin-vue-axios/http';
 import type { User, UserManager } from 'oidc-client-ts';
 import { describe, expectTypeOf, it } from 'vitest';
 import { type ComputedRef, type ShallowRef, createApp } from 'vue';
@@ -46,8 +47,8 @@ describe('tipos de plugin-vue-oidc', () => {
     auth.setIssuer({ host: 'https://h' });
   });
 
-  it('el user por defecto es un objeto genérico', () => {
-    expectTypeOf(createOidcAuth().user()).toEqualTypeOf<Record<string, unknown> | null>();
+  it('el user por defecto es el HistrixUser de /me (plugin-vue-axios/http)', () => {
+    expectTypeOf(createOidcAuth().user()).toEqualTypeOf<AxiosHistrixUser | null>();
   });
 });
 

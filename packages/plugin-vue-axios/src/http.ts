@@ -42,3 +42,35 @@ export interface HttpClient {
     response: HttpInterceptorManager<HttpResponse>;
   };
 }
+
+/**
+ * Usuario que devuelve `GET /me` de Histrix. Estos campos vienen siempre; según la instalación puede traer
+ * más, por eso el índice abierto. Lo usan `plugin-vue-auth` y `plugin-vue-oidc` como usuario por defecto.
+ */
+export interface HistrixUser {
+  id: number;
+  user_id: number;
+  username: string;
+  email: string;
+  /** Ids de rol, como strings (`["1"]`). */
+  roles: string[];
+  fullname: string;
+  first_name: string;
+  last_name: string;
+  occupation: string | null;
+  companyName: string | null;
+  phone: string | null;
+  verified: boolean | number | string | null;
+  name: string;
+  emailVerified: boolean;
+  /** Último acceso, `YYYY-MM-DD HH:mm:ss`. */
+  last_log: string | null;
+  socialNetworks: {
+    linkedIn?: string;
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    [network: string]: string | undefined;
+  };
+  [key: string]: unknown;
+}

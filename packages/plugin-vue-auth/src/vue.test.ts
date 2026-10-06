@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createApp, nextTick, watchEffect } from 'vue';
 import { type RouterLike, VueAuthPlugin, getAuthInstance, install, useAuth } from './index';
-import { createHttp, httpError, memoryStorage } from './test-utils';
+import { createHttp, histrixUser, httpError, memoryStorage } from './test-utils';
 
-const USER = { id: 1, name: 'Ana' };
+const USER = histrixUser();
 
 function setup(initial: Record<string, string> = {}, router?: RouterLike) {
   const http = createHttp((request) => {
@@ -47,11 +47,11 @@ describe('adaptador Vue', () => {
     watchEffect(() => seen.push($auth.check()));
 
     await $auth.login({ data: { username: 'ana', password: 'secret' }, fetchUser: false });
-    $auth.user({ id: 2, name: 'Beto' });
+    $auth.user(histrixUser({ id: 2, name: 'Beto' }));
     await nextTick();
 
     expect(seen).toEqual([false, true]);
-    expect($auth.currentUser.value).toEqual({ id: 2, name: 'Beto' });
+    expect($auth.currentUser.value).toMatchObject({ id: 2, name: 'Beto' });
     $auth.service.destroy();
   });
 

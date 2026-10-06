@@ -1,6 +1,6 @@
 import { type PropType, type SlotsType, defineComponent, h, onMounted, shallowRef } from 'vue';
 import { isAppPath } from './OidcAuth';
-import type { OidcCallbackOptions, OidcCallbackStatus, OidcUser, RouterLike } from './types';
+import type { HistrixUser, OidcCallbackOptions, OidcCallbackStatus, OidcUser, RouterLike } from './types';
 import { useOidc } from './vue';
 
 /** Mensaje para la persona a partir del error de `handleCallback` (los de `oidc-client-ts` vienen como `ErrorResponse`). */
@@ -23,10 +23,7 @@ export function describeCallbackError(error: unknown): string {
  * Procesa la vuelta del authorize en la ruta `/callback`: canjea el code, dispara `onLogin` (la app trae `/me` ahí)
  * y navega a `state.redirect` con `router.replace`. Sin router, usa `auth.navigate`.
  */
-export function useOidcCallback<TUser = Record<string, unknown>>(
-  options: OidcCallbackOptions<TUser> = {},
-  router?: RouterLike
-) {
+export function useOidcCallback<TUser = HistrixUser>(options: OidcCallbackOptions<TUser> = {}, router?: RouterLike) {
   const oidc = useOidc<TUser>();
   const status = shallowRef<OidcCallbackStatus>('pending');
   const error = shallowRef<unknown>(null);

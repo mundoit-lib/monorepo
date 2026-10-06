@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createOidcAuth, DEFAULT_CLIENT_ID, DEFAULT_SCOPE } from './OidcAuth';
-import type { OidcStorage, OidcUser } from './types';
+import type { HistrixUser, OidcStorage, OidcUser } from './types';
 
 /** Doble de `UserManager`: registra settings y eventos, y expone los métodos como mocks. vi.hoisted: vi.mock se iza arriba. */
 const FakeUserManager = vi.hoisted(() => {
@@ -168,7 +168,7 @@ describe('createOidcAuth: issuer y UserManager', () => {
   it('setIssuer descarta también el usuario de la app y notifica una sola vez con null', () => {
     const storage = memoryStorage();
     const auth = createOidcAuth({ issuer: 'https://a', storage });
-    auth.setUser({ id: 1 });
+    auth.setUser({ id: 1 } as HistrixUser);
     last().emitLoaded(fakeUser());
     const seen: unknown[] = [];
     auth.onUserChange((u) => seen.push(u));
@@ -310,12 +310,12 @@ describe('createOidcAuth: usuario de la app y onUserChange', () => {
     const auth = createOidcAuth<{ id: number }>({ storage });
     const seen: unknown[] = [];
     const off = auth.onUserChange((u) => seen.push(u));
-    auth.setUser({ id: 1 });
+    auth.setUser({ id: 1 } as HistrixUser);
     expect(storage.getItem('user')).toBe('{"id":1}');
     auth.setUser(null);
     expect(storage.getItem('user')).toBeNull();
     off();
-    auth.setUser({ id: 2 });
+    auth.setUser({ id: 2 } as HistrixUser);
     expect(seen).toEqual([{ id: 1 }, null]);
   });
 
@@ -325,7 +325,7 @@ describe('createOidcAuth: usuario de la app y onUserChange', () => {
     last().getUser.mockResolvedValue(fakeUser());
     await auth.restore();
     expect(auth.user()).toEqual({ sub: '42', name: 'Ana' });
-    auth.setUser({ id: 1 });
+    auth.setUser({ id: 1 } as HistrixUser);
     expect(auth.user()).toEqual({ id: 1 });
   });
 
@@ -453,7 +453,7 @@ describe('createOidcAuth: logout', () => {
     const storage = memoryStorage();
     const auth = createOidcAuth({ issuer: 'https://a', storage });
     auth.navigate = vi.fn();
-    auth.setUser({ id: 1 });
+    auth.setUser({ id: 1 } as HistrixUser);
     last().getUser.mockResolvedValue(fakeUser());
     await auth.restore();
     const seen: unknown[] = [];
@@ -519,7 +519,7 @@ describe('createOidcAuth: logout', () => {
   it('sin issuer, logout sólo limpia el usuario local', async () => {
     const storage = memoryStorage();
     const auth = createOidcAuth({ storage });
-    auth.setUser({ id: 1 });
+    auth.setUser({ id: 1 } as HistrixUser);
     await auth.logout();
     expect(storage.getItem('user')).toBeNull();
   });
