@@ -1236,8 +1236,9 @@ export default {
       }
       return cls;
     },
-    xmlUrl(filterQuery) {
-      return `${this.path}?&_dt=table${filterQuery}`;
+    xmlUrl() {
+      // Los filtros van como params del request; acá sólo el modo de respuesta.
+      return `${this.path}?_dt=table`;
     },
     async deleteItem(item) {
       if (this.canEditRows) {
@@ -1369,12 +1370,22 @@ export default {
       return result;
     },
     getData(index) {
-      this.loading = true;
-      const url = this.xmlUrl(this.fullQuery);
+      const url = this.xmlUrl();
       const pageParams = this.serverSide ? buildPageParams(this.pagination, this.paginationConfig) : {};
       const filters = { ...this.query, ...this.localFilters, ...pageParams };
+      // Al montar llegan dos pedidos iguales (el update:pagination inicial de la q-table y mounted):
+      // si ya hay uno en vuelo con la misma URL y filtros, no se repite.
+      const requestKey = JSON.stringify([url, filters, index ?? null]);
+      if (this.pendingRequestKey === requestKey) {
+        return;
+      }
+      this.pendingRequestKey = requestKey;
+      this.loading = true;
 
       this.getAppData(url, filters)
+        .finally(() => {
+          if (this.pendingRequestKey === requestKey) this.pendingRequestKey = null;
+        })
         .then((response) => {
           let { data } = response.data;
           if (this.serverSide) {
@@ -1426,6 +1437,7 @@ export default {
       editedIndex: undefined,
       newRecord: false,
       editingId: null, // _id del renglón cargado en el form para modificar
+      pendingRequestKey: null, // getData en vuelo (URL + filtros), para no duplicar el pedido
       selectedId: null, // _id del renglón cuyo detalle está abierto
       dirtyRows: {}, // liveGrid con saveRowButton: filas editadas sin guardar
       defaultItem: {},

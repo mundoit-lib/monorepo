@@ -46,6 +46,19 @@ export function isFieldEditable(field, schemaType) {
 }
 
 /**
+ * Decide si un campo va en su propia solapa del form: un contenedor interno (grilla hija, p. ej.
+ * "Contacto") que no es un select. En `fichaing` y `cabecera` los contenedores se muestran en línea.
+ * Un campo que es solapa no se dibuja también en la solapa principal.
+ *
+ * @param {import('../../types').HistrixFieldSchema} field El fieldSchema del campo.
+ * @param {import('../../types').HistrixScreenType} schemaType El tipo del schema del componente.
+ * @returns {boolean}
+ */
+export function isInnerTab(field, schemaType) {
+  return schemaType !== 'fichaing' && schemaType !== 'cabecera' && Boolean(field.innerContainer) && !field.isSelect;
+}
+
+/**
  * Devuelve los nombres de las columnas visibles de una tabla.
  *
  * Semántica EXACTA del computed `visibleColumns` de HistrixTable: filtra las
