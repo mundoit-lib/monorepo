@@ -28,7 +28,7 @@
               @update:model-value="
                 ($event) => {
                   localValue = $event;
-                  $emit('update:model-value', $event);
+                  $emit('update:modelValue', $event);
                 }
               "
               :inner="inner"
@@ -86,7 +86,7 @@
                 @update:model-value="
                   ($event) => {
                     localValue = $event;
-                    $emit('update:model-value', $event);
+                    $emit('update:modelValue', $event);
                   }
                 "
                 :inner="inner"

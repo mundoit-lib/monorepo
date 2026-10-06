@@ -978,6 +978,15 @@ export default {
 
     localValue: {
       get() {
+        // QFile sólo acepta File/FileList/Array: el servidor manda '' cuando no hay adjunto.
+        if (this.histrixType === 'q-file') {
+          const v = this.modelValue;
+          const isFile =
+            Array.isArray(v) ||
+            (typeof File !== 'undefined' && v instanceof File) ||
+            (typeof FileList !== 'undefined' && v instanceof FileList);
+          return isFile ? v : null;
+        }
         if (this.histrixType === 'check' || this.histrixType === 'toggle') {
           if (typeof this.modelValue === 'boolean') {
             return this.modelValue;
