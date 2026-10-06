@@ -15,7 +15,7 @@ guard de router.
 - [Uso con histrix-component-vue](#uso-con-histrix-component-vue) (app genérica): plugin, `useOidcSession()`, `/callback`, guard, sesión expirada
 - [App Quasar a medida](#app-quasar-a-medida): boot files con plugin-vue-axios 2.x
 - [Multi-tenant](#multi-tenant) · [PWA y localStorage](#pwa-y-localstorage) · [Limitaciones actuales de Histrix](#limitaciones-actuales-de-histrix)
-- [Http](#http-bearer-y-reintento-ante-401) · [Núcleo sin Vue](#núcleo-sin-vue)
+- [Http](#http-bearer-y-reintento-ante-401) · [Núcleo sin Vue](#núcleo-sin-vue) · [Tests y smoke](#tests-y-smoke)
 - [Migración desde plugin-vue-auth (password grant)](#migración-desde-plugin-vue-auth-password-grant)
 
 ## Instalación
@@ -418,6 +418,57 @@ router.replace(redirect);
 
 Opciones: `storage` (por defecto `localStorage`, para que la PWA sobreviva al cierre del browser), `userKey`,
 `userManagerSettings` (pisa los settings de `UserManager` que arma el plugin).
+
+## Tests y smoke
+
+`pnpm test` corre dos niveles, los dos en CI y sin servidor ni browser:
+
+- **Unitarios** (`OidcAuth.test.ts`, `http.test.ts`, `vue.test.ts`, `guard.test.ts`, `callback.test.ts`): `UserManager`
+  mockeado. Prueban la lógica del plugin: sesión, eventos, Bearer y reintento, guard, callback.
+- **De protocolo** (`OidcAuth.protocol.test.ts`): `oidc-client-ts` **real** contra un issuer falso (`fake-issuer.ts`)
+  que contesta por `fetch` el discovery, el token endpoint (`authorization_code` validando el `code_verifier` S256,
+  `refresh_token` con rotación, errores OAuth como Histrix) y `/userinfo`. Cubren el canje del code con PKCE, restore
+  sin sesión / con access vencido y refresh OK / con refresh rechazado o con error transitorio, callback con state
+  inválido o code rechazado, rotación del refresh (el anterior deja de servir, un refresh viejo tira la sesión),
+  401 → refresh → reintento con `attachOidcHttp`, cambio de issuer en runtime y logout.
+
+### Smoke contra el container local (manual, fuera de CI)
+
+`scripts/smoke.mjs` levanta una app mínima sobre el `dist/` del paquete (sin Vue) en `http://localhost:5190`, el
+`redirect_uri` registrado para el client `histrix-app`, y la maneja con `playwright-core` y el Chrome del sistema
+contra un Histrix real:
+
+```bash
+pnpm build
+HTX_PASS=… pnpm --filter @mundoit-lib/plugin-vue-oidc smoke
+```
+
+| Variable | Default | Qué es |
+|---|---|---|
+| `HTX_HOST` / `HTX_DB` | `http://localhost` / `htx_test` | Tenant: el issuer es `{host}/api/db/{db}`. |
+| `HTX_USER` / `HTX_PASS` | `histrix` / (obligatoria) | Usuario de Histrix que se loguea. |
+| `SMOKE_ORIGIN` | `http://localhost:5190` | Origen del `redirect_uri` registrado para el client en `oauth_clients`. El servidor del smoke escucha en un puerto libre y Chrome resuelve ese origen hacia él (`--host-resolver-rules`), así que no importa que el puerto real lo tenga la app genérica. |
+| `CHROME` | `/usr/bin/google-chrome` | Binario de Chrome/Chromium (no se bajan browsers). |
+| `SHOT` | vacío | Path para una captura final. `HEADED=1` abre el browser. |
+
+Requisitos: el container `histrix` arriba con la base, el client `histrix-app` con `redirect_uri`
+`http://localhost:5190/callback` y Chrome instalado. Qué verifica, en orden:
+
+1. `/connect` → `login()`: discovery y authorize con `response_type=code`, `code_challenge_method=S256` y `offline_access`.
+2. Login de Histrix y consent, si lo pide.
+3. `/callback`: canje del code con `code_verifier` y sin `client_secret`; vuelta al `redirect` del state; sesión guardada
+   en `localStorage` con access, refresh e id_token.
+4. `GET /me` y `GET /menu/phpmen` con Bearer.
+5. **401 de verdad**: pisa el access token guardado por uno inválido y recarga. Histrix contesta 401, el plugin renueva
+   con el refresh token (un solo `POST /token` con `grant_type=refresh_token`), reintenta y el refresh token rota.
+6. `logout()` borra la sesión.
+
+Termina con `N checks OK` o la lista de los que fallaron (exit 1). El `401` que queda en la consola del browser es el
+del paso 5. `SMOKE_DEBUG=1` muestra además lo que sirve el servidor de la app.
+
+El access token de Histrix dura 24 h (`ACCESS_LIFETIME`), por eso el 401 se provoca invalidando el token del lado del
+cliente. Para vencerlo del lado del servidor, en la base del tenant:
+`UPDATE oauth_access_tokens SET expires = NOW() - INTERVAL 1 DAY WHERE access_token = '<token>'`.
 
 ## Migración desde plugin-vue-auth (password grant)
 
