@@ -27,7 +27,7 @@ Peers opcionales (declarados en `peerDependenciesMeta`): son los adaptadores por
 | `@mundoit-lib/plugin-vue-axios` | http | `$axios` |
 | `@mundoit-lib/plugin-vue-auth` | auth (1.x/websanova o el `AuthService` nuevo) | `$auth` |
 | `@mundoit-lib/plugin-vue-event` | bus de eventos hacia la app | `$events` (sin él, bus interno) |
-| `vue-router@^4` | navegación (`schema.redirect`, menú, volver) | `$router` |
+| `vue-router@^4 \|\| ^5` | navegación (`schema.redirect`, menú, volver) | `$router` |
 
 ## Componentes
 
