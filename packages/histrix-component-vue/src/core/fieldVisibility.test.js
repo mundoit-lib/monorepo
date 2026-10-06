@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isFieldEditable, visibleColumnNames } from './fieldVisibility.js';
+import { isFieldEditable, isInnerTab, visibleColumnNames } from './fieldVisibility.js';
 
 /**
  * Recordatorio de semántica de isFieldEditable (igual que el método original):
@@ -106,5 +106,26 @@ describe('visibleColumnNames', () => {
   it('display:none; debe ser substring exacto (display:none sin ; no excluye)', () => {
     const columns = [{ name: 'id', hidden: false, style: 'display:none' }];
     expect(visibleColumnNames(columns)).toEqual(['id']);
+  });
+});
+
+describe('isInnerTab', () => {
+  const contacto = { innerContainer: { xml: 'cuenta_contactos_crud.xml' }, isSelect: '' };
+
+  it('un contenedor que no es select va en su solapa en una ficha', () => {
+    expect(isInnerTab(contacto, 'ficha')).toBe(true);
+  });
+
+  it('un select con innerContainer (ayuda) se queda en la principal', () => {
+    expect(isInnerTab({ innerContainer: { xml: 'provincia_qry.xml' }, isSelect: 'true' }, 'ficha')).toBe(false);
+  });
+
+  it('sin innerContainer no es solapa', () => {
+    expect(isInnerTab({ innerContainer: false, isSelect: '' }, 'ficha')).toBe(false);
+  });
+
+  it('en fichaing y cabecera los contenedores van en línea', () => {
+    expect(isInnerTab(contacto, 'fichaing')).toBe(false);
+    expect(isInnerTab(contacto, 'cabecera')).toBe(false);
   });
 });

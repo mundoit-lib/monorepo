@@ -184,7 +184,7 @@
 
 <script>
 import { useVuelidate } from '@vuelidate/core';
-import { isFieldEditable as isFieldEditablePure } from '../core/fieldVisibility.js';
+import { isFieldEditable as isFieldEditablePure, isInnerTab } from '../core/fieldVisibility.js';
 import { evaluateFormula } from '../core/formula.js';
 import { isFocusCandidate, nextFocusable } from '../core/hotkeys.js';
 import { mapUiIcon } from '../core/icons.js';
@@ -279,14 +279,14 @@ export default {
       return this.filter(this.localSchema.fields, (field) => !field.innerContainer && !field.options);
     },
     editables() {
-      return this.filter(this.localSchema.fields, this.isFieldEditable);
-    },
-    innerTabs() {
+      // Los contenedores que tienen su propia solapa (innerTabs) no se repiten en la principal.
       return this.filter(
         this.localSchema.fields,
-        (field) =>
-          this.screenType === 'fichaing' || this.screenType === 'cabecera' || !field.innerContainer || field.isSelect
+        (field) => this.isFieldEditable(field) || isInnerTab(field, this.screenType)
       );
+    },
+    innerTabs() {
+      return this.filter(this.localSchema.fields, (field) => !isInnerTab(field, this.screenType));
     },
     /**
      * Campos "botón" de acción: no editables y con `helpers.link`. En Histrix se
