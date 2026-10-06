@@ -6,6 +6,7 @@
 // Una app que quiere otro diseño usa los slots de HistrixExpansionMenu (que se apoya en este composable)
 // o arma su propio componente con él. El estado se comparte con los niveles anidados por provide/inject.
 import { getCurrentInstance, inject, provide, ref, toValue, watch } from 'vue';
+import { menuNodeRoute as nodeUri } from '../core/menuRoute.js';
 import { useHistrixBus } from '../services/bus.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
@@ -57,18 +58,6 @@ function decodeHTML(text) {
       : new DOMParser().parseFromString(text, 'text/html').documentElement.textContent;
   decodeCache.set(text, result);
   return result;
-}
-
-/** Ruta de un item del menú: un `.xml` de Histrix va a `/auth/...`; un `vue=` a esa ruta de la app. */
-function nodeUri(node) {
-  const uri = node?.uri || '';
-  if (!uri.includes('vue=')) {
-    const path = `/auth/${uri}`.replace('//', '/');
-    return { path, query: { _title: node.label } };
-  }
-  const vue = uri.match(/vue=(.*?)(&|$)/)[1];
-  const path = `/${vue}`.replace(/%2F/g, '/').replace('//', '/');
-  return { path };
 }
 
 const currentHashPath = () => {

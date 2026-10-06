@@ -98,6 +98,7 @@
 
 <script>
 import { isTypingTarget, matchHotkey } from '../../core/hotkeys.js';
+import { menuNodeRoute } from '../../core/menuRoute.js';
 import useApi from '../../services/histrixApi.js';
 import { useHistrixI18n } from '../../services/i18n.js';
 import { useHistrixNavigate } from '../../services/navigation.js';
@@ -285,13 +286,7 @@ export default {
       return `${escapeHTML(display.slice(0, start))}<mark>${escapeHTML(display.slice(start, end))}</mark>${escapeHTML(display.slice(end))}`;
     },
     nodeUri(node) {
-      if (!node.uri.includes('vue=')) {
-        const path = `/auth/${node.uri}`.replace('//', '/');
-        return { path, query: { _title: node.label } };
-      }
-      const vue = node.uri.match(/vue=(.*?)(&|$)/)[1];
-      const path = `/${vue}`.replace(/%2F/g, '/').replace('//', '/');
-      return { path };
+      return menuNodeRoute(node);
     },
     go(r) {
       this.open = false;
