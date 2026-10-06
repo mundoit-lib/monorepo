@@ -71,6 +71,13 @@ config.clientId = '...';
 config.clientSecret = '...';
 ```
 
+`config` es la fuente viva de host y base: se puede cambiar en runtime (multi-tenant, cambio de conexión) y `useApi()` lo toma en el próximo pedido. Las claves `host` y `database` del storage (las escribe `HistrixConnectionSettings`) son sólo el fallback para cuando `config.apiUrl`/`config.db` están vacíos.
+
+**Desde 0.2.0 `config` gana sobre el storage** (antes era al revés). Para una app:
+
+- Si seteaba `localStorage.host`/`localStorage.database` para que la lib tomara otro host o base (p. ej. un `applyTenant`), alcanza con `config.apiUrl`/`config.db`: sacar esas escrituras.
+- Si usa `HistrixConnectionSettings` y además setea `config.apiUrl`/`config.db` al arrancar (por `.env`), lo elegido en el widget vale para la sesión actual, pero al recargar vuelve a mandar la config. Para que persista, la app lee el storage al arrancar y lo vuelca en `config`, o no setea `config` y deja que la lib caiga al storage.
+
 ```vue
 <!-- Montar cualquier pantalla declarada en un XML de Histrix: -->
 <HistrixApp path="ventas/qry/listado.xml" :query="{ id: 123 }" />

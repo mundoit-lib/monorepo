@@ -18,18 +18,23 @@ describe('hostFromApiUrl', () => {
 });
 
 describe('resolveHost', () => {
-  it('prioriza el host guardado', () => {
-    expect(resolveHost({ storedHost: 'https://a.com/', fixApi: 'https://b.com', apiUrl: 'https://c.com' })).toBe(
-      'https://a.com'
+  it('la config (apiUrl) gana sobre el host guardado', () => {
+    expect(resolveHost({ storedHost: 'https://a.com/', apiUrl: 'https://c.com/api/db/x' })).toBe('https://c.com');
+  });
+
+  it('respeta fixApi (compat) antes que apiUrl y que el guardado', () => {
+    expect(resolveHost({ storedHost: 'https://a.com', fixApi: 'https://b.com', apiUrl: 'https://c.com' })).toBe(
+      'https://b.com'
     );
   });
 
-  it('respeta fixApi (compat) antes que apiUrl', () => {
-    expect(resolveHost({ fixApi: 'https://b.com', apiUrl: 'https://c.com' })).toBe('https://b.com');
+  it('cae al host guardado sólo si la config no trae host', () => {
+    expect(resolveHost({ storedHost: 'https://a.com/', apiUrl: '' })).toBe('https://a.com');
+    expect(resolveHost({ storedHost: 'https://a.com/' })).toBe('https://a.com');
   });
 
-  it('deriva de apiUrl si no hay otra cosa', () => {
-    expect(resolveHost({ apiUrl: 'https://c.com/api/db/x' })).toBe('https://c.com');
+  it('vacío si no hay nada', () => {
+    expect(resolveHost({})).toBe('');
   });
 });
 

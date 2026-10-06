@@ -39,7 +39,7 @@ Listado de lo que vive en `src/components/`. Todos los componentes top-level iny
 | **HistrixMenuSearch** | Buscador typeahead sobre el árbol del menú (`getMenu(level)` o el `tree` que se le pase): navegación por teclado y atajo global **Ctrl/⌘ + K**. Variantes `input` (barra «Buscar…», para el header) y `button` (sólo lupa, mobile). Al elegir emite `navigate` y hace `$router.push`. | Props `level`, `tree`, `variant`, `placeholder`, `shortcut`, `limit`. Emite `navigate`. |
 | **FavoritItems** | Listado de items favoritos del usuario. | Consume `getFavorites()`. |
 | **DatabaseSelector** | Combo para elegir la DB activa contra un host Histrix. Emite el `id` por `input`. | Llama `getHostDb(host)`. |
-| **HistrixConnectionSettings** | UI para cambiar host/DB. Emite `change-database`. | — |
+| **HistrixConnectionSettings** | UI para cambiar host/DB: escribe `config.apiUrl`/`config.db` y el storage. Emite `change-database`. | Lee los valores efectivos con `useApi().host()`/`currentDb()`. |
 | **HistrixFileManager** | Browser de archivos sobre `/dir/{path}` + `/files/{path}`. | Lazy-cargado desde `HistrixField`. |
 | **HistrixLog** | Visor de logs (consume API de logs del backend). | — |
 | **HistrixNews** | Widget de novedades / posts del sistema. | — |
