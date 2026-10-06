@@ -1174,6 +1174,7 @@ export default {
         return;
       }
       if (this.hasDetail(props)) {
+        this.selectedId = row._id ?? null;
         const rowAttr = row.DT_RowAttr;
         this.$emit('open-detail', rowAttr);
       } else {
@@ -1216,6 +1217,9 @@ export default {
       }
       if (this.canEditRows && this.editingId !== null && row._id === this.editingId) {
         rowclass += ' histrix-row--editing ';
+      }
+      if (this.selectedId !== null && row._id === this.selectedId) {
+        rowclass += ' histrix-row--selected ';
       }
 
       return rowclass;
@@ -1422,6 +1426,7 @@ export default {
       editedIndex: undefined,
       newRecord: false,
       editingId: null, // _id del renglón cargado en el form para modificar
+      selectedId: null, // _id del renglón cuyo detalle está abierto
       dirtyRows: {}, // liveGrid con saveRowButton: filas editadas sin guardar
       defaultItem: {},
       dataContainer: null,
@@ -1445,6 +1450,10 @@ export default {
 /* Renglón cargado en el form para modificar. */
 .histrix-row--editing td {
   background: rgba(25, 118, 210, 0.08);
+}
+
+.histrix-row--selected td {
+  background: rgba(25, 118, 210, 0.15);
 }
 
 .histrix-cell {

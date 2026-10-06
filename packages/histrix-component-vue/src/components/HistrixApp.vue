@@ -28,7 +28,7 @@
               @update:model-value="
                 ($event) => {
                   localValue = $event;
-                  $emit('update:model-value', $event);
+                  $emit('update:modelValue', $event);
                 }
               "
               :inner="inner"
@@ -86,7 +86,7 @@
                 @update:model-value="
                   ($event) => {
                     localValue = $event;
-                    $emit('update:model-value', $event);
+                    $emit('update:modelValue', $event);
                   }
                 "
                 :inner="inner"
@@ -136,9 +136,12 @@
           </q-stepper>
         </template>
         <template v-slot:after>
+          <!-- La key rearma el detalle al elegir otra fila: detailQuery es un
+               URLSearchParams y el xmlUrl del hijo no lo ve cambiar. -->
           <HistrixApp
             ref=""
             v-if="detailPath != ''"
+            :key="detailKey"
             :path="detailPath"
             :query="detailQuery"
             v-on:process-finish="refreshMaster"
@@ -537,6 +540,7 @@ export default {
       this.selected = $rowAttr;
       this.detailQuery = new URLSearchParams($rowAttr.detailquery);
       this.detailPath = $rowAttr.detailpath;
+      this.detailKey = `${$rowAttr.detailpath}?${this.detailQuery}`;
       this.isDetailOpened = true;
     },
     /**
@@ -843,7 +847,8 @@ export default {
       data: [],
       selected: null,
       detailQuery: '',
-      detailPath: ''
+      detailPath: '',
+      detailKey: ''
     };
   }
 };
