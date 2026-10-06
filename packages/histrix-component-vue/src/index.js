@@ -37,6 +37,7 @@ import HistrixUsers from './components/widgets/HistrixUsers.vue';
 import notificationMenu from './components/widgets/notificationMenu.vue';
 import profileMenu from './components/widgets/profileMenu.vue';
 import profileMenuItems from './components/widgets/profileMenuItems.vue';
+import { useHistrixMenu } from './composables/useHistrixMenu.js';
 import { useHistrixSession } from './composables/useHistrixSession.js';
 import { HistrixApiError, isHistrixApiError, normalizeApiError } from './core/apiError.js';
 import { normalizeData } from './core/apiResponse.js';
@@ -161,6 +162,7 @@ export {
   useHistrixStorage,
   useHistrixNavigate,
   useHistrixSession,
+  useHistrixMenu,
   createHistrixI18n,
   provideHistrixI18n,
   useHistrixI18n,

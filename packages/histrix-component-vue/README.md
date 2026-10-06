@@ -216,6 +216,74 @@ t('common.cancel'); // 'Cancel'
 
 Los props de texto de las pantallas de auth (`title`, `submitLabel`, `emailPlaceholder`…) siguen funcionando: si se pasan, ganan sobre el diccionario.
 
+## Personalizar el menú
+
+`HistrixExpansionMenu` separa la lógica del diseño: el pedido del menú (`getMenu(level)`), los destacados, los favoritos, el loading, la navegación y las secciones abiertas (guardadas en el storage) las maneja la librería; la app puede cambiar sólo el diseño. Sin slots ni variables se ve igual que antes.
+
+### Slots
+
+Todos son scoped y tienen el diseño de la librería como default. Los de ramas y hojas aplican en todos los niveles del árbol.
+
+| Slot | Props | Reemplaza |
+| --- | --- | --- |
+| `#loading` | — | los skeletons mientras carga |
+| `#section-header` | `section` (`'featured'` \| `'favorites'`), `count`, `open` | el contenido de la cabecera de Destacados y de Favoritos |
+| `#featured-item` | `node`, `to`, `label`, `subtitle`, `onClick`, `open` | cada destacado |
+| `#favorite-item` | `favorite`, `to`, `label`, `onClick`, `open`, `toggleFavorite` | cada favorito |
+| `#branch-header` | `node`, `label`, `subtitle` | el contenido de la cabecera de una rama (el `q-expansion-item` y sus hijos los sigue armando el menú) |
+| `#leaf` | `node`, `to`, `label`, `subtitle`, `onClick`, `open`, `favoritesEnabled`, `isFavorite`, `toggleFavorite` | cada hoja |
+
+`label` y `subtitle` vienen con las entidades HTML decodificadas y sin pasar a minúsculas. Para navegar hay dos formas: `:to="to"` + `@click="onClick"` (link del router, mantiene la clase del item activo y cierra el drawer) o `@click="open"` (navega y cierra el drawer, para diseños sin `:to`).
+
+```vue
+<HistrixExpansionMenu level="phpmen" :is-favorite="true" @close-drawer="drawer = false">
+  <template #leaf="{ to, label, onClick, favoritesEnabled, isFavorite, toggleFavorite }">
+    <q-item :to="to" dense @click="onClick">
+      <q-item-section>{{ label }}</q-item-section>
+      <q-item-section v-if="favoritesEnabled" side>
+        <q-btn flat round dense :icon="isFavorite ? 'favorite' : 'favorite_border'" @click.stop.prevent="toggleFavorite" />
+      </q-item-section>
+    </q-item>
+  </template>
+</HistrixExpansionMenu>
+```
+
+Los tipos de las props están en `HistrixExpansionMenuSlots`. Hay un ejemplo completo en `apps/playground/src/AltMenu.vue`.
+
+### Variables CSS
+
+Se definen en `:root` o en un ancestro del menú. Sin definir, valen lo del diseño default.
+
+| Variable | Default | Uso |
+| --- | --- | --- |
+| `--histrix-menu-accent` | `var(--q-primary)` | destacados, item activo |
+| `--histrix-menu-accent-contrast` | `#fff` | ícono de los destacados |
+| `--histrix-menu-active-bg` | `accent` al 11% sobre blanco | fondo del item activo |
+| `--histrix-menu-favorite` | `#f59e0b` | estrella y cabecera de favoritos |
+| `--histrix-menu-star` | `#b6c0cf` | estrella sin marcar |
+| `--histrix-menu-muted` | `#64748b` | íconos y subtítulos |
+| `--histrix-menu-branch-color` | `#1e293b` | texto de las ramas |
+| `--histrix-menu-leaf-color` | `#334155` | texto de las hojas |
+| `--histrix-menu-hover-bg` | `rgba(15, 23, 42, 0.045)` | hover de ramas y hojas |
+| `--histrix-menu-dot` / `--histrix-menu-dot-hover` | `#cbd5e1` / `#94a3b8` | punto de las hojas sin ícono |
+| `--histrix-menu-count-color` / `--histrix-menu-count-bg` | `#94a3b8` / `rgba(148, 163, 184, 0.16)` | contador de las secciones |
+
+### Composable
+
+Para un menú armado desde cero, `useHistrixMenu` da la misma lógica sin diseño:
+
+```js
+import { useHistrixMenu } from '@mundoit-lib/histrix-component-vue';
+
+const menu = useHistrixMenu({ level: 'phpmen', favorites: true, onClose: () => (drawer.value = false) });
+// menu.tree, menu.featured, menu.favorites, menu.loading: refs
+// menu.featuredOpen, menu.favoritesOpen: refs guardadas en el storage
+// menu.isFavorite(menuId), menu.toggleFavorite(node), menu.nodeUri(node), menu.open(node),
+// menu.onItemClick(node), menu.label(text), menu.reload()
+```
+
+`level` y `favorites` aceptan un valor, una ref o un getter. `toggleFavorite` llama a la API, notifica y emite `update-favorit` por el bus, como el menú. Llamado dentro de un componente, comparte su estado con los `HistrixExpansionMenu` anidados por `provide`/`inject`.
+
 ## Atajos de teclado
 
 `HistrixApp` replica los atajos del ERP legacy. Atiende las teclas la app más interna que tenga el foco, y si esa no resuelve F9 o Esc, los pasa a la app que la contiene (por ejemplo, del grid de renglones al comprobante).

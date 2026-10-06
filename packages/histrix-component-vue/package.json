@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "keywords": [
     "histrix",
@@ -187,6 +187,11 @@
     "./components/widgets/profileMenuItems": {
       "import": "./src/components/widgets/profileMenuItems.vue",
       "require": "./src/components/widgets/profileMenuItems.vue"
+    },
+    "./composables/useHistrixMenu": {
+      "types": "./types/menu.d.ts",
+      "import": "./src/composables/useHistrixMenu.js",
+      "require": "./src/composables/useHistrixMenu.js"
     },
     "./composables/useHistrixSession": {
       "import": "./src/composables/useHistrixSession.js",
