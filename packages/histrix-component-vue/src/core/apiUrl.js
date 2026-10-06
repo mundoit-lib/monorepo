@@ -18,13 +18,16 @@ export function hostFromApiUrl(apiUrl) {
 }
 
 /**
- * Host efectivo. Orden: el guardado (selector de conexión) → `fixApi` (deprecado,
- * compat) → derivado de `apiUrl`.
+ * Host efectivo. Orden: `fixApi` (deprecado, compat) → derivado de `apiUrl` →
+ * el guardado en el storage (selector de conexión), sólo si la config no trae host.
+ * La config es la fuente viva (la app la cambia en runtime); el storage es el
+ * fallback para las apps que no la setean.
  */
 export function resolveHost({ storedHost, fixApi, apiUrl } = {}) {
-  if (storedHost) return trimSlash(storedHost);
   if (fixApi) return trimSlash(fixApi);
-  return hostFromApiUrl(apiUrl);
+  const configured = hostFromApiUrl(apiUrl);
+  if (configured) return configured;
+  return trimSlash(storedHost);
 }
 
 /** URL base de la API de una base: `${host}/api/db/${db}`, o `apiUrl` si no hay base. */

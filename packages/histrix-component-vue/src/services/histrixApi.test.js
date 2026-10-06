@@ -27,12 +27,33 @@ describe('createHistrixClient', () => {
     expect(client.apiUrl()).toBe('https://erp.com/api/db/demo');
   });
 
-  it('sin opciones lee del storage y de config (apiUrl canónico)', () => {
+  it('sin opciones lee de config (apiUrl canónico) y cae al storage para la base', () => {
     config.apiUrl = 'https://erp.com/api/db/x';
     const storage = createMemoryStorage({ database: 'demo' });
     const client = createHistrixClient({ http: fakeHttp(), storage });
     expect(client.host()).toBe('https://erp.com');
     expect(client.apiUrl()).toBe('https://erp.com/api/db/demo');
+  });
+
+  it('config gana sobre host/database guardados (la app los cambia en runtime)', () => {
+    config.apiUrl = 'https://nuevo.com';
+    config.db = 'nueva';
+    const storage = createMemoryStorage({ host: 'https://viejo.com', database: 'vieja' });
+    const client = createHistrixClient({ http: fakeHttp(), storage });
+    expect(client.host()).toBe('https://nuevo.com');
+    expect(client.currentDb()).toBe('nueva');
+    expect(client.apiUrl()).toBe('https://nuevo.com/api/db/nueva');
+    // Cambiar config en caliente se refleja sin tocar el storage.
+    config.db = 'otra';
+    expect(client.apiUrl()).toBe('https://nuevo.com/api/db/otra');
+  });
+
+  it('sin config usa host/database del storage (selector de conexión)', () => {
+    const storage = createMemoryStorage({ host: 'https://guardado.com/', database: 'guardada' });
+    const client = createHistrixClient({ http: fakeHttp(), storage });
+    expect(client.host()).toBe('https://guardado.com');
+    expect(client.currentDb()).toBe('guardada');
+    expect(client.apiUrl()).toBe('https://guardado.com/api/db/guardada');
   });
 
   it('fixApi sigue funcionando con un warning de deprecado', () => {

@@ -69,6 +69,9 @@ const defaultHttp = () => config.http || config.axios || globalProperty('$axios'
  *   auth    adaptador de auth (ver services/auth.js) o `$auth`
  *   storage { get, set, remove } (ver services/storage.js)
  * Lo que no se pasa sale de `config` y de los plugins instalados en la app.
+ * Host y base: opción → `config` (`apiUrl`/`fixApi`, `db`) → storage (`host`,
+ * `database`). La config es la fuente viva; el storage es sólo fallback, así una
+ * app que setea `config` en runtime no tiene que escribir el storage de la lib.
  */
 export function createHistrixClient(options = {}) {
   // Los defaults se resuelven siempre (inject sólo funciona en setup).
@@ -84,7 +87,7 @@ export function createHistrixClient(options = {}) {
 
   const currentDb = () => {
     if (options.db !== undefined) return read(options.db);
-    return storage.get('database') || config.db;
+    return config.db || storage.get('database') || '';
   };
 
   const host = () => {

@@ -27,13 +27,18 @@
 </template>
 
 <script>
+import config from '../../services/config.js';
+import useApi from '../../services/histrixApi.js';
 import { useHistrixI18n } from '../../services/i18n.js';
 import { useHistrixStorage } from '../../services/storage.js';
 
+// Cambia la conexión activa (host y base). Escribe `config` (fuente viva, la que
+// lee histrixApi) y el storage (fallback para las apps que no setean config).
 export default {
   name: 'HistrixConnectionSettings',
   setup() {
-    return { t: useHistrixI18n().t, storage: useHistrixStorage() };
+    const api = useApi();
+    return { t: useHistrixI18n().t, storage: useHistrixStorage(), api };
   },
   data() {
     return {
@@ -42,11 +47,14 @@ export default {
     };
   },
   mounted() {
-    this.host = this.storage.get('host');
-    this.database = this.storage.get('database');
+    // Valores efectivos (config o storage), no sólo lo guardado.
+    this.host = this.api.host() || null;
+    this.database = this.api.currentDb() || null;
   },
   methods: {
     async save() {
+      config.apiUrl = this.host || '';
+      config.db = this.database || '';
       this.storage.set('host', this.host);
       this.storage.set('database', this.database);
       this.$emit('change-database');
