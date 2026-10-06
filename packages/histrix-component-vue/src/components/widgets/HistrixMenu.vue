@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import { menuNodeRoute } from '../../core/menuRoute.js';
 import useApi from '../../services/histrixApi.js';
 import { useHistrixI18n } from '../../services/i18n.js';
 
@@ -63,8 +64,7 @@ export default {
   },
   methods: {
     nodeUri(prop) {
-      const path = `/auth/${prop.node.uri}`.replace('//', '/');
-      return { path, query: { _title: prop.node.label } };
+      return menuNodeRoute(prop.node);
     }
   },
   mounted() {
