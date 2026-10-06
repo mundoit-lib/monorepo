@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "keywords": [
     "histrix",
@@ -246,7 +246,7 @@
     "@vuelidate/validators": ">=2.0.0 <3.0.0",
     "quasar": "^2.0.0",
     "vue": "catalog:peers",
-    "vue-router": "^4.0.0"
+    "vue-router": "^4.0.0 || ^5.0.0"
   },
   "peerDependenciesMeta": {
     "@mundoit-lib/plugin-vue-auth": {
