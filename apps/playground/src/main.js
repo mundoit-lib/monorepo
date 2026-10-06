@@ -18,7 +18,7 @@ import 'quasar/src/css/index.sass';
 // Plugins @mundoit-lib — mismo patrón que los boot files de las apps reales
 // (src/boot/{axios,auth,events}.js de una app *-frontend).
 import { install as authPlugin } from '@mundoit-lib/plugin-vue-auth';
-import { axiosInstance, install as axiosPlugin } from '@mundoit-lib/plugin-vue-axios';
+import { getAxiosInstance, install as axiosPlugin } from '@mundoit-lib/plugin-vue-axios';
 // v1.0.2+ exporta named `eventsPlugin` (la 1.0.0 de las apps viejas tenía default export).
 import { eventsPlugin } from '@mundoit-lib/plugin-vue-event';
 
@@ -38,26 +38,25 @@ app.use(Quasar, {
   iconSet: quasarIconSet
 });
 
-// 1) Axios — mapeo idéntico al boot/axios.js de referencia:
-//    baseURL = host pelado (FIX_API_URL), fixURL = URL completa /api/db/{db}.
+// 1) Axios 2.x — baseURL = <host>/api/db/<db>. El refresh es de auth 2.x, así que
+//    no se pasan db/clientID/clientSecret/fixURL (2.x los ignora y avisa).
 app.use(axiosPlugin, {
-  baseURL: config.apiUrl || '',
-  db: config.db || '',
-  clientID: config.clientId || '',
-  clientSecret: config.clientSecret || '',
-  fixURL: `${config.apiUrl || ''}/api/db/${config.db || ''}`
+  baseURL: `${config.apiUrl || ''}/api/db/${config.db || ''}`
 });
-app.config.globalProperties.$axios = axiosInstance;
-app.config.globalProperties.$api = axiosInstance;
+const http = getAxiosInstance();
+app.config.globalProperties.$axios = http;
+app.config.globalProperties.$api = http;
 
-// 2) Auth — forma exacta del boot/auth.js de referencia. El plugin trae
-//    defaults correctos para Histrix (tokenDefaultKey 'accessToken',
-//    rememberkey 'refreshToken', driver que extrae res.data.access_token),
-//    así que no hace falta pasar drivers ni options.
+// 2) Auth 2.x — endpoints relativos al baseURL de axios: /token (login y refresh)
+//    y /me. Sin esto `/me` iba a la raíz del host y daba 404.
 app.use(authPlugin, {
-  plugins: {
-    http: axiosInstance,
-    router: router
+  http,
+  router,
+  oauth: { clientId: config.clientId || '', clientSecret: config.clientSecret || '' },
+  endpoints: {
+    login: '/token',
+    me: '/me',
+    logout: null // Histrix no tiene logout OAuth: sólo se limpia la sesión local
   }
 });
 
