@@ -1,6 +1,7 @@
 import { UserManager, WebStorageStateStore } from 'oidc-client-ts';
 import { type OidcIssuer, resolveIssuer } from './issuer';
 import type {
+  HistrixUser,
   OidcAuth,
   OidcAuthOptions,
   OidcCallbackResult,
@@ -58,7 +59,7 @@ const isLive = (user: OidcUser | null): user is OidcUser => Boolean(user && user
  * de tenant en runtime. Cumple el contrato de auth de `histrix-component-vue` y la forma `token()` /
  * `onUserChange()` del `AuthService` de plugin-vue-auth 2.x.
  */
-export function createOidcAuth<TUser = Record<string, unknown>>(options: OidcAuthOptions = {}): OidcAuth<TUser> {
+export function createOidcAuth<TUser = HistrixUser>(options: OidcAuthOptions = {}): OidcAuth<TUser> {
   const storage = options.storage ?? defaultStorage();
   const userKey = options.userKey ?? DEFAULT_USER_KEY;
   const managers = new Map<string, UserManager>();

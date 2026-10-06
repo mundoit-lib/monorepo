@@ -9,7 +9,15 @@ import {
   shallowRef
 } from 'vue';
 import { AuthService } from './AuthService';
-import type { AuthOptions, HttpClient, LoginOptions, LogoutOptions, RedirectTarget, TokenResponse } from './types';
+import type {
+  AuthOptions,
+  HistrixUser,
+  HttpClient,
+  LoginOptions,
+  LogoutOptions,
+  RedirectTarget,
+  TokenResponse
+} from './types';
 
 /** Lo que usa el adaptador de vue-router (sin depender del paquete). */
 export interface RouterLike {
@@ -32,7 +40,7 @@ export interface AuthRedirect {
 }
 
 /** `$auth` y `useAuth()`: la superficie de 1.x, reactiva. */
-export interface VueAuth<TUser = Record<string, unknown>> {
+export interface VueAuth<TUser = HistrixUser> {
   readonly service: AuthService<TUser>;
   readonly currentUser: ShallowRef<TUser | null>;
   readonly isAuthenticated: ComputedRef<boolean>;
@@ -136,13 +144,13 @@ export const VueAuthPlugin = {
   }
 };
 
-export function useAuth<TUser = Record<string, unknown>>(): VueAuth<TUser> {
+export function useAuth<TUser = HistrixUser>(): VueAuth<TUser> {
   const auth = (getCurrentInstance() ? inject(AUTH_KEY, null) : null) ?? current;
   if (!auth) throw new Error('[Auth] No inicializado: falta app.use(VueAuthPlugin) antes de useAuth()');
   return auth;
 }
 
-export function getAuthInstance<TUser = Record<string, unknown>>(): VueAuth<TUser> | null {
+export function getAuthInstance<TUser = HistrixUser>(): VueAuth<TUser> | null {
   return current;
 }
 

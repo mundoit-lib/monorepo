@@ -1,7 +1,30 @@
-import type { AuthStorage, HttpClient } from './types';
+import type { AuthStorage, HistrixUser, HttpClient } from './types';
 
 export type Request = { url: string; method: string; data?: any; headers: Record<string, string>; [key: string]: any };
 export type Handler = (request: Request) => unknown;
+
+/** Usuario de `/me` con la forma de Histrix; `overrides` pisa los campos del test. */
+export function histrixUser(overrides: Partial<HistrixUser> = {}): HistrixUser {
+  return {
+    id: 1,
+    user_id: 1,
+    username: 'ana',
+    email: 'ana@example.com',
+    roles: ['1'],
+    fullname: 'Ana',
+    first_name: 'Ana',
+    last_name: '',
+    occupation: null,
+    companyName: null,
+    phone: null,
+    verified: null,
+    name: 'Ana',
+    emailVerified: true,
+    last_log: null,
+    socialNetworks: {},
+    ...overrides
+  };
+}
 
 export function httpError(status: number) {
   return Object.assign(new Error(`HTTP ${status}`), { response: { status } });

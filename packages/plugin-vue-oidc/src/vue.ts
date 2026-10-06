@@ -1,7 +1,7 @@
 import { type App, type InjectionKey, computed, getCurrentInstance, inject, shallowRef } from 'vue';
 import { createOidcGuard } from './guard';
 import { isAppPath } from './OidcAuth';
-import type { OidcAuth, OidcPluginOptions, RouterLike, VueOidc, VueOidcLoginOptions } from './types';
+import type { HistrixUser, OidcAuth, OidcPluginOptions, RouterLike, VueOidc, VueOidcLoginOptions } from './types';
 
 export const OIDC_KEY: InjectionKey<VueOidc<any>> = Symbol('mundoitVueOidc');
 
@@ -95,7 +95,7 @@ export const OidcPlugin = {
 };
 
 /** El `VueOidc` instalado. Funciona fuera de un componente (stores, boot) si el plugin ya se instaló. */
-export function useOidc<TUser = Record<string, unknown>>(): VueOidc<TUser> {
+export function useOidc<TUser = HistrixUser>(): VueOidc<TUser> {
   const oidc = (getCurrentInstance() ? inject(OIDC_KEY, null) : null) ?? current;
   if (!oidc) throw new Error('[oidc] No inicializado: falta app.use(OidcPlugin, { auth }) antes de useOidc()');
   return oidc;
@@ -104,7 +104,7 @@ export function useOidc<TUser = Record<string, unknown>>(): VueOidc<TUser> {
 /** @alias Misma forma que `useHistrixSession()` de histrix-component-vue: `user`, `isLogged`, `login`, `logout`. */
 export const useOidcSession = useOidc;
 
-export function getOidcInstance<TUser = Record<string, unknown>>(): VueOidc<TUser> | null {
+export function getOidcInstance<TUser = HistrixUser>(): VueOidc<TUser> | null {
   return current;
 }
 

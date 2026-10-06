@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { AuthService } from './AuthService';
-import { type Request, createHttp, httpError, memoryStorage } from './test-utils';
+import { type Request, createHttp, histrixUser, httpError, memoryStorage } from './test-utils';
 
-const USER = { id: 1, name: 'Ana' };
+const USER = histrixUser();
 
 /** Backend de prueba: emite `token-N` y rechaza con 401 los requests con un token que no es el último. */
 function createBackend() {
