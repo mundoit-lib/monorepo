@@ -162,15 +162,6 @@
             <q-icon name="touch_app" size="48px" />
             <div class="q-mt-sm">{{ t('app.selectRow') }}</div>
           </div>
-          <q-page-sticky position="bottom-right" :offset="[20, 10]">
-            <q-btn
-              icon="arrow_back"
-              color="accent"
-              fab
-              @click="backFromDetail()"
-              v-if="smallscreen && isDetailOpened"
-            />
-          </q-page-sticky>
         </template>
       </q-splitter>
     </template>
@@ -727,11 +718,6 @@ export default {
       this.closeDetail();
       this.detailPath = '';
       if (this.$refs.main && 'selectedId' in this.$refs.main) this.$refs.main.selectedId = null;
-    },
-    /** Botón de volver del detalle: mismo camino que el atrás del navegador. */
-    backFromDetail() {
-      if (this.historyToken) window.history.back();
-      else this.closeDetail();
     },
 
     togglePdf() {
