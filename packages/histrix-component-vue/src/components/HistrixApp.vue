@@ -16,7 +16,7 @@
         class="fit"
         :class="{ 'histrix-app--split': isSplitView, 'histrix-app--detail-full': isDetailFull }"
         :style="masterMinHeight ? { '--histrix-master-min-height': `${masterMinHeight}px` } : null"
-        style="overflow: hidden"
+        style="overflow: clip"
         :limits="[0, Infinity]"
         :separator-class="this.smallscreen || !hasFullDetail ? 'hidden' : ''"
       >

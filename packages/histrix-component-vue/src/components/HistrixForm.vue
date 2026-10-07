@@ -126,27 +126,34 @@
           </q-tab-panels>
         </div>
       </div>
-      <q-separator />
-      <div class="row">
-        <span class="q-pa-sm col-12 text-center">
-          <q-btn
-            :label="t('common.cancel')"
-            icon="close"
-            class="nojustify-end flat"
-            @click="cancel"
-            type="reset"
-            v-if="insertButton || updateButton"
-          />
-          <q-btn
-            v-if="insertButton || updateButton"
-            :disable="submitting"
-            type="submit"
-            :label="t('form.submit')"
-            icon="save"
-            class="bg-positive text-white nojustify-end"
-            :loading="submitting"
-          />
-        </span>
+      <!-- Barra de acciones fija abajo (sticky): aviso de obligatorios a la
+           izquierda, Descartar y Grabar a la derecha. En celular, Grabar ocupa
+           el ancho que queda. -->
+      <div v-if="insertButton || updateButton" class="histrix-form-actions row items-center no-wrap">
+        <div v-if="hasRequiredFields && !$q.screen.lt.sm" class="col text-caption text-grey-6">
+          {{ t('form.requiredHint') }}
+        </div>
+        <q-space v-else-if="!$q.screen.lt.sm" />
+        <q-btn
+          :label="t('form.discard')"
+          :icon="$q.screen.lt.sm ? undefined : 'close'"
+          flat
+          no-caps
+          color="primary"
+          @click="cancel"
+          type="reset"
+        />
+        <q-btn
+          :disable="submitting"
+          type="submit"
+          :label="t('form.submit')"
+          :icon="$q.screen.lt.sm ? undefined : 'save'"
+          unelevated
+          no-caps
+          color="positive"
+          :class="{ col: $q.screen.lt.sm }"
+          :loading="submitting"
+        />
       </div>
     </q-form>
     <slot name="slot-botton-form" :props="localValues" />
@@ -262,6 +269,12 @@ export default {
       // El form se está usando para confirmar un renglón de un grid embebido
       // (detalle de comprobante) en vez de un alta/edición directa contra la API.
       return ['ing', 'grid', 'livegrid'].includes(this.screenType);
+    },
+    /** ¿Algún campo obligatorio? Muestra el aviso de la barra de acciones. */
+    hasRequiredFields() {
+      return Object.values(this.localSchema.fields || {}).some(
+        (field) => field?.required === 'required' || field?.required === 'true'
+      );
     },
     updateButton() {
       return (
@@ -875,3 +888,23 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Barra de acciones del form: queda fija al pie mientras se scrollea el form.
+   Los contenedores de HistrixApp usan overflow: clip para no cortar el sticky. */
+.histrix-form-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #fff;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  gap: 12px;
+}
+
+.body--dark .histrix-form-actions {
+  background: var(--q-dark, #1d1d1d);
+  border-top-color: rgba(255, 255, 255, 0.28);
+}
+</style>
