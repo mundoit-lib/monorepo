@@ -4,6 +4,11 @@
       <HistrixPdfViewer inline :src="pdfSrc" :blob="pdfBlob" :filename="pdfFilename" />
     </div>
     <HistrixPdfViewer v-model="showPdfPopup" :src="pdfSrc" :blob="pdfBlob" :filename="pdfFilename" />
+    <!-- Sin schema todavía no hay qué montar: un spinner en lugar del blanco
+         (p. ej. el detalle recién elegido en un maestro-detalle). -->
+    <div v-if="schemaLoading && !schema.type" class="histrix-app__loading flex flex-center q-pa-xl">
+      <q-spinner color="primary" size="40px" />
+    </div>
     <template v-if="!isPdf">
       <q-splitter
         v-model="finalSplitterModel"
@@ -810,6 +815,7 @@ export default {
      * get Schema from API
      */
     getSchema() {
+      this.schemaLoading = true;
       this.getAppSchema(this.path, this.query)
         .then((response) => {
           this.resources = response.data.resources;
@@ -827,6 +833,9 @@ export default {
         .catch((e) => {
           this.dialog = true;
           this.message = `${this.t('app.schemaError')}: ${e.message}`;
+        })
+        .finally(() => {
+          this.schemaLoading = false;
         });
     },
     /**
@@ -869,6 +878,7 @@ export default {
   data() {
     return {
       masterMinHeight: null,
+      schemaLoading: false,
       step: 1, // default initial Step
       validity: true,
       processing: false,
@@ -926,7 +936,8 @@ export default {
   min-height: var(--histrix-master-min-height, 50vh);
 }
 
-.histrix-app__detail-empty {
+.histrix-app__detail-empty,
+.histrix-app--split > .q-splitter__after > div > .histrix-app__loading {
   min-height: 50vh;
 }
 
