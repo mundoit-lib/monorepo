@@ -50,6 +50,7 @@
                 v-on:open-detail="openDetail"
                 v-on:open-popup="showLinkDialog"
                 v-on:closepopup="closePopup"
+                v-on:cancel="$emit('cancel')"
                 v-on:computed-total="onComputedTotal"
                 v-on:select-row="selectRow"
                 v-on:export="showExportForm"
@@ -155,6 +156,7 @@
             :path="detailPath"
             :query="detailQuery"
             v-on:process-finish="refreshMaster"
+            v-on:cancel="cancelDetail"
           />
           <div v-else-if="isSplitView" class="histrix-app__detail-empty column flex-center text-grey-6 q-pa-xl">
             <q-icon name="touch_app" size="48px" />
@@ -543,7 +545,15 @@ export default {
       return `${this.apiUrl}/vue/${this.path}`;
     }
   },
-  emits: ['update:modelValue', 'advance-step', 'process-finish', 'select-row', 'computed-total', 'closepopup'],
+  emits: [
+    'update:modelValue',
+    'advance-step',
+    'process-finish',
+    'select-row',
+    'computed-total',
+    'closepopup',
+    'cancel'
+  ],
   methods: {
     hashcode(s) {
       return Math.abs(
@@ -654,31 +664,69 @@ export default {
      * En pantalla chica el detalle ocupa toda la pantalla, como otra página:
      * se agrega una entrada al historial (misma URL, sin pasar por el router
      * para no recargar la lista) y el atrás del navegador o el gesto lo
-     * cierran. El token identifica la entrada de esta app, por si hay detalles
-     * anidados.
+     * cierran. La entrada guarda qué detalle estaba abierto (y dónde estaba la
+     * lista): si se sale a otra pantalla con el detalle abierto, al volver se
+     * reabre en lugar de mostrar la lista dos veces. `path` identifica a qué
+     * app es, por si hay detalles anidados.
      */
     pushDetailHistory() {
       if (this.historyToken) return;
       this.historyToken = `histrix-detail-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       this.listScrollY = window.scrollY;
       const state = window.history.state || {};
-      const open = Array.isArray(state.histrixDetail) ? state.histrixDetail : [];
-      window.history.pushState({ ...state, histrixDetail: [...open, this.historyToken] }, '');
+      const entry = {
+        token: this.historyToken,
+        path: this.path,
+        detailpath: this.selected.detailpath,
+        detailquery: String(this.detailQuery),
+        scrollY: this.listScrollY
+      };
+      window.history.pushState({ ...state, histrixDetail: [...this.historyDetails(state), entry] }, '');
       window.scrollTo(0, 0);
     },
+    /** Detalles abiertos que guarda una entrada del historial. */
+    historyDetails(state) {
+      const open = state?.histrixDetail;
+      return Array.isArray(open) ? open.filter((entry) => entry && typeof entry === 'object') : [];
+    },
     /**
-     * Atrás del navegador: si la entrada de este detalle ya no está en el
-     * historial, se cierra y la lista vuelve a donde estaba (después del
-     * scroll que haga el router de la app).
+     * Deja el detalle como dice la entrada actual del historial: lo abre si la
+     * entrada lo tiene (volver desde otra pantalla, adelante, F5) y lo cierra
+     * si no (atrás), devolviendo la lista a donde estaba.
      */
-    onPopState() {
+    syncDetailFromHistory() {
+      const entry = this.historyDetails(window.history.state)
+        .filter((item) => item.path === this.path)
+        .pop();
+      if (entry) {
+        if (entry.token === this.historyToken) return;
+        this.historyToken = entry.token;
+        this.listScrollY = entry.scrollY || 0;
+        this.openDetail({ detailpath: entry.detailpath, detailquery: entry.detailquery });
+        return;
+      }
       if (!this.historyToken) return;
-      const open = window.history.state?.histrixDetail;
-      if (Array.isArray(open) && open.includes(this.historyToken)) return;
       this.historyToken = null;
       this.closeDetail();
       const y = this.listScrollY;
       this.$nextTick(() => requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y))));
+    },
+    onPopState() {
+      this.syncDetailFromHistory();
+    },
+    /**
+     * Cancelar del form del detalle: lo cierra (Grabar no). En celular por el
+     * historial, como el atrás; en pantalla grande vuelve el aviso de elegir
+     * una fila y se desmarca la elegida.
+     */
+    cancelDetail() {
+      if (this.historyToken) {
+        window.history.back();
+        return;
+      }
+      this.closeDetail();
+      this.detailPath = '';
+      if (this.$refs.main && 'selectedId' in this.$refs.main) this.$refs.main.selectedId = null;
     },
     /** Botón de volver del detalle: mismo camino que el atrás del navegador. */
     backFromDetail() {
@@ -878,6 +926,7 @@ export default {
           }
 
           this.schema.api = this.apiUrl;
+          this.$nextTick(() => this.syncDetailFromHistory());
         })
         .catch((e) => {
           this.dialog = true;
