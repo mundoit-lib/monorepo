@@ -4,77 +4,27 @@
       <HistrixPdfViewer inline :src="pdfSrc" :blob="pdfBlob" :filename="pdfFilename" />
     </div>
     <HistrixPdfViewer v-model="showPdfPopup" :src="pdfSrc" :blob="pdfBlob" :filename="pdfFilename" />
+    <!-- Sin schema todavía no hay qué montar: un spinner en lugar del blanco
+         (p. ej. el detalle recién elegido en un maestro-detalle). -->
+    <div v-if="schemaLoading && !schema.type" class="histrix-app__loading flex flex-center q-pa-xl">
+      <q-spinner color="primary" size="40px" />
+    </div>
     <template v-if="!isPdf">
       <q-splitter
         v-model="finalSplitterModel"
+        ref="splitter"
         class="fit"
+        :class="{ 'histrix-app--split': isSplitView }"
+        :style="masterMinHeight ? { '--histrix-master-min-height': `${masterMinHeight}px` } : null"
         style="overflow: hidden"
         :limits="[0, Infinity]"
         :separator-class="this.smallscreen || !hasFullDetail ? 'hidden' : ''"
       >
         <template v-slot:before>
-          <div v-if="!hasStepper">
-            <component
-              v-if="!hasStepper"
-              ref="main"
-              v-bind:is="histrixComponent"
-              v-bind="$attrs"
-              :path="path"
-              :query="componentQuery"
-              :resources="resources"
-              :schema="schema"
-              :finalStep="finalStep"
-              :model-value="localValue"
-              @update:model-value="
-                ($event) => {
-                  localValue = $event;
-                  $emit('update:modelValue', $event);
-                }
-              "
-              :inner="inner"
-              :title="title"
-              :url="xmlUrl"
-              :styles="styles"
-              :editedItem="schema.values"
-              :computedFields="computedFields"
-              :computedTotals="computedTotals"
-              v-on:open-detail="openDetail"
-              v-on:open-popup="showLinkDialog"
-              v-on:closepopup="closePopup"
-              v-on:computed-total="onComputedTotal"
-              v-on:select-row="selectRow"
-              v-on:export="showExportForm"
-              v-on:print="togglePdf"
-              v-on:validity="onValidityChange"
-              v-on:advance-step="$emit('advance-step')"
-              v-on:process-finish="refreshMaster"
-            >
-              <template v-slot:slot-top-form="props">
-                <slot name="slot-top-form" :props="props.props" />
-              </template>
-              <template v-slot:slot-top-field-histrixapp="props">
-                <slot name="slot-top-field-histrixapp" :props="props.props" />
-              </template>
-              <template v-slot:slot-botton-form="props">
-                <slot name="slot-botton-form" :props="props.props" />
-              </template>
-            </component>
-            <div class="row justify-center">
-              <div class="q-pa-sm">
-                <q-btn
-                  icon="thumb_up"
-                  :disable="processing"
-                  :label="labelButton"
-                  class="bg-secondary text-white nojustify-end"
-                  @click="process"
-                  v-if="schema.can_process && !inner && !isUnsupported"
-                />
-              </div>
-            </div>
-          </div>
-          <q-stepper v-if="hasStepper" v-model="step" keep-alive color="primary" animated>
-            <q-step :name="1" :title="title || schema.title" icon="settings" :done="step > 1">
+          <div class="histrix-app__master">
+            <div v-if="!hasStepper">
               <component
+                v-if="!hasStepper"
                 ref="main"
                 v-bind:is="histrixComponent"
                 v-bind="$attrs"
@@ -82,6 +32,7 @@
                 :query="componentQuery"
                 :resources="resources"
                 :schema="schema"
+                :finalStep="finalStep"
                 :model-value="localValue"
                 @update:model-value="
                   ($event) => {
@@ -104,36 +55,95 @@
                 v-on:export="showExportForm"
                 v-on:print="togglePdf"
                 v-on:validity="onValidityChange"
-                v-on:advance-step="step++"
-              ></component>
+                v-on:advance-step="$emit('advance-step')"
+                v-on:process-finish="refreshMaster"
+              >
+                <template v-slot:slot-top-form="props">
+                  <slot name="slot-top-form" :props="props.props" />
+                </template>
+                <template v-slot:slot-top-field-histrixapp="props">
+                  <slot name="slot-top-field-histrixapp" :props="props.props" />
+                </template>
+                <template v-slot:slot-botton-form="props">
+                  <slot name="slot-botton-form" :props="props.props" />
+                </template>
+              </component>
+              <div class="row justify-center">
+                <div class="q-pa-sm">
+                  <q-btn
+                    icon="thumb_up"
+                    :disable="processing"
+                    :label="labelButton"
+                    class="bg-secondary text-white nojustify-end"
+                    @click="process"
+                    v-if="schema.can_process && !inner && !isUnsupported"
+                  />
+                </div>
+              </div>
+            </div>
+            <q-stepper v-if="hasStepper" v-model="step" keep-alive color="primary" animated>
+              <q-step :name="1" :title="title || schema.title" icon="settings" :done="step > 1">
+                <component
+                  ref="main"
+                  v-bind:is="histrixComponent"
+                  v-bind="$attrs"
+                  :path="path"
+                  :query="componentQuery"
+                  :resources="resources"
+                  :schema="schema"
+                  :model-value="localValue"
+                  @update:model-value="
+                    ($event) => {
+                      localValue = $event;
+                      $emit('update:modelValue', $event);
+                    }
+                  "
+                  :inner="inner"
+                  :title="title"
+                  :url="xmlUrl"
+                  :styles="styles"
+                  :editedItem="schema.values"
+                  :computedFields="computedFields"
+                  :computedTotals="computedTotals"
+                  v-on:open-detail="openDetail"
+                  v-on:open-popup="showLinkDialog"
+                  v-on:closepopup="closePopup"
+                  v-on:computed-total="onComputedTotal"
+                  v-on:select-row="selectRow"
+                  v-on:export="showExportForm"
+                  v-on:print="togglePdf"
+                  v-on:validity="onValidityChange"
+                  v-on:advance-step="step++"
+                ></component>
 
-              <q-stepper-navigation>
-                <q-btn @click="advanceStep" color="primary" :label="t('app.continue')" icon="navigate_next" />
-              </q-stepper-navigation>
-            </q-step>
+                <q-stepper-navigation>
+                  <q-btn @click="advanceStep" color="primary" :label="t('app.continue')" icon="navigate_next" />
+                </q-stepper-navigation>
+              </q-step>
 
-            <q-step :name="2" :title="t('app.confirmation')" icon="done_all" :done="step > 2">
-              <HistrixApp
-                ref="detail"
-                v-if="schema.process_next_step.xml != ''"
-                :path="schema.process_next_step.dir + '/' + schema.process_next_step.xml"
-                :query="processNextStepQuery"
-                :finalStep="true"
-                v-on:advance-step="finishStep"
-              />
-              <q-stepper-navigation>
-                <q-btn
-                  flat
-                  @click="step--"
-                  color="primary"
-                  :label="t('app.back')"
-                  icon="navigate_before"
-                  class="q-ml-sm"
+              <q-step :name="2" :title="t('app.confirmation')" icon="done_all" :done="step > 2">
+                <HistrixApp
+                  ref="detail"
+                  v-if="schema.process_next_step.xml != ''"
+                  :path="schema.process_next_step.dir + '/' + schema.process_next_step.xml"
+                  :query="processNextStepQuery"
+                  :finalStep="true"
+                  v-on:advance-step="finishStep"
                 />
-                <q-btn @click="finishStep" color="primary" :label="t('app.confirm')" icon="check" />
-              </q-stepper-navigation>
-            </q-step>
-          </q-stepper>
+                <q-stepper-navigation>
+                  <q-btn
+                    flat
+                    @click="step--"
+                    color="primary"
+                    :label="t('app.back')"
+                    icon="navigate_before"
+                    class="q-ml-sm"
+                  />
+                  <q-btn @click="finishStep" color="primary" :label="t('app.confirm')" icon="check" />
+                </q-stepper-navigation>
+              </q-step>
+            </q-stepper>
+          </div>
         </template>
         <template v-slot:after>
           <!-- La key rearma el detalle al elegir otra fila: detailQuery es un
@@ -146,6 +156,10 @@
             :query="detailQuery"
             v-on:process-finish="refreshMaster"
           />
+          <div v-else-if="isSplitView" class="histrix-app__detail-empty column flex-center text-grey-6 q-pa-xl">
+            <q-icon name="touch_app" size="48px" />
+            <div class="q-mt-sm">{{ t('app.selectRow') }}</div>
+          </div>
           <q-page-sticky position="bottom-right" :offset="[20, 10]">
             <q-btn icon="arrow_back" color="accent" fab @click="closeDetail()" v-if="smallscreen && isDetailOpened" />
           </q-page-sticky>
@@ -317,13 +331,27 @@ export default {
     this.detailPath = '';
     this.closeDetail();
     this.localValue = this.modelValue;
+    window.addEventListener('resize', this.fitMaster);
   },
   beforeUnmount() {
+    window.removeEventListener('resize', this.fitMaster);
     // Invalida la petición de PDF en curso y libera el blob URL.
     this.pdfRequest = (this.pdfRequest || 0) + 1;
     this.pdfUrls?.revoke();
   },
   watch: {
+    /**
+     * Al dividir la pantalla (llega el schema con detalle o se agranda la
+     * ventana) la lista pasa a scrollear adentro: se estira hasta el fondo de
+     * la ventana y deja a la vista la fila elegida, si la hay.
+     */
+    isSplitView(split) {
+      if (!split) return;
+      this.$nextTick(() => {
+        this.fitMaster();
+        this.scrollToSelected();
+      });
+    },
     /**
      * If Path or Query parameters changes then reload all and reset data
      */
@@ -438,10 +466,18 @@ export default {
      * Default splitter Model
      */
     finalSplitterModel() {
-      if (this.isDetailOpened && this.hasFullDetail) {
-        return this.smallscreen ? 0 : 30;
-      }
+      if (this.isSplitView) return 30;
+      if (this.isDetailOpened && this.hasFullDetail) return 0;
       return 99.9;
+    },
+    /**
+     * Maestro y detalle lado a lado: el alto lo pone el detalle y la lista
+     * scrollea adentro (ver .histrix-app--split). En pantalla grande se divide
+     * desde el principio, con el detalle vacío hasta elegir una fila, para que
+     * la lista no salte de ancho al abrirlo.
+     */
+    isSplitView() {
+      return this.hasFullDetail && !this.smallscreen;
     },
     smallscreen() {
       return this.$q.screen.lt.md;
@@ -536,6 +572,27 @@ export default {
     /**
      * Open detail with row Attributes
      */
+    /**
+     * Alto mínimo de la lista dividida: desde donde arranca el splitter hasta
+     * el fondo de la ventana (con la página arriba de todo).
+     */
+    fitMaster() {
+      const el = this.$refs.splitter?.$el;
+      if (!this.isSplitView || !el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      this.masterMinHeight = Math.max(window.innerHeight - top, 300);
+    },
+    /**
+     * Lleva la fila elegida a la vista dentro de la lista, sin mover la página.
+     */
+    scrollToSelected() {
+      const master = this.$refs.splitter?.$el.querySelector(':scope > .q-splitter__before > .histrix-app__master');
+      const row = master?.querySelector('.histrix-row--selected');
+      if (!row) return;
+      const offset = row.getBoundingClientRect().top - master.getBoundingClientRect().top;
+      const visible = offset >= 0 && offset + row.offsetHeight <= master.clientHeight;
+      if (!visible) master.scrollTop += offset - master.clientHeight / 3;
+    },
     openDetail($rowAttr) {
       this.selected = $rowAttr;
       this.detailQuery = new URLSearchParams($rowAttr.detailquery);
@@ -758,6 +815,7 @@ export default {
      * get Schema from API
      */
     getSchema() {
+      this.schemaLoading = true;
       this.getAppSchema(this.path, this.query)
         .then((response) => {
           this.resources = response.data.resources;
@@ -775,6 +833,9 @@ export default {
         .catch((e) => {
           this.dialog = true;
           this.message = `${this.t('app.schemaError')}: ${e.message}`;
+        })
+        .finally(() => {
+          this.schemaLoading = false;
         });
     },
     /**
@@ -816,6 +877,8 @@ export default {
   },
   data() {
     return {
+      masterMinHeight: null,
+      schemaLoading: false,
       step: 1, // default initial Step
       validity: true,
       processing: false,
@@ -857,5 +920,30 @@ export default {
 .q-splitter__before,
 .q-splitter__after {
   overflow: inherit;
+}
+
+/* Maestro-detalle dividido: la lista sale del flujo (absolute) y no suma alto,
+   así el alto de la fila lo pone el detalle; el panel de la lista se estira a
+   ese alto y scrollea adentro. El min-height (hasta el fondo de la ventana,
+   ver fitMaster) cubre un detalle cargando o corto.
+   El height: auto pisa el 100% de Quasar, que con el splitter de alto
+   automático no deja estirar el panel. Con `>` para no tocar los splitters
+   anidados del detalle. */
+.histrix-app--split.q-splitter--vertical > .q-splitter__before {
+  position: relative;
+  height: auto;
+  align-self: stretch;
+  min-height: var(--histrix-master-min-height, 50vh);
+}
+
+.histrix-app__detail-empty,
+.histrix-app--split > .q-splitter__after > div > .histrix-app__loading {
+  min-height: 50vh;
+}
+
+.histrix-app--split.q-splitter--vertical > .q-splitter__before > .histrix-app__master {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
 }
 </style>

@@ -26,6 +26,7 @@ export default {
   'app.confirmation': 'Confirmación',
   'app.back': 'Atras',
   'app.confirm': 'CONFIRMAR',
+  'app.selectRow': 'Elegí un registro de la lista para ver el detalle',
 
   // HistrixPdfViewer
   'pdf.download': 'Descargar',
