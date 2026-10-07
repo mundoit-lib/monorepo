@@ -151,6 +151,10 @@
             :query="detailQuery"
             v-on:process-finish="refreshMaster"
           />
+          <div v-else-if="isSplitView" class="histrix-app__detail-empty column flex-center text-grey-6 q-pa-xl">
+            <q-icon name="touch_app" size="48px" />
+            <div class="q-mt-sm">{{ t('app.selectRow') }}</div>
+          </div>
           <q-page-sticky position="bottom-right" :offset="[20, 10]">
             <q-btn icon="arrow_back" color="accent" fab @click="closeDetail()" v-if="smallscreen && isDetailOpened" />
           </q-page-sticky>
@@ -332,9 +336,9 @@ export default {
   },
   watch: {
     /**
-     * Al dividir la pantalla la lista pasa a scrollear adentro: se estira hasta
-     * el fondo de la ventana mientras carga el detalle y deja a la vista la
-     * fila elegida, que con la lista entera podía estar mucho más abajo.
+     * Al dividir la pantalla (llega el schema con detalle o se agranda la
+     * ventana) la lista pasa a scrollear adentro: se estira hasta el fondo de
+     * la ventana y deja a la vista la fila elegida, si la hay.
      */
     isSplitView(split) {
       if (!split) return;
@@ -457,17 +461,18 @@ export default {
      * Default splitter Model
      */
     finalSplitterModel() {
-      if (this.isDetailOpened && this.hasFullDetail) {
-        return this.smallscreen ? 0 : 30;
-      }
+      if (this.isSplitView) return 30;
+      if (this.isDetailOpened && this.hasFullDetail) return 0;
       return 99.9;
     },
     /**
      * Maestro y detalle lado a lado: el alto lo pone el detalle y la lista
-     * scrollea adentro (ver .histrix-app--split).
+     * scrollea adentro (ver .histrix-app--split). En pantalla grande se divide
+     * desde el principio, con el detalle vacío hasta elegir una fila, para que
+     * la lista no salte de ancho al abrirlo.
      */
     isSplitView() {
-      return this.isDetailOpened && this.hasFullDetail && !this.smallscreen;
+      return this.hasFullDetail && !this.smallscreen;
     },
     smallscreen() {
       return this.$q.screen.lt.md;
@@ -919,6 +924,10 @@ export default {
   height: auto;
   align-self: stretch;
   min-height: var(--histrix-master-min-height, 50vh);
+}
+
+.histrix-app__detail-empty {
+  min-height: 50vh;
 }
 
 .histrix-app--split.q-splitter--vertical > .q-splitter__before > .histrix-app__master {

@@ -23,6 +23,7 @@ export default {
   'app.confirmation': 'Confirmation',
   'app.back': 'Back',
   'app.confirm': 'CONFIRM',
+  'app.selectRow': 'Pick a row from the list to see its detail',
 
   // HistrixPdfViewer
   'pdf.download': 'Download',
