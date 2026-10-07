@@ -53,7 +53,7 @@
           times_new_roman: 'Times New Roman',
           verdana: 'Verdana'
         }"
-        :size="size"
+        :size="histrixType === 'q-select' ? undefined : size"
         :use-chips="isMultiple"
         :multiple="isMultiple"
         :autogrow="isTextarea"
@@ -815,6 +815,11 @@ export default {
     isViewAddButton() {
       return !!this.fieldSchema?.helpers?.link;
     },
+    /**
+     * `size` del schema (ancho en caracteres del legacy). No va al QSelect: con
+     * use-input lo baja al <input> nativo, que pide ese ancho mínimo y estira el
+     * campo fuera de la columna en celular (la flecha queda afuera).
+     */
     size() {
       return this.fieldSchema.size.toString();
     },
