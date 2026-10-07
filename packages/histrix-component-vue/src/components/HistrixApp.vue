@@ -14,7 +14,7 @@
         v-model="finalSplitterModel"
         ref="splitter"
         class="fit"
-        :class="{ 'histrix-app--split': isSplitView }"
+        :class="{ 'histrix-app--split': isSplitView, 'histrix-app--detail-full': isDetailFull }"
         :style="masterMinHeight ? { '--histrix-master-min-height': `${masterMinHeight}px` } : null"
         style="overflow: hidden"
         :limits="[0, Infinity]"
@@ -161,7 +161,13 @@
             <div class="q-mt-sm">{{ t('app.selectRow') }}</div>
           </div>
           <q-page-sticky position="bottom-right" :offset="[20, 10]">
-            <q-btn icon="arrow_back" color="accent" fab @click="closeDetail()" v-if="smallscreen && isDetailOpened" />
+            <q-btn
+              icon="arrow_back"
+              color="accent"
+              fab
+              @click="backFromDetail()"
+              v-if="smallscreen && isDetailOpened"
+            />
           </q-page-sticky>
         </template>
       </q-splitter>
@@ -332,9 +338,11 @@ export default {
     this.closeDetail();
     this.localValue = this.modelValue;
     window.addEventListener('resize', this.fitMaster);
+    window.addEventListener('popstate', this.onPopState);
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.fitMaster);
+    window.removeEventListener('popstate', this.onPopState);
     // Invalida la petición de PDF en curso y libera el blob URL.
     this.pdfRequest = (this.pdfRequest || 0) + 1;
     this.pdfUrls?.revoke();
@@ -479,6 +487,10 @@ export default {
     isSplitView() {
       return this.hasFullDetail && !this.smallscreen;
     },
+    /** Pantalla chica con el detalle abierto: ocupa todo, la lista se oculta. */
+    isDetailFull() {
+      return this.smallscreen && this.isDetailOpened && this.hasFullDetail;
+    },
     smallscreen() {
       return this.$q.screen.lt.md;
     },
@@ -599,6 +611,7 @@ export default {
       this.detailPath = $rowAttr.detailpath;
       this.detailKey = `${$rowAttr.detailpath}?${this.detailQuery}`;
       this.isDetailOpened = true;
+      if (this.smallscreen && this.hasFullDetail) this.pushDetailHistory();
     },
     /**
      * Valida el contenedor hijo (form) antes de avanzar de paso en el stepper.
@@ -635,6 +648,42 @@ export default {
     },
     closeDetail() {
       this.isDetailOpened = false;
+      if (this.smallscreen) this.detailPath = '';
+    },
+    /**
+     * En pantalla chica el detalle ocupa toda la pantalla, como otra página:
+     * se agrega una entrada al historial (misma URL, sin pasar por el router
+     * para no recargar la lista) y el atrás del navegador o el gesto lo
+     * cierran. El token identifica la entrada de esta app, por si hay detalles
+     * anidados.
+     */
+    pushDetailHistory() {
+      if (this.historyToken) return;
+      this.historyToken = `histrix-detail-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      this.listScrollY = window.scrollY;
+      const state = window.history.state || {};
+      const open = Array.isArray(state.histrixDetail) ? state.histrixDetail : [];
+      window.history.pushState({ ...state, histrixDetail: [...open, this.historyToken] }, '');
+      window.scrollTo(0, 0);
+    },
+    /**
+     * Atrás del navegador: si la entrada de este detalle ya no está en el
+     * historial, se cierra y la lista vuelve a donde estaba (después del
+     * scroll que haga el router de la app).
+     */
+    onPopState() {
+      if (!this.historyToken) return;
+      const open = window.history.state?.histrixDetail;
+      if (Array.isArray(open) && open.includes(this.historyToken)) return;
+      this.historyToken = null;
+      this.closeDetail();
+      const y = this.listScrollY;
+      this.$nextTick(() => requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y))));
+    },
+    /** Botón de volver del detalle: mismo camino que el atrás del navegador. */
+    backFromDetail() {
+      if (this.historyToken) window.history.back();
+      else this.closeDetail();
     },
 
     togglePdf() {
@@ -878,6 +927,8 @@ export default {
   data() {
     return {
       masterMinHeight: null,
+      historyToken: null,
+      listScrollY: 0,
       schemaLoading: false,
       step: 1, // default initial Step
       validity: true,
@@ -934,6 +985,12 @@ export default {
   height: auto;
   align-self: stretch;
   min-height: var(--histrix-master-min-height, 50vh);
+}
+
+/* Detalle a pantalla completa en celular: la lista queda montada (conserva
+   página y filtros) pero oculta, para que no estire la página. */
+.histrix-app--detail-full > .q-splitter__before {
+  display: none;
 }
 
 .histrix-app__detail-empty,
