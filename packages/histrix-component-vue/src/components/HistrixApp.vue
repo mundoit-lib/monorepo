@@ -7,8 +7,10 @@
     <template v-if="!isPdf">
       <q-splitter
         v-model="finalSplitterModel"
+        ref="splitter"
         class="fit"
         :class="{ 'histrix-app--split': isSplitView }"
+        :style="masterMinHeight ? { '--histrix-master-min-height': `${masterMinHeight}px` } : null"
         style="overflow: hidden"
         :limits="[0, Infinity]"
         :separator-class="this.smallscreen || !hasFullDetail ? 'hidden' : ''"
@@ -320,13 +322,27 @@ export default {
     this.detailPath = '';
     this.closeDetail();
     this.localValue = this.modelValue;
+    window.addEventListener('resize', this.fitMaster);
   },
   beforeUnmount() {
+    window.removeEventListener('resize', this.fitMaster);
     // Invalida la petición de PDF en curso y libera el blob URL.
     this.pdfRequest = (this.pdfRequest || 0) + 1;
     this.pdfUrls?.revoke();
   },
   watch: {
+    /**
+     * Al dividir la pantalla la lista pasa a scrollear adentro: se estira hasta
+     * el fondo de la ventana mientras carga el detalle y deja a la vista la
+     * fila elegida, que con la lista entera podía estar mucho más abajo.
+     */
+    isSplitView(split) {
+      if (!split) return;
+      this.$nextTick(() => {
+        this.fitMaster();
+        this.scrollToSelected();
+      });
+    },
     /**
      * If Path or Query parameters changes then reload all and reset data
      */
@@ -546,6 +562,27 @@ export default {
     /**
      * Open detail with row Attributes
      */
+    /**
+     * Alto mínimo de la lista dividida: desde donde arranca el splitter hasta
+     * el fondo de la ventana (con la página arriba de todo).
+     */
+    fitMaster() {
+      const el = this.$refs.splitter?.$el;
+      if (!this.isSplitView || !el) return;
+      const top = el.getBoundingClientRect().top + window.scrollY;
+      this.masterMinHeight = Math.max(window.innerHeight - top, 300);
+    },
+    /**
+     * Lleva la fila elegida a la vista dentro de la lista, sin mover la página.
+     */
+    scrollToSelected() {
+      const master = this.$refs.splitter?.$el.querySelector(':scope > .q-splitter__before > .histrix-app__master');
+      const row = master?.querySelector('.histrix-row--selected');
+      if (!row) return;
+      const offset = row.getBoundingClientRect().top - master.getBoundingClientRect().top;
+      const visible = offset >= 0 && offset + row.offsetHeight <= master.clientHeight;
+      if (!visible) master.scrollTop += offset - master.clientHeight / 3;
+    },
     openDetail($rowAttr) {
       this.selected = $rowAttr;
       this.detailQuery = new URLSearchParams($rowAttr.detailquery);
@@ -826,6 +863,7 @@ export default {
   },
   data() {
     return {
+      masterMinHeight: null,
       step: 1, // default initial Step
       validity: true,
       processing: false,
@@ -871,7 +909,8 @@ export default {
 
 /* Maestro-detalle dividido: la lista sale del flujo (absolute) y no suma alto,
    así el alto de la fila lo pone el detalle; el panel de la lista se estira a
-   ese alto y scrollea adentro. El min-height cubre un detalle cargando o corto.
+   ese alto y scrollea adentro. El min-height (hasta el fondo de la ventana,
+   ver fitMaster) cubre un detalle cargando o corto.
    El height: auto pisa el 100% de Quasar, que con el splitter de alto
    automático no deja estirar el panel. Con `>` para no tocar los splitters
    anidados del detalle. */
@@ -879,7 +918,7 @@ export default {
   position: relative;
   height: auto;
   align-self: stretch;
-  min-height: 50vh;
+  min-height: var(--histrix-master-min-height, 50vh);
 }
 
 .histrix-app--split.q-splitter--vertical > .q-splitter__before > .histrix-app__master {
