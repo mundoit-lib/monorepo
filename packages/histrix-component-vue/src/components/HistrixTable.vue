@@ -363,8 +363,8 @@
                   dense
                   color="accent"
                   v-if="hasDetail(props)"
-                  @click="props.expand = !props.expand"
-                  :icon="props.expand ? 'remove' : 'add'"
+                  @click="schema.inline_detail ? (props.expand = !props.expand) : openRowDetail(props)"
+                  :icon="props.expand ? 'remove' : schema.inline_detail ? 'add' : 'chevron_right'"
                   :label="props.expand ? t('common.close') : t('table.detail')"
                   size="sm"
                   no-caps
@@ -1183,6 +1183,15 @@ export default {
           schema: this.schema
         });
       }
+    },
+    /**
+     * Tarjeta del celular con detalle completo (no inline): se abre a pantalla
+     * completa en la HistrixApp, como el click en la fila de la tabla, en vez
+     * de expandirse dentro de la tarjeta.
+     */
+    openRowDetail(props) {
+      this.selectedId = props.row._id ?? null;
+      this.$emit('open-detail', props.row.DT_RowAttr);
     },
     detailPath(props) {
       const { row } = props;

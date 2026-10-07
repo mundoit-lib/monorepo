@@ -133,7 +133,7 @@
             :label="t('common.cancel')"
             icon="close"
             class="nojustify-end flat"
-            @click="closePopup"
+            @click="cancel"
             type="reset"
             v-if="insertButton || updateButton"
           />
@@ -489,6 +489,11 @@ export default {
     closePopup() {
       this.$emit('closepopup');
     },
+    /** Cancelar: además de cerrar el popup, avisa aparte (el detalle se cierra; al grabar no). */
+    cancel() {
+      this.$emit('cancel');
+      this.closePopup();
+    },
     /**
      * Texto del botón de acción: el label viene del valor del campo (p. ej.
      * "Orden de Trabajo de Obra"), con fallback al title/name del schema.
@@ -842,6 +847,7 @@ export default {
     return {};
   },
   emits: [
+    'cancel',
     'valueEdit',
     'update:modelValue',
     'validity',

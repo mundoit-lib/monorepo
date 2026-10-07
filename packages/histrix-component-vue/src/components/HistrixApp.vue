@@ -14,7 +14,7 @@
         v-model="finalSplitterModel"
         ref="splitter"
         class="fit"
-        :class="{ 'histrix-app--split': isSplitView }"
+        :class="{ 'histrix-app--split': isSplitView, 'histrix-app--detail-full': isDetailFull }"
         :style="masterMinHeight ? { '--histrix-master-min-height': `${masterMinHeight}px` } : null"
         style="overflow: hidden"
         :limits="[0, Infinity]"
@@ -50,6 +50,7 @@
                 v-on:open-detail="openDetail"
                 v-on:open-popup="showLinkDialog"
                 v-on:closepopup="closePopup"
+                v-on:cancel="$emit('cancel')"
                 v-on:computed-total="onComputedTotal"
                 v-on:select-row="selectRow"
                 v-on:export="showExportForm"
@@ -155,13 +156,20 @@
             :path="detailPath"
             :query="detailQuery"
             v-on:process-finish="refreshMaster"
+            v-on:cancel="cancelDetail"
           />
           <div v-else-if="isSplitView" class="histrix-app__detail-empty column flex-center text-grey-6 q-pa-xl">
             <q-icon name="touch_app" size="48px" />
             <div class="q-mt-sm">{{ t('app.selectRow') }}</div>
           </div>
           <q-page-sticky position="bottom-right" :offset="[20, 10]">
-            <q-btn icon="arrow_back" color="accent" fab @click="closeDetail()" v-if="smallscreen && isDetailOpened" />
+            <q-btn
+              icon="arrow_back"
+              color="accent"
+              fab
+              @click="backFromDetail()"
+              v-if="smallscreen && isDetailOpened"
+            />
           </q-page-sticky>
         </template>
       </q-splitter>
@@ -332,9 +340,11 @@ export default {
     this.closeDetail();
     this.localValue = this.modelValue;
     window.addEventListener('resize', this.fitMaster);
+    window.addEventListener('popstate', this.onPopState);
   },
   beforeUnmount() {
     window.removeEventListener('resize', this.fitMaster);
+    window.removeEventListener('popstate', this.onPopState);
     // Invalida la petición de PDF en curso y libera el blob URL.
     this.pdfRequest = (this.pdfRequest || 0) + 1;
     this.pdfUrls?.revoke();
@@ -479,6 +489,10 @@ export default {
     isSplitView() {
       return this.hasFullDetail && !this.smallscreen;
     },
+    /** Pantalla chica con el detalle abierto: ocupa todo, la lista se oculta. */
+    isDetailFull() {
+      return this.smallscreen && this.isDetailOpened && this.hasFullDetail;
+    },
     smallscreen() {
       return this.$q.screen.lt.md;
     },
@@ -531,7 +545,15 @@ export default {
       return `${this.apiUrl}/vue/${this.path}`;
     }
   },
-  emits: ['update:modelValue', 'advance-step', 'process-finish', 'select-row', 'computed-total', 'closepopup'],
+  emits: [
+    'update:modelValue',
+    'advance-step',
+    'process-finish',
+    'select-row',
+    'computed-total',
+    'closepopup',
+    'cancel'
+  ],
   methods: {
     hashcode(s) {
       return Math.abs(
@@ -599,6 +621,7 @@ export default {
       this.detailPath = $rowAttr.detailpath;
       this.detailKey = `${$rowAttr.detailpath}?${this.detailQuery}`;
       this.isDetailOpened = true;
+      if (this.smallscreen && this.hasFullDetail) this.pushDetailHistory();
     },
     /**
      * Valida el contenedor hijo (form) antes de avanzar de paso en el stepper.
@@ -635,6 +658,80 @@ export default {
     },
     closeDetail() {
       this.isDetailOpened = false;
+      if (this.smallscreen) this.detailPath = '';
+    },
+    /**
+     * En pantalla chica el detalle ocupa toda la pantalla, como otra página:
+     * se agrega una entrada al historial (misma URL, sin pasar por el router
+     * para no recargar la lista) y el atrás del navegador o el gesto lo
+     * cierran. La entrada guarda qué detalle estaba abierto (y dónde estaba la
+     * lista): si se sale a otra pantalla con el detalle abierto, al volver se
+     * reabre en lugar de mostrar la lista dos veces. `path` identifica a qué
+     * app es, por si hay detalles anidados.
+     */
+    pushDetailHistory() {
+      if (this.historyToken) return;
+      this.historyToken = `histrix-detail-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      this.listScrollY = window.scrollY;
+      const state = window.history.state || {};
+      const entry = {
+        token: this.historyToken,
+        path: this.path,
+        detailpath: this.selected.detailpath,
+        detailquery: String(this.detailQuery),
+        scrollY: this.listScrollY
+      };
+      window.history.pushState({ ...state, histrixDetail: [...this.historyDetails(state), entry] }, '');
+      window.scrollTo(0, 0);
+    },
+    /** Detalles abiertos que guarda una entrada del historial. */
+    historyDetails(state) {
+      const open = state?.histrixDetail;
+      return Array.isArray(open) ? open.filter((entry) => entry && typeof entry === 'object') : [];
+    },
+    /**
+     * Deja el detalle como dice la entrada actual del historial: lo abre si la
+     * entrada lo tiene (volver desde otra pantalla, adelante, F5) y lo cierra
+     * si no (atrás), devolviendo la lista a donde estaba.
+     */
+    syncDetailFromHistory() {
+      const entry = this.historyDetails(window.history.state)
+        .filter((item) => item.path === this.path)
+        .pop();
+      if (entry) {
+        if (entry.token === this.historyToken) return;
+        this.historyToken = entry.token;
+        this.listScrollY = entry.scrollY || 0;
+        this.openDetail({ detailpath: entry.detailpath, detailquery: entry.detailquery });
+        return;
+      }
+      if (!this.historyToken) return;
+      this.historyToken = null;
+      this.closeDetail();
+      const y = this.listScrollY;
+      this.$nextTick(() => requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y))));
+    },
+    onPopState() {
+      this.syncDetailFromHistory();
+    },
+    /**
+     * Cancelar del form del detalle: lo cierra (Grabar no). En celular por el
+     * historial, como el atrás; en pantalla grande vuelve el aviso de elegir
+     * una fila y se desmarca la elegida.
+     */
+    cancelDetail() {
+      if (this.historyToken) {
+        window.history.back();
+        return;
+      }
+      this.closeDetail();
+      this.detailPath = '';
+      if (this.$refs.main && 'selectedId' in this.$refs.main) this.$refs.main.selectedId = null;
+    },
+    /** Botón de volver del detalle: mismo camino que el atrás del navegador. */
+    backFromDetail() {
+      if (this.historyToken) window.history.back();
+      else this.closeDetail();
     },
 
     togglePdf() {
@@ -829,6 +926,7 @@ export default {
           }
 
           this.schema.api = this.apiUrl;
+          this.$nextTick(() => this.syncDetailFromHistory());
         })
         .catch((e) => {
           this.dialog = true;
@@ -878,6 +976,8 @@ export default {
   data() {
     return {
       masterMinHeight: null,
+      historyToken: null,
+      listScrollY: 0,
       schemaLoading: false,
       step: 1, // default initial Step
       validity: true,
@@ -934,6 +1034,12 @@ export default {
   height: auto;
   align-self: stretch;
   min-height: var(--histrix-master-min-height, 50vh);
+}
+
+/* Detalle a pantalla completa en celular: la lista queda montada (conserva
+   página y filtros) pero oculta, para que no estire la página. */
+.histrix-app--detail-full > .q-splitter__before {
+  display: none;
 }
 
 .histrix-app__detail-empty,
