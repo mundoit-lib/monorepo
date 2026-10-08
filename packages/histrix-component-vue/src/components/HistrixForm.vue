@@ -76,7 +76,7 @@
                       />
 
                       <HistrixField
-                        :key="containerKey(field)"
+                        ref="mainFields"
                         :model-value="localValues[field.name]"
                         @update:model-value="localValues[field.name] = $event"
                         :name="field.name"
@@ -109,7 +109,7 @@
             </q-tab-panel>
             <q-tab-panel v-for="field in innerTabs" :name="field.name" v-bind:key="field.name">
               <HistrixField
-                :key="containerKey(field)"
+                ref="tabFields"
                 :model-value="localValues[field.name]"
                 @update:model-value="localValues[field.name] = $event"
                 :name="field.name"
@@ -594,24 +594,29 @@ export default {
       this.reloadScreen();
     },
     /**
-     * Vuelve a pedir los datos del form (si los había pedido) y remonta los
-     * contenedores internos para que pidan los suyos. El hijo avisa más de una
-     * vez por proceso (su form y su closePopup): se recarga una sola vez.
+     * Vuelve a pedir los datos del form (si los había pedido) y los de sus
+     * contenedores internos, sin rearmarlos: las grillas conservan lo que
+     * muestran y su loading indica la recarga. El hijo avisa más de una vez por
+     * proceso (su form y su closePopup): se recarga una sola vez.
      */
     reloadScreen() {
       if (this.reloadQueued) return;
       this.reloadQueued = true;
       this.$nextTick(() => {
         this.reloadQueued = false;
-        if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
-          this.getData();
-        }
-        this.containersReload += 1;
+        this.reloadData();
       });
     },
-    /** Key de un campo: los contenedores internos cambian con cada recarga. */
-    containerKey(field) {
-      return field.innerContainer ? `${field.name}-${this.containersReload}` : field.name;
+    /** Recarga del form (también la usa HistrixApp.reload si es la pantalla). */
+    reloadData() {
+      if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
+        this.getData();
+      }
+      for (const field of [...(this.$refs.mainFields || []), ...(this.$refs.tabFields || [])]) {
+        if (field?.fieldSchema?.innerContainer) {
+          field.reload();
+        }
+      }
     },
 
     computedPath(field) {
@@ -957,7 +962,6 @@ export default {
       currentTab: 'mainTab',
       valueEdit: false,
       showLinkButtonDialog: false, // modal abierto por un botón de acción (helper.link)
-      containersReload: 0, // se incrementa para remontar (y recargar) los contenedores internos
       reloadQueued: false,
       linkButtonDialog: {} // { path, title, width, query } del botón clickeado
     };

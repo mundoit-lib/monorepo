@@ -538,6 +538,10 @@ export default {
     'cancel'
   ],
   methods: {
+    /** Vuelve a pedir los datos de la pantalla sin rearmarla (la tabla muestra su loading). */
+    reload() {
+      this.$refs.main?.reloadData?.();
+    },
     hashcode(s) {
       return Math.abs(
         s.split('').reduce((a, b) => {

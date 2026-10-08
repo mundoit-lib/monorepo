@@ -7,6 +7,7 @@ export default {
   'common.save': 'Guardar',
   'common.search': 'Buscar',
   'common.searching': 'Buscando...',
+  'common.loading': 'Cargando…',
   'common.noResults': 'Sin resultados',
   'common.export': 'Exportar',
   'common.print': 'Imprimir',

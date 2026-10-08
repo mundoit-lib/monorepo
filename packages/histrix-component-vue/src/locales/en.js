@@ -5,6 +5,7 @@ export default {
   'common.save': 'Save',
   'common.search': 'Search',
   'common.searching': 'Searching...',
+  'common.loading': 'Loading…',
   'common.noResults': 'No results',
   'common.export': 'Export',
   'common.print': 'Print',
