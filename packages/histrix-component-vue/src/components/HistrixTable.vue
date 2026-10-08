@@ -245,6 +245,7 @@
               @update:model-value="setCell(props.key, cell.name, $event)"
               :row="rawRow(props.key)"
               :query="fieldQuerys(cell.name, rawRow(props.key))"
+              :container-query="query"
               :name="cell.name"
               :schema="schema.fields[cell.name]"
               :rowSchema="getRowSchema(props.key, cell.name)"
@@ -301,6 +302,7 @@
                       @update:model-value="setCell(props.key, cell.name, $event)"
                       :row="rawRow(props.key)"
                       :query="fieldQuerys(cell.name, rawRow(props.key))"
+                      :container-query="query"
                       :name="cell.name"
                       :schema="schema.fields[cell.name]"
                       :rowSchema="getRowSchema(props.key, cell.name)"
@@ -446,6 +448,7 @@ import { keyFieldNames } from '../core/keys.js';
 import { normalizeScreenType } from '../core/normalize.js';
 import { formatNumber, isNumericField, numericSpec } from '../core/numeric.js';
 import { buildPageParams, parsePageResponse } from '../core/pagination.js';
+import { newRecordValues } from '../core/values.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
 import { useHistrixNotify } from '../services/notify.js';
@@ -504,7 +507,7 @@ export default {
     HistrixApp
   },
   mounted() {
-    this.editedItem = Object.assign({}, this.schema.values);
+    this.editedItem = newRecordValues(this.schema.values, this.query);
     // Paginación inicial desde el schema: deshabilitada → mostrar todo
     // (rowsPerPage 0); habilitada → arrancar con el page_size del backend.
     this.pagination.rowsPerPage = this.paginationConfig.enabled ? this.paginationConfig.pageSize : 0;
@@ -555,13 +558,15 @@ export default {
       }
     },
     query: {
-      // NO se filtra por preFetch a propósito: este watcher es data-driven (p. ej.
-      // un grid interno que carga cuando el padre le pasa la clave de relación) y
-      // ya tiene su propio guard por contenido. Sólo dispara ante un cambio real.
+      // Sólo ante un cambio real, y respetando preFetch como el resto: un grid
+      // `ing` de alta con preFetch:false (reqo_grid de Tork) no se pide cuando el
+      // padre le pasa la relación (`id_oto=128`); arranca vacío y se carga a mano.
       handler(newVal, oldVal) {
         if (JSON.stringify(newVal) !== JSON.stringify(oldVal)) {
           this.pagination.page = 1;
-          this.getData();
+          if (this.autoFetchAllowed) {
+            this.getData();
+          }
         }
       }
     },
@@ -850,7 +855,7 @@ export default {
      *
      * Antes esto sólo se respetaba en mounted(); los watchers de path/fullQuery y
      * el update:pagination de la q-table llamaban getData() igual. Este gate lo
-     * centraliza. (El watcher de `query` queda afuera a propósito: ver su nota.)
+     * centraliza, también para el watcher de `query` (relación del padre).
      */
     autoFetchAllowed() {
       return this.schema.preFetch === true || this.autoFetchArmed;
@@ -1066,7 +1071,7 @@ export default {
       });
     },
     insertRow() {
-      const item = JSON.parse(JSON.stringify(this.schema.values || {}));
+      const item = newRecordValues(this.schema.values, this.query);
 
       item._id = nextRowId(this.data);
       item._ajax_ = false;
@@ -1322,7 +1327,7 @@ export default {
       }
       this.editedIndex = -1;
       this.newRecord = true;
-      this.editedItem = JSON.parse(JSON.stringify(this.schema.values));
+      this.editedItem = newRecordValues(this.schema.values, this.query);
       this.insertButton = true;
       this.edit = true;
     },

@@ -47,8 +47,9 @@
 </template>
 
 <script>
+import { buildHelpQuery } from '../core/help.js';
 import { joinDirXml, parseHelpDetail, parseSchemaUri } from '../core/schemaUri.js';
-import { compactValues, omit, pick } from '../core/values.js';
+import { omit } from '../core/values.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
@@ -71,6 +72,12 @@ export default {
     helpContainer: { type: Object, required: true },
     // Estado actual del form (localValues). Se manda completo en cada búsqueda.
     formValues: { type: Object, default: () => ({}) },
+    // Query del campo (fieldQuerys[campo]): filtro que le pasa el contenedor,
+    // p. ej. { id_oto: 31 }. Sus valores escalares viajan en la búsqueda.
+    query: { type: Object, default: () => ({}) },
+    // Query del contenedor que la ayuda consulta con `__help` (p. ej. la de
+    // reqo_grid: { id_oto: 31 }).
+    containerQuery: { type: Object, default: () => ({}) },
     label: { type: String, default: '' },
     // Término de búsqueda vivo: lo maneja el campo padre (typeahead). Cada cambio
     // recarga la lista (con debounce). El buscador interno del popup lo refleja.
@@ -176,20 +183,14 @@ export default {
         return;
       }
       this.loading = true;
-      // Sólo se mandan los campos de contexto que pide el backend (context_fields)
-      // y únicamente si tienen valor. Fallback (schema viejo sin context_fields):
-      // todos los values no vacíos menos el propio campo de la ayuda (que ya viaja
-      // en __help). En ambos casos `term` es el texto de búsqueda y va siempre.
-      const help = this.helpContainer;
-      let values;
-      if (Array.isArray(help.context_fields)) {
-        values = compactValues(pick(this.cleanFormValues, help.context_fields));
-      } else {
-        const helpField = params.__help || help.help_field;
-        values = omit(compactValues(this.cleanFormValues), helpField);
-      }
-      // params (__help, etc.) van después para que ningún value los pise.
-      const query = { ...values, ...params, term: this.search ?? '' };
+      const query = buildHelpQuery({
+        helpContainer: this.helpContainer,
+        formValues: this.cleanFormValues,
+        containerQuery: this.containerQuery,
+        fieldQuery: this.query,
+        params,
+        term: this.search
+      });
       this.getAppData(path, query)
         .then((response) => {
           const data = response.data?.data || [];

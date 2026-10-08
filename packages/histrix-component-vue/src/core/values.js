@@ -80,3 +80,54 @@ export function pick(obj, keys) {
   }
   return out;
 }
+
+/** ¿Es la query anidada de un campo? (`{ campo: { param: valor } }`). */
+const isFieldQuery = (value) =>
+  (value !== null && typeof value === 'object' && !Array.isArray(value)) || typeof value === 'function';
+
+/**
+ * Valores que aporta la query externa al estado del form.
+ *
+ * Una entrada objeto de la query no es un valor: es la query anidada de un
+ * campo (`{ campo: { param: valor } }`, ver `fieldQuerys`/`buildFieldQueries`).
+ * Copiarla al campo lo mostraba como `[object Object]`. Los arrays sí se
+ * copian (multiselect).
+ *
+ * @param {Object<string, any>} query
+ * @returns {Object<string, any>}
+ */
+export function queryValues(query) {
+  const out = {};
+  if (!query || typeof query !== 'object') {
+    return out;
+  }
+  for (const key in query) {
+    if (!isFieldQuery(query[key])) {
+      out[key] = query[key];
+    }
+  }
+  return out;
+}
+
+/**
+ * Valores iniciales de un registro nuevo sin los campos que en la query son
+ * queries anidadas.
+ *
+ * El backend refleja en `schema.values` la query con la que se pidió el schema:
+ * una query anidada (`campo[param]=`) vuelve como `campo: { param: '' }` y el
+ * alta la mostraba como `[object Object]`. Si el valor es ese objeto se
+ * descarta; uno escalar se conserva.
+ *
+ * @param {Object<string, any>} values - p. ej. `schema.values`.
+ * @param {Object<string, any>} [query] - query externa del componente.
+ * @returns {Object<string, any>} copia (no comparte objetos con `values`).
+ */
+export function newRecordValues(values, query) {
+  const out = values && typeof values === 'object' ? JSON.parse(JSON.stringify(values)) : {};
+  for (const key in query || {}) {
+    if (isFieldQuery(query[key]) && isFieldQuery(out[key])) {
+      delete out[key];
+    }
+  }
+  return out;
+}

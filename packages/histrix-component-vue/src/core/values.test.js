@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compactValues, omit, pick } from './values.js';
+import { compactValues, newRecordValues, omit, pick, queryValues } from './values.js';
 
 describe('compactValues', () => {
   it('elimina strings vacíos, null y undefined', () => {
@@ -85,5 +85,47 @@ describe('pick', () => {
   it('devuelve {} para entradas inválidas', () => {
     expect(pick(null, ['a'])).toEqual({});
     expect(pick({ a: 1 }, null)).toEqual({});
+  });
+});
+
+describe('queryValues', () => {
+  it('copia los valores escalares de la query', () => {
+    expect(queryValues({ id_oto: 31, nombre: 'x', vacio: '', cero: 0 })).toEqual({
+      id_oto: 31,
+      nombre: 'x',
+      vacio: '',
+      cero: 0
+    });
+  });
+
+  it('no copia las queries anidadas de un campo (caso reqo_grid de Tork)', () => {
+    expect(queryValues({ codigo_detalle: { id_oto: 31 }, id_oto: 31 })).toEqual({ id_oto: 31 });
+  });
+
+  it('conserva arrays y tolera query vacía', () => {
+    expect(queryValues({ ids: [1, 2] })).toEqual({ ids: [1, 2] });
+    expect(queryValues(undefined)).toEqual({});
+  });
+});
+
+describe('newRecordValues', () => {
+  // reqo_grid de Tork: el schema se pide con codigo_detalle[id_oto]= y el
+  // backend lo devuelve en schema.values.
+  const values = { id_oto: '', _ORDEN: 1, codigo_detalle: { id_oto: '' }, cantidad_detalle: '' };
+  const query = { codigo_detalle: { id_oto: 31 } };
+
+  it('descarta los valores que son el eco de una query anidada', () => {
+    expect(newRecordValues(values, query)).toEqual({ id_oto: '', _ORDEN: 1, cantidad_detalle: '' });
+  });
+
+  it('conserva un valor escalar aunque el campo tenga query anidada', () => {
+    expect(newRecordValues({ codigo_detalle: 'A1' }, query)).toEqual({ codigo_detalle: 'A1' });
+  });
+
+  it('sin query devuelve una copia profunda', () => {
+    const out = newRecordValues(values);
+    expect(out).toEqual(values);
+    expect(out.codigo_detalle).not.toBe(values.codigo_detalle);
+    expect(newRecordValues(undefined, query)).toEqual({});
   });
 });

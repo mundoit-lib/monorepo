@@ -42,9 +42,25 @@ describe('buildFieldQueries', () => {
     expect(buildFieldQueries(fields, { a: { value: 7 } })).toEqual({ b: { t: 7 } });
   });
 
-  it('update_fields con parentField anida la query del campo interno', () => {
+  it('update_fields con parentField manda targetField plano al contenedor', () => {
     const fields = { a: { name: 'a', update_fields: [{ parentField: 'grid', field: 'b', targetField: 't' }] } };
-    expect(buildFieldQueries(fields, { a: 3 })).toEqual({ grid: { b: { t: 3 } } });
+    expect(buildFieldQueries(fields, { a: 3 })).toEqual({ grid: { t: 3 } });
+  });
+
+  it('parentField se suma a la relationship del contenedor (reqo_grid de Tork)', () => {
+    const fields = {
+      id_oto: {
+        name: 'id_oto',
+        update_fields: [
+          { field: 'codigo_detalle', targetField: 'id_oto', xml: 'reqo_grid.xml', parentField: 'detalle_reqo' }
+        ]
+      },
+      detalle_reqo: {
+        name: 'detalle_reqo',
+        innerContainer: { xml: 'reqo_grid.xml', relationship: { id_oto: { valor: 'id_oto' } } }
+      }
+    };
+    expect(buildFieldQueries(fields, { id_oto: 31 })).toEqual({ detalle_reqo: { id_oto: 31 } });
   });
 
   it('copia las entradas objeto de la query externa', () => {
