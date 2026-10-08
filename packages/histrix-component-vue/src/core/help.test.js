@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildHelpQuery, helpPageParams, parseHelpPage } from './help.js';
+import { buildHelpQuery, helpMenuPlacement, helpPageParams, parseHelpPage } from './help.js';
 
 describe('buildHelpQuery', () => {
   // codigo_detalle de reqo_grid (Tork): context_fields vacío, la OTO llega por
@@ -95,5 +95,23 @@ describe('parseHelpPage', () => {
   it('sin pagination vino completa', () => {
     expect(parseHelpPage({ data: [{ id: 1 }] })).toEqual({ rows: [{ id: 1 }], total: 1, paged: false });
     expect(parseHelpPage(undefined)).toEqual({ rows: [], total: 0, paged: false });
+  });
+});
+
+describe('helpMenuPlacement', () => {
+  it('abre hacia abajo con el espacio que queda (campo a media pantalla)', () => {
+    expect(helpMenuPlacement({ top: 358, bottom: 398 }, 900)).toEqual({
+      anchor: 'bottom left',
+      self: 'top left',
+      maxHeight: '490px'
+    });
+  });
+
+  it('cerca del borde de abajo abre hacia arriba', () => {
+    expect(helpMenuPlacement({ top: 760, bottom: 800 }, 900)).toEqual({
+      anchor: 'top left',
+      self: 'bottom left',
+      maxHeight: '748px'
+    });
   });
 });

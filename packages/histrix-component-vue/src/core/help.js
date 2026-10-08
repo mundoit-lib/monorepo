@@ -80,3 +80,27 @@ export function parseHelpPage(body) {
   }
   return { rows, total: rows.length, paged: false };
 }
+
+/** Alto mínimo útil del popup de ayuda (buscador + algunas filas + paginación). */
+const HELP_MIN_HEIGHT = 320;
+const HELP_MARGIN = 12;
+
+/**
+ * Dónde abrir el popup de ayuda y con qué alto máximo, según el lugar del campo
+ * en la pantalla. Quasar posiciona el q-menu con CSS anchor positioning y no
+ * resta el espacio ocupado: con muchas filas por página se salía por abajo y la
+ * paginación quedaba inalcanzable. Abre hacia abajo con el espacio que queda; si
+ * abajo no entra lo mínimo y arriba hay más, abre hacia arriba.
+ *
+ * @param {{ top: number, bottom: number }} rect - getBoundingClientRect del campo.
+ * @param {number} viewportHeight - window.innerHeight.
+ * @returns {{ anchor: string, self: string, maxHeight: string }}
+ */
+export function helpMenuPlacement(rect, viewportHeight) {
+  const below = viewportHeight - rect.bottom - HELP_MARGIN;
+  const above = rect.top - HELP_MARGIN;
+  if (below >= HELP_MIN_HEIGHT || below >= above) {
+    return { anchor: 'bottom left', self: 'top left', maxHeight: `${Math.max(below, 0)}px` };
+  }
+  return { anchor: 'top left', self: 'bottom left', maxHeight: `${Math.max(above, 0)}px` };
+}

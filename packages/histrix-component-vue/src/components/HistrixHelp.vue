@@ -270,3 +270,35 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Con muchas filas por página la ayuda se salía de la pantalla y la paginación
+   quedaba inalcanzable. La card toma el alto que Quasar le da al q-menu (lo
+   ajusta al espacio disponible) y sólo las filas scrollean, con el encabezado
+   fijo: el buscador y la paginación quedan siempre a la vista. */
+.histrix-help {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.histrix-help > .q-card__section:last-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.histrix-help .q-table__container {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.histrix-help .q-table__middle {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 60vh;
+}
+.histrix-help thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+</style>

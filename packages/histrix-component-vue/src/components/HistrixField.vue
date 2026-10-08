@@ -105,8 +105,9 @@
             no-parent-event
             no-focus
             no-refocus
-            anchor="bottom left"
-            self="top left"
+            :anchor="helpPlacement.anchor"
+            :self="helpPlacement.self"
+            :max-height="helpPlacement.maxHeight"
             transition-show="scale"
             transition-hide="scale"
           >
@@ -200,6 +201,7 @@ import { QCheckbox, QEditor, QFile, QInput, QOptionGroup, QSelect, QToggle } fro
 import { useVuelidate } from '@vuelidate/core';
 import { email, helpers, maxLength, required } from '@vuelidate/validators';
 import { computedDirectives } from '../core/computedFields.js';
+import { helpMenuPlacement } from '../core/help.js';
 import { computeFormulaFlags, parseDataFormulas } from '../core/dataFormulas.js';
 import { backendDateToDisplay, dateSortParts, displayDateToBackend } from '../core/dates.js';
 import { resolveFieldKind } from '../core/fieldType.js';
@@ -242,6 +244,11 @@ export default {
     return { t: useHistrixI18n().t, v$: useVuelidate(), getAppSchema, getAppData, apiUrl, getToken };
   },
   watch: {
+    showHelp(open) {
+      if (open && this.$el?.getBoundingClientRect) {
+        this.helpPlacement = helpMenuPlacement(this.$el.getBoundingClientRect(), window.innerHeight);
+      }
+    },
     localValue: {
       handler(newVal, _oldVal) {
         if (this.fieldSchema.histrix_type === 'File') {
@@ -625,6 +632,8 @@ export default {
       numericFocused: false, // campo numérico en edición: se muestra el texto tipeado
       numericText: '',
       showHelp: false, // popup de ayuda (typeahead) abierto
+      // Dónde abre la ayuda y su alto máximo (se calcula al abrir, ver helpMenuPlacement).
+      helpPlacement: { anchor: 'bottom left', self: 'top left', maxHeight: '90vh' },
       previewUrl: '--',
       fileManager: false,
       showImage: false,
