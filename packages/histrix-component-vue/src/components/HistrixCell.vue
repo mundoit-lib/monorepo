@@ -17,7 +17,7 @@
       </q-dialog>
     </div>
     <q-btn
-      v-else-if="(col.value && col.value.link && col.value.text) || (col.link && col.value)"
+      v-else-if="(cellLink(col.value) && col.value.text) || (col.link && col.value)"
       :_to="link"
       class="fit"
       dense
@@ -26,7 +26,7 @@
       :icon="icon"
       @click="
         $emit('open-popup', {
-          link: col.value && col.value.link ? col.value.link : null,
+          link: cellLink(col.value) || null,
           title: col.value.text,
           parameters: col.value['linkParameters']
         })
@@ -47,6 +47,7 @@
 
 <script>
 import { mapUiIcon } from '../core/icons.js';
+import { cellLink } from '../core/links.js';
 import { formatNumber, isNumericField, numericSpec } from '../core/numeric.js';
 import useApi from '../services/histrixApi.js';
 
@@ -90,7 +91,7 @@ export default {
       return `https://maps.googleapis.com/maps/api/staticmap?&zoom=7&size=300x300&markers=${this.innerValue}&format=png&style=feature:road|visibility:off&style=feature:administrative.province|element:geometry|weight:3.38|color:0x1e00e6&key=${this.keyGoogleMapsStatic}`;
     },
     link() {
-      if (this.col?.value?.link) {
+      if (cellLink(this.col?.value)) {
         const { link } = this.col.value;
         let path = `${link.dir}/${link.file}`;
 
@@ -198,6 +199,7 @@ export default {
     }
   },
   methods: {
+    cellLink,
     checkIsArray(value) {
       try {
         const temp = JSON.parse(value);

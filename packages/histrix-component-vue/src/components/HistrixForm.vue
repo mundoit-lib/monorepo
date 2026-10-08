@@ -62,11 +62,11 @@
                 >
                   <q-item dense>
                     <q-item-section>
-                      <q-item-label v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']">
+                      <q-item-label v-if="cellLink(editedRow?.[field.name])">
                         {{ field.title }}
                       </q-item-label>
                       <HistrixCell
-                        v-if="editedRow && editedRow[field.name] && editedRow[field.name]['link']"
+                        v-if="cellLink(editedRow?.[field.name])"
                         :path="path"
                         :props="editedRow[field.name]"
                         :schema="field"
@@ -205,7 +205,7 @@ import { changedKeys, evalErrors, runCalcs } from '../core/computedFields.js';
 import { isFocusCandidate, nextFocusable } from '../core/hotkeys.js';
 import { mapUiIcon } from '../core/icons.js';
 import { extractKeys } from '../core/keys.js';
-import { buildLinkParameters, resolveHelperLinkPath } from '../core/links.js';
+import { buildLinkParameters, cellLink, resolveHelperLinkPath } from '../core/links.js';
 import { normalizeScreenType } from '../core/normalize.js';
 import { queryValues } from '../core/values.js';
 import { defineLazyComponent } from '../services/asyncComponents.js';
@@ -518,6 +518,7 @@ export default {
     }
   },
   methods: {
+    cellLink,
     refresh() {
       this.localSchema = this.schema;
       this.localValues = { ...this.editedItem };
