@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { backendDateToDisplay, dateSortParts, displayDateToBackend, formatLocal } from './dates.js';
+import {
+  backendDateToDisplay,
+  dateSortParts,
+  dayNumber,
+  displayDateToBackend,
+  formatLocal,
+  todayDayNumber
+} from './dates.js';
 
 // Estos tests asumen TZ=UTC (fijado en vitest.config.js) para que el ajuste de
 // timezone sea 0 y el resultado sea determinista. La validación en huso real
@@ -61,5 +68,31 @@ describe('displayDateToBackend', () => {
 describe('dateSortParts', () => {
   it('descompone dd/mm/yyyy en [year, month+1, day] (preserva el +1 original)', () => {
     expect(dateSortParts('15/01/2024')).toEqual(['2024', 2, '15']);
+  });
+});
+
+describe('dayNumber', () => {
+  it('días desde 01/01/1970, en ISO (como lo guarda el form) y dd/mm/yyyy', () => {
+    expect(dayNumber('1970-01-01')).toBe(0);
+    expect(dayNumber('1970-01-02')).toBe(1);
+    expect(dayNumber('27/08/2026')).toBe(dayNumber('2026-08-27'));
+    expect(dayNumber('2026-08-27 10:30:00')).toBe(dayNumber('2026-08-27'));
+  });
+
+  it('restar dos fechas da días de diferencia', () => {
+    expect(dayNumber('2026-03-01') - dayNumber('2026-02-27')).toBe(2);
+  });
+
+  it('vacío o no reconocible vale 0', () => {
+    expect(dayNumber('')).toBe(0);
+    expect(dayNumber(null)).toBe(0);
+    expect(dayNumber('mañana')).toBe(0);
+  });
+});
+
+describe('todayDayNumber', () => {
+  it('usa la fecha local, sin la hora', () => {
+    expect(todayDayNumber(new Date(2026, 7, 27, 23, 59))).toBe(dayNumber('2026-08-27'));
+    expect(todayDayNumber(new Date(2026, 7, 27, 0, 1))).toBe(dayNumber('27/08/2026'));
   });
 });

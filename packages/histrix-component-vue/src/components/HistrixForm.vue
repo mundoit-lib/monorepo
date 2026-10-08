@@ -201,7 +201,7 @@
 <script>
 import { useVuelidate } from '@vuelidate/core';
 import { isFieldEditable as isFieldEditablePure, isInnerTab } from '../core/fieldVisibility.js';
-import { evalErrors, runCalcs } from '../core/computedFields.js';
+import { changedKeys, evalErrors, runCalcs } from '../core/computedFields.js';
 import { isFocusCandidate, nextFocusable } from '../core/hotkeys.js';
 import { mapUiIcon } from '../core/icons.js';
 import { extractKeys } from '../core/keys.js';
@@ -230,6 +230,9 @@ export default {
     editedItem: null,
     editedRow: null,
     editedIndex: null,
+    // Lo pasa HistrixApp a tabla y form; el form calcula desde localSchema.fields
+    // (computed_fields por campo, ver core/computedFields.js). Declarada para que
+    // no caiga como atributo en el DOM.
     computedFields: Object,
     // Enter en el último campo graba el form. Por defecto no: evita
     // grabaciones accidentales en carga intensiva (comprobantes).
@@ -291,10 +294,14 @@ export default {
     hasEvalErrors() {
       return Object.keys(this.evalErrors).length > 0;
     },
-    /** "Cant. restante: Valor incorrecto" (la primera __EVAL que falla). */
+    /**
+     * Motivo de la primera __EVAL que falla: el errorMessage del schema tal cual
+     * o, con el mensaje genérico, "Cant. restante: Valor incorrecto".
+     */
     evalErrorSummary() {
-      const [name, message] = Object.entries(this.evalErrors)[0] || [];
+      const [name, message] = Object.entries(this.evalErrors).find(([, m]) => typeof m === 'string') || [];
       const field = this.localSchema.fields?.[name];
+      if (field?.errorMessage) return message;
       const label = (field?.title || name || '').replace(/\s*\*$/, '');
       return label ? `${label}: ${message}` : message;
     },
@@ -480,6 +487,7 @@ export default {
     editedItem: {
       handler(_data) {
         this.localValues = { ...this.editedItem };
+        this.resetCalcBase();
       },
       deep: true
     },
@@ -489,11 +497,15 @@ export default {
           this.valueEdit = true;
           this.$emit('valueEdit', true);
         }
-        // Cálculos encadenados (un campo calculado puede ser operando de otro).
+        // computed_fields de los campos que cambió el usuario, encadenados (un
+        // campo calculado dispara los suyos). Los valores cargados (alta, edición,
+        // getData) no disparan cálculos: ver resetCalcBase.
+        const changed = changedKeys(this.calcBase, this.localValues);
         Object.assign(
           this.localValues,
-          runCalcs(this.computedFields, (k) => this.localValues[k])
+          runCalcs(this.localSchema.fields, changed, (k) => this.localValues[k])
         );
+        this.calcBase = { ...this.localValues };
         this.$emit('update:modelValue', this.localValues);
       },
       deep: true
@@ -511,6 +523,7 @@ export default {
       this.localValues = { ...this.editedItem };
 
       Object.assign(this.localValues, queryValues(this.query));
+      this.resetCalcBase();
       if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
         this.getData();
       }
@@ -583,6 +596,15 @@ export default {
     reset() {
       this.localValues = { ...this.editedItem };
       this.setDefaultValues();
+      this.resetCalcBase();
+    },
+    /**
+     * Toma los valores actuales como base de los cálculos: a partir de acá sólo
+     * los cambios del usuario disparan computed_fields (como el legacy, que
+     * calcula en el change de cada campo).
+     */
+    resetCalcBase() {
+      this.calcBase = { ...this.localValues };
     },
     fillFields(targets) {
       for (const target in targets) {
@@ -868,6 +890,7 @@ export default {
           // 204 / sin resultados → `data: []`: la ficha arranca vacía.
           this.localValues = response?.data?.data?.[0] ?? {};
           this.setDefaultValues();
+          this.resetCalcBase();
         })
         .catch((e) => {
           this.dialog = true;

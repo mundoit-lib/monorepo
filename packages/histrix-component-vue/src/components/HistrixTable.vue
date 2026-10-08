@@ -427,6 +427,7 @@
 </template>
 
 <script>
+import { formulaGetter } from '../core/computedFields.js';
 import { buildFieldQueries } from '../core/fieldQueries.js';
 import { resolveFieldKind } from '../core/fieldType.js';
 import { visibleColumnNames } from '../core/fieldVisibility.js';
@@ -814,7 +815,6 @@ export default {
         editedIndex: this.editedIndex,
         editedRow: this.editedRow,
         inner: this.inner,
-        computedFields: this.computedFields,
         newRecord: this.newRecord,
         enterSubmits: this.isLoadGrid && this.enterConfirmsRow,
         vertical: this.isLoadGrid && this.formMode === 'vertical'
@@ -1062,13 +1062,15 @@ export default {
     processOperation(str, row) {
       // Evaluador aritmético seguro (core/formula.js). El getValue desnormaliza
       // las celdas-objeto de la tabla (extrae `.value`/`._`) antes de calcular.
-      return evaluateFormula(str, (k) => {
+      // Fechas como número de día y __HOY__ (core/computedFields.js).
+      const getValue = (k) => {
         const cell = row[k];
         if (cell && (typeof cell === 'object' || typeof cell === 'function')) {
           return cell.value !== undefined ? cell.value : cell._;
         }
         return cell;
-      });
+      };
+      return evaluateFormula(str, formulaGetter(this.schema.fields, getValue));
     },
     insertRow() {
       const item = newRecordValues(this.schema.values, this.query);
