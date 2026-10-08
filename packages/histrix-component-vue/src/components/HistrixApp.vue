@@ -379,7 +379,9 @@ export default {
       return { ...this.$route.query, ...this.query };
     },
     labelButton() {
-      if (this.schema?.processButton) return this.schema?.processButton;
+      // "process" es el valor por defecto del backend, no un texto: va el i18n.
+      const label = this.schema?.processButton;
+      if (label && label !== 'process') return label;
       return this.t('app.process');
     },
     redirectPage() {

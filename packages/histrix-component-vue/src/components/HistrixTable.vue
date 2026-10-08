@@ -281,7 +281,7 @@
         </q-tr>
         <q-tr v-if="props.expand" :props="props">
           <q-td colspan="100%" class="bg-grey-12 qa-pa-xs">
-            <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
+            <HistrixApp name="detail" :inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
           </q-td>
         </q-tr>
       </template>
@@ -388,7 +388,7 @@
               </div>
             </template>
             <div v-if="props.expand" class="histrix-grid-detail">
-              <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
+              <HistrixApp name="detail" :inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
             </div>
           </component>
         </div>
