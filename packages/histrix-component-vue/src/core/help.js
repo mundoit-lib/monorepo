@@ -104,3 +104,30 @@ export function helpMenuPlacement(rect, viewportHeight) {
   }
   return { anchor: 'top left', self: 'bottom left', maxHeight: `${Math.max(above, 0)}px` };
 }
+
+/**
+ * Valores que la fila elegida en una ayuda vuelca al form.
+ *
+ * Se usa el mapa exacto del backend (`data-helpdetail`: campos destino y sus
+ * valores); sin mapa, las columnas de la fila sin los internos. El mapa puede no
+ * traer el propio campo de la ayuda (`help_field`): en pi_detalle_grid de Tork
+ * el campo `id_stkarticulo` es a la vez la ayuda y el código, y el helpdetail
+ * sólo trae `nombre_articulo`, `ivaregimen_id`… En ese caso el valor sale de la
+ * columna de la fila o, si no, de `data-recid` (la clave del registro elegido).
+ *
+ * @param {Object} row - fila de la ayuda ya aplanada, con `__helpdetail` y `__recid`.
+ * @param {Object} [helpContainer]
+ * @param {(detail: string) => Object} parseDetail - parseHelpDetail.
+ * @returns {Object<string, *>}
+ */
+export function helpSelection(row, helpContainer, parseDetail) {
+  const fill = row.__helpdetail ? parseDetail(row.__helpdetail) : omit(row, '__rowid', '__helpdetail', '__recid');
+  const field = helpContainer?.help_field;
+  if (field && (fill[field] == null || fill[field] === '')) {
+    const value = row[field] ?? row.__recid;
+    if (value != null && value !== '') {
+      fill[field] = value;
+    }
+  }
+  return fill;
+}

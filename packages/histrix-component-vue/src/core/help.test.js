@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { buildHelpQuery, helpMenuPlacement, helpPageParams, parseHelpPage } from './help.js';
+import { buildHelpQuery, helpMenuPlacement, helpPageParams, helpSelection, parseHelpPage } from './help.js';
+import { parseHelpDetail } from './schemaUri.js';
 
 describe('buildHelpQuery', () => {
   // codigo_detalle de reqo_grid (Tork): context_fields vacío, la OTO llega por
@@ -112,6 +113,43 @@ describe('helpMenuPlacement', () => {
       anchor: 'top left',
       self: 'bottom left',
       maxHeight: '748px'
+    });
+  });
+});
+
+describe('helpSelection', () => {
+  // Fila de la ayuda de artículos de pi_detalle_grid (Tork): el helpdetail no
+  // trae id_stkarticulo, que es el propio campo de la ayuda.
+  const row = {
+    id_stkarticulo: 'DESCAVANCE',
+    nombre_articulo: 'Descuento de Avance',
+    __rowid: 1,
+    __helpdetail: '&nombre_articulo=Descuento+de+Avance&ivaregimen_id=1',
+    __recid: 'DESCAVANCE'
+  };
+  const helpContainer = { help_field: 'id_stkarticulo' };
+
+  it('completa el campo de la ayuda desde la fila si el helpdetail no lo trae', () => {
+    expect(helpSelection(row, helpContainer, parseHelpDetail)).toEqual({
+      nombre_articulo: 'Descuento de Avance',
+      ivaregimen_id: '1',
+      id_stkarticulo: 'DESCAVANCE'
+    });
+  });
+
+  it('sin la columna usa data-recid', () => {
+    const { id_stkarticulo: _omit, ...sinColumna } = row;
+    expect(helpSelection(sinColumna, helpContainer, parseHelpDetail).id_stkarticulo).toBe('DESCAVANCE');
+  });
+
+  it('si el helpdetail ya lo trae, no lo pisa', () => {
+    const conCampo = { ...row, __helpdetail: '&id_stkarticulo=OTRO&nombre_articulo=X' };
+    expect(helpSelection(conCampo, helpContainer, parseHelpDetail).id_stkarticulo).toBe('OTRO');
+  });
+
+  it('sin helpdetail vuelca las columnas sin los internos', () => {
+    expect(helpSelection({ a: 1, __rowid: 0, __helpdetail: null, __recid: null }, {}, parseHelpDetail)).toEqual({
+      a: 1
     });
   });
 });

@@ -49,9 +49,8 @@
 </template>
 
 <script>
-import { buildHelpQuery, helpPageParams, parseHelpPage } from '../core/help.js';
+import { buildHelpQuery, helpPageParams, helpSelection, parseHelpPage } from '../core/help.js';
 import { joinDirXml, parseHelpDetail, parseSchemaUri } from '../core/schemaUri.js';
-import { omit } from '../core/values.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
@@ -223,7 +222,8 @@ export default {
           this.rows = data.map((row, index) => ({
             ...this.flatten(row),
             __rowid: index,
-            __helpdetail: row.DT_RowAttr?.['data-helpdetail'] ?? null
+            __helpdetail: row.DT_RowAttr?.['data-helpdetail'] ?? null,
+            __recid: row.DT_RowAttr?.['data-recid'] ?? null
           }));
           this.loading = false;
           // Si hay exactamente un resultado lo autoseleccionamos: no tiene sentido
@@ -243,8 +243,8 @@ export default {
       // Preferimos el mapa exacto que da el backend (data-helpdetail): campos a
       // rellenar con su nombre destino, sin ensuciar el form con columnas de más.
       // Fallback (sin data-helpdetail): las columnas de la fila, sin internos.
-      const fill = row.__helpdetail ? parseHelpDetail(row.__helpdetail) : omit(row, '__rowid', '__helpdetail');
-      this.$emit('select-row', { row: fill });
+      // El campo de la ayuda, si el mapa no lo trae, sale de la fila (helpSelection).
+      this.$emit('select-row', { row: helpSelection(row, this.helpContainer, parseHelpDetail) });
     },
     onRowClick(_evt, row) {
       this.pick(row);
