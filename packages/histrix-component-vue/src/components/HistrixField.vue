@@ -110,6 +110,8 @@
             <HistrixHelp
               :help-container="fieldSchema.helpContainer"
               :form-values="row"
+              :query="query"
+              :container-query="containerQuery"
               :label="label"
               :term="localValue"
               v-on:select-row="selectRow"
@@ -220,6 +222,9 @@ export default {
     schema: Object,
     rowSchema: Object,
     query: Object,
+    // Query del contenedor (form/grilla): la ayuda consulta su mismo xml con
+    // `__help`, así que viaja también en la búsqueda (p. ej. `id_oto=31`).
+    containerQuery: Object,
     modelValue: null,
     row: null,
     submitting: null,

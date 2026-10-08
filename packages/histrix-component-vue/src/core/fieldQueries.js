@@ -8,7 +8,8 @@
  *  - `innerContainer.schema.conditions` con operador `=` → valor fijo.
  *  - `innerContainer.relationship` → valor del campo local de la fila.
  *  - `update_fields` del padre ("histrix actualiza") → el valor del padre va
- *    como `targetField` en la query del campo dependiente.
+ *    como `targetField` en la query del campo dependiente (con `parentField`,
+ *    en la query del contenedor).
  *  - entradas objeto de la query externa se copian tal cual.
  */
 
@@ -59,9 +60,11 @@ export function buildFieldQueries(fields, values, externalQuery = {}) {
     const value = plain(row[field.name || name]);
     for (const relation of field.update_fields) {
       if (relation.parentField) {
-        const parent = queries[relation.parentField] || {};
-        parent[relation.field] = { ...parent[relation.field], [relation.targetField]: value };
-        queries[relation.parentField] = parent;
+        // El contenedor (`parentField`) recibe `targetField` plano, como la
+        // query de su xml (`reqo_grid.xml?id_oto=31`). Anidarlo bajo
+        // `relation.field` (`codigo_detalle[id_oto]=31`) el backend no lo
+        // entiende y lo devuelve como valor por defecto del campo.
+        queries[relation.parentField] = { ...queries[relation.parentField], [relation.targetField]: value };
       } else {
         queries[relation.field] = { ...queries[relation.field], [relation.targetField]: value };
       }

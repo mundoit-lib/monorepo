@@ -84,6 +84,7 @@
                         :path="computedPath(field)"
                         :submitting="submitting"
                         :query="fieldQuerys[field.name]"
+                        :container-query="query"
                         :readonly="localSchema.readonly"
                         :disabled="localSchema.readonly"
                         v-on:selectOption="onSelectOption"
@@ -114,6 +115,7 @@
                 :row="localValues"
                 :submitting="submitting"
                 :query="fieldQuerys[field.name]"
+                :container-query="query"
                 :readonly="localSchema.readonly"
                 :disabled="localSchema.readonly"
                 v-on:selectOption="onSelectOption"
@@ -198,6 +200,7 @@ import { mapUiIcon } from '../core/icons.js';
 import { extractKeys } from '../core/keys.js';
 import { buildLinkParameters, resolveHelperLinkPath } from '../core/links.js';
 import { normalizeScreenType } from '../core/normalize.js';
+import { queryValues } from '../core/values.js';
 import { defineLazyComponent } from '../services/asyncComponents.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
@@ -408,19 +411,14 @@ export default {
           // for inner field querys
           const rel = {};
           if (relation.parentField) {
-            const query = {};
-
-            query[relation.targetField] = this.localValues[field.name];
-            rel[relation.field] = query;
-
-            fieldQuerys[relation.parentField] = rel;
-
-            if (fieldQuerys[relation.field] === undefined) {
-              rel[relation.field] = query;
-              fieldQuerys[relation.parentField] = rel;
-            } else {
-              fieldQuerys[relation.field][relation.field] = query;
-            }
+            // El contenedor recibe `targetField` plano (`reqo_grid.xml?id_oto=31`),
+            // sumado a su relationship; anidado bajo el campo
+            // (`codigo_detalle[id_oto]=`) el backend no lo entiende.
+            const data = this.localValues[field.name];
+            fieldQuerys[relation.parentField] = {
+              ...fieldQuerys[relation.parentField],
+              [relation.targetField]: data && typeof data === 'object' && 'value' in data ? data.value : data
+            };
           } else if (fieldQuerys[relation.field] === undefined) {
             rel[relation.targetField] = this.localValues[field.name];
             fieldQuerys[relation.field] = rel;
@@ -488,9 +486,7 @@ export default {
       this.localSchema = this.schema;
       this.localValues = { ...this.editedItem };
 
-      Object.keys(this.query).map((key) => {
-        this.localValues[key] = this.query[key];
-      });
+      Object.assign(this.localValues, queryValues(this.query));
       if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
         this.getData();
       }
