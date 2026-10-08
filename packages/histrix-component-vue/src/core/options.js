@@ -35,11 +35,11 @@ const DATE_RE = /^(0?[1-9]|[12][0-9]|3[01])[/-](0?[1-9]|1[012])[/-]\d{4}$/;
  * Replica EXACTAMENTE el chequeo `label.includes(' - ')` + regex sobre el
  * prefijo, idéntico en las tres variantes.
  *
- * @param {string} label
+ * @param {*} label
  * @returns {boolean}
  */
 function labelStartsWithDate(label) {
-  if (!label.includes(' - ')) return false;
+  if (typeof label !== 'string' || !label.includes(' - ')) return false;
   const temp = label.slice(0, label.indexOf(' - '));
   return !!temp.match(DATE_RE);
 }
@@ -112,6 +112,7 @@ export function mapArrayOptions(options, helperPath) {
       if ((typeof label === 'object' || typeof label === 'function') && label !== null) {
         label = label[Object.keys(label)[0]];
       }
+      label ??= '';
 
       if (!flat && labelStartsWithDate(label)) flat = true;
       if (helperPath) {
@@ -160,6 +161,10 @@ export function mapDictOptions(options, helperPath) {
       if ((typeof label === 'object' || typeof label === 'function') && label !== null) {
         label = label[Object.keys(label)[0]];
       }
+      // Un registro sin descripción (p. ej. usuario con `Nombre: null` en el
+      // combo Solicitante de pi_alta_ing de Tork) queda con label vacía: con
+      // null reventaba el armado de todo el combo y el filtro (toLowerCase).
+      label ??= '';
       if (!flat && labelStartsWithDate(label)) flat = true;
       if (helperPath) {
         data.push({
