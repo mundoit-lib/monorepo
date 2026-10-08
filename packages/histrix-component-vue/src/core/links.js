@@ -83,3 +83,21 @@ export function buildLinkParameters(parameters) {
 export function cellLink(cell) {
   return cell && typeof cell === 'object' ? cell.link || undefined : undefined;
 }
+
+/**
+ * Query del detalle de un renglón (`DT_RowAttr.detailquery`, p. ej.
+ * `"numero_pi=339&puesto_pi=1"`) como objeto plano.
+ *
+ * Antes se pasaba el `URLSearchParams` tal cual: axios lo serializa, así que el
+ * schema del detalle salía bien, pero la tabla arma los params de los datos con
+ * `{ ...query }` y un URLSearchParams no tiene propiedades propias: el `_dt=table`
+ * salía sin `numero_pi` y el backend devolvía todos los renglones.
+ *
+ * @param {string|URLSearchParams|Object} [detailquery]
+ * @returns {Object<string, string>}
+ */
+export function detailQueryParams(detailquery) {
+  if (!detailquery) return {};
+  if (typeof detailquery === 'object' && !(detailquery instanceof URLSearchParams)) return { ...detailquery };
+  return Object.fromEntries(new URLSearchParams(detailquery));
+}

@@ -1,8 +1,12 @@
 <template>
   <div v-show="isVisible" @histrix-help="onHelpKey">
-    <div v-if="isRadio">
+    <!-- Título del radio (QOptionGroup no tiene prepend): el de la fila en una
+         celda de grilla (rowSchema) o el del campo en un form. Antes leía
+         rowSchema.label sin rowSchema y el render reventaba: el resto del form no
+         se dibujaba (pi_autorizar_cab de Tork). -->
+    <div v-if="isRadio && (rowSchema?.label || label)">
       <div class="header-check">
-        <b>{{ rowSchema.label }}</b>
+        <b>{{ rowSchema?.label || label }}</b>
       </div>
     </div>
     <div v-if="fieldComponent?.name === 'HistrixApp'">

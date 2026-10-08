@@ -205,7 +205,7 @@
               size="xs"
               color="accent"
               dense
-              @click="props.expand = !props.expand"
+              @click.stop="props.expand = !props.expand"
               :icon="props.expand ? 'remove' : 'add'"
             />
           </q-td>
@@ -281,7 +281,7 @@
         </q-tr>
         <q-tr v-if="props.expand" :props="props">
           <q-td colspan="100%" class="bg-grey-12 qa-pa-xs">
-            <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
+            <HistrixApp name="detail" :inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
           </q-td>
         </q-tr>
       </template>
@@ -388,7 +388,7 @@
               </div>
             </template>
             <div v-if="props.expand" class="histrix-grid-detail">
-              <HistrixApp name="detail" inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
+              <HistrixApp name="detail" :inner="true" :path="detailPath(props)" :query="detailQuery(props)" />
             </div>
           </component>
         </div>
@@ -443,6 +443,7 @@
 <script>
 import { formulaGetter } from '../core/computedFields.js';
 import { buildFieldQueries } from '../core/fieldQueries.js';
+import { detailQueryParams } from '../core/links.js';
 import { resolveFieldKind } from '../core/fieldType.js';
 import { visibleColumnNames } from '../core/fieldVisibility.js';
 import { evaluateFormula } from '../core/formula.js';
@@ -1204,6 +1205,15 @@ export default {
         }
         return;
       }
+      // Detalle inline (inline_detail): se despliega en la grilla, no en el panel
+      // maestro-detalle. Antes el click también abría el panel y el detalle se
+      // pedía dos veces. Los botones de las celdas (imprimir, AUTORIZAR) no lo tocan.
+      if (this.schema.inline_detail && this.hasDetail(props)) {
+        if (!event?.target?.closest?.('button, a')) {
+          props.expand = !props.expand;
+        }
+        return;
+      }
       if (this.hasDetail(props)) {
         this.selectedId = row._id ?? null;
         const rowAttr = row.DT_RowAttr;
@@ -1232,7 +1242,7 @@ export default {
     detailQuery(props) {
       const { row } = props;
       const rowAttr = row.DT_RowAttr;
-      return new URLSearchParams(rowAttr.detailquery);
+      return detailQueryParams(rowAttr.detailquery);
     },
 
     hasDetail(props) {
