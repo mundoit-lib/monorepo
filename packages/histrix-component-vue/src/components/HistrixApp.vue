@@ -147,8 +147,7 @@
           </div>
         </template>
         <template v-slot:after>
-          <!-- La key rearma el detalle al elegir otra fila: detailQuery es un
-               URLSearchParams y el xmlUrl del hijo no lo ve cambiar. -->
+          <!-- La key (path + detailquery) rearma el detalle al elegir otra fila. -->
           <HistrixApp
             ref=""
             v-if="detailPath != ''"
@@ -245,6 +244,7 @@ import { createBlobUrlHolder, pdfFilename } from '../core/pdf.js';
 import { defineLazyComponent } from '../services/asyncComponents.js';
 
 import { computedCalcs } from '../core/computedFields.js';
+import { detailQueryParams } from '../core/links.js';
 import { resolveScreenKind } from '../core/screenType.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
@@ -619,9 +619,9 @@ export default {
     },
     openDetail($rowAttr) {
       this.selected = $rowAttr;
-      this.detailQuery = new URLSearchParams($rowAttr.detailquery);
+      this.detailQuery = detailQueryParams($rowAttr.detailquery);
       this.detailPath = $rowAttr.detailpath;
-      this.detailKey = `${$rowAttr.detailpath}?${this.detailQuery}`;
+      this.detailKey = `${$rowAttr.detailpath}?${new URLSearchParams(this.detailQuery)}`;
       this.isDetailOpened = true;
       if (this.smallscreen && this.hasFullDetail) this.pushDetailHistory();
     },
@@ -680,7 +680,7 @@ export default {
         token: this.historyToken,
         path: this.path,
         detailpath: this.selected.detailpath,
-        detailquery: String(this.detailQuery),
+        detailquery: String(new URLSearchParams(this.detailQuery)),
         scrollY: this.listScrollY
       };
       window.history.pushState({ ...state, histrixDetail: [...this.historyDetails(state), entry] }, '');

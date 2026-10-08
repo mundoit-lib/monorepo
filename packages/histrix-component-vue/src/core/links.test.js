@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLinkParameters, cellLink, dirname, resolveHelperLinkPath } from './links.js';
+import { buildLinkParameters, cellLink, detailQueryParams, dirname, resolveHelperLinkPath } from './links.js';
 
 describe('dirname', () => {
   it('devuelve el directorio con barra final', () => {
@@ -85,5 +85,20 @@ describe('cellLink', () => {
     expect(cellLink('')).toBeUndefined();
     expect(cellLink(null)).toBeUndefined();
     expect(cellLink({ _: 'A' })).toBeUndefined();
+  });
+});
+
+describe('detailQueryParams', () => {
+  it('convierte el detailquery del renglón en objeto (pi_detalle_inline de Tork)', () => {
+    const query = detailQueryParams('numero_pi=339&puesto_pi=1');
+    expect(query).toEqual({ numero_pi: '339', puesto_pi: '1' });
+    // Lo que hace la tabla con la query: con URLSearchParams quedaba vacío.
+    expect({ ...query, _dt: 'table' }).toEqual({ numero_pi: '339', puesto_pi: '1', _dt: 'table' });
+  });
+
+  it('acepta URLSearchParams, objeto o vacío', () => {
+    expect(detailQueryParams(new URLSearchParams('a=1'))).toEqual({ a: '1' });
+    expect(detailQueryParams({ a: '1' })).toEqual({ a: '1' });
+    expect(detailQueryParams(undefined)).toEqual({});
   });
 });
