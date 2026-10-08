@@ -199,6 +199,7 @@
               :query="innerQuery"
               :title="innerQuery._title"
               class="col"
+              v-on:process-finish="onLinkProcessed"
               v-on:closepopup="closePopup"
             />
           </q-page>
@@ -541,6 +542,20 @@ export default {
     /** Vuelve a pedir los datos de la pantalla sin rearmarla (la tabla muestra su loading). */
     reload() {
       this.$refs.main?.reloadData?.();
+    },
+    /**
+     * El form abierto desde un link de celda (p. ej. AUTORIZAR en el tablero de
+     * requerimientos) grabó: se cierra el modal y esta pantalla vuelve a pedir
+     * sus datos. El hijo avisa más de una vez por proceso: una sola recarga.
+     */
+    onLinkProcessed() {
+      this.linkDialog = false;
+      if (this.reloadQueued) return;
+      this.reloadQueued = true;
+      this.$nextTick(() => {
+        this.reloadQueued = false;
+        this.reload();
+      });
     },
     hashcode(s) {
       return Math.abs(
@@ -964,6 +979,7 @@ export default {
       step: 1, // default initial Step
       validity: true,
       processing: false,
+      reloadQueued: false, // recarga pendiente tras un proceso en el modal de un link
       showPdfPopup: false,
       pdfSrc: '',
       pdfBlob: null,
