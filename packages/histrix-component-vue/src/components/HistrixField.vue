@@ -61,7 +61,9 @@
         :input-class="inputClass"
         :clearable="clearable"
         :error="v$.modelValue?.$error || Boolean(evalError)"
-        :error-message="v$.modelValue?.$errors?.[0]?.$message || evalError"
+        :error-message="
+          v$.modelValue?.$errors?.[0]?.$message || (typeof evalError === 'string' ? evalError : undefined)
+        "
         inline
         :borderless="isDisabled"
         :autocomplete="autoComplet"
@@ -226,8 +228,9 @@ export default {
     // Query del contenedor (form/grilla): la ayuda consulta su mismo xml con
     // `__help`, así que viaja también en la búsqueda (p. ej. `id_oto=31`).
     containerQuery: Object,
-    // Validación __EVAL de computed_fields que no se cumple (la calcula el form).
-    evalError: String,
+    // Validación __EVAL de computed_fields que no se cumple (la calcula el form):
+    // el mensaje, o `true` para marcar el campo en rojo sin repetirlo.
+    evalError: [String, Boolean],
     modelValue: null,
     row: null,
     submitting: null,
@@ -863,12 +866,11 @@ export default {
       return this.histrixType === 'datetime';
     },
     label() {
-      // if (!this.isDisabled) {
-      if (this.fieldSchema.label || this.fieldSchema.title) {
-        return this.fieldSchema.label || this.fieldSchema.title;
-      }
-
-      // }
+      const label = this.fieldSchema.label || this.fieldSchema.title;
+      if (!label) return undefined;
+      // __REQUIRED dinámico (p. ej. la observación cuando es urgente): el "*"
+      // del título lo pone el backend sólo para los obligatorios fijos.
+      return this.dataFormulaFlags.required === true && !/\*\s*$/.test(label) ? `${label} *` : label;
     },
     fieldComponent() {
       let component = 'q-input';

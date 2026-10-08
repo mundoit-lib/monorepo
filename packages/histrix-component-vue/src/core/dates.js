@@ -102,3 +102,45 @@ export function dateSortParts(str) {
   const day = str.slice(0, 2);
   return [year, month, day];
 }
+
+const MS_PER_DAY = 86400000;
+const ISO_DATE = /^(\d{4})-(\d{1,2})-(\d{1,2})/;
+const DMY_DATE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/;
+
+/**
+ * Número de día de una fecha: días desde el 01/01/1970, entero. Es lo que vale
+ * un campo `Date` en las fórmulas de `computed_fields` (restar dos fechas da
+ * días, compararlas funciona). Se calcula sobre la fecha tal cual, sin hora ni
+ * zona horaria. Acepta `YYYY-MM-DD` (como lo guarda el form, con o sin hora) y
+ * `dd/mm/yyyy`. Vacío o no reconocible → 0.
+ *
+ * @param {*} value
+ * @returns {number}
+ */
+export function dayNumber(value) {
+  if (typeof value !== 'string') return 0;
+  const s = value.trim();
+  let m = ISO_DATE.exec(s);
+  let y;
+  let mo;
+  let d;
+  if (m) {
+    [y, mo, d] = [m[1], m[2], m[3]];
+  } else {
+    m = DMY_DATE.exec(s);
+    if (!m) return 0;
+    [d, mo, y] = [m[1], m[2], m[3]];
+  }
+  return Math.round(Date.UTC(Number(y), Number(mo) - 1, Number(d)) / MS_PER_DAY);
+}
+
+/**
+ * Número de día de hoy (fecha local), igual que `dayNumber`: es `__HOY__` en
+ * las fórmulas.
+ *
+ * @param {Date} [now]
+ * @returns {number}
+ */
+export function todayDayNumber(now = new Date()) {
+  return Math.round(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / MS_PER_DAY);
+}
