@@ -25,8 +25,10 @@
         row-key="__rowid"
         dense
         flat
-        :pagination="pagination"
-        :hide-bottom="rows.length <= pagination.rowsPerPage"
+        v-model:pagination="pagination"
+        :rows-per-page-options="[5, 8, 10, 15, 20, 25, 50, 0]"
+        :hide-bottom="total <= pagination.rowsPerPage && pagination.rowsPerPage > 0"
+        @request="onRequest"
         @row-click="onRowClick"
       >
         <template v-slot:header="props">
@@ -47,9 +49,8 @@
 </template>
 
 <script>
-import { buildHelpQuery } from '../core/help.js';
+import { buildHelpQuery, helpPageParams, helpSelection, parseHelpPage } from '../core/help.js';
 import { joinDirXml, parseHelpDetail, parseSchemaUri } from '../core/schemaUri.js';
-import { omit } from '../core/values.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
@@ -95,7 +96,11 @@ export default {
       rows: [],
       loading: false,
       delayTimer: 0,
-      pagination: { rowsPerPage: 8 }
+      total: 0,
+      requestSeq: 0,
+      // rowsNumber presente = la q-table pagina en el backend (offset/limit) y
+      // emite @request; si la ayuda no viene paginada se borra y pagina sola.
+      pagination: { page: 1, rowsPerPage: 8, rowsNumber: 0 }
     };
   },
   computed: {
@@ -177,12 +182,23 @@ export default {
           // Sin columnas: la tabla queda vacía; no rompemos el popup.
         });
     },
+    /** Cambio de página o de filas por página en la tabla (modo backend). */
+    onRequest({ pagination }) {
+      this.pagination = { ...this.pagination, page: pagination.page, rowsPerPage: pagination.rowsPerPage };
+      this.fetchPage();
+    },
+    /** Búsqueda nueva (término o contexto): vuelve a la primera página. */
     loadData() {
+      this.pagination = { ...this.pagination, page: 1 };
+      this.fetchPage();
+    },
+    fetchPage() {
       const { path, params } = this.dataSource;
       if (!path) {
         return;
       }
       this.loading = true;
+      const seq = ++this.requestSeq;
       const query = buildHelpQuery({
         helpContainer: this.helpContainer,
         formValues: this.cleanFormValues,
@@ -191,25 +207,35 @@ export default {
         params,
         term: this.search
       });
-      this.getAppData(path, query)
+      // La ayuda pagina en el backend (offset/limit): se pide sólo la página que
+      // muestra la tabla, no los 200 registros por defecto.
+      this.getAppData(path, { ...query, ...helpPageParams(this.pagination) })
         .then((response) => {
-          const data = response.data?.data || [];
+          // Una respuesta vieja (se siguió tipeando) no pisa a la nueva.
+          if (seq !== this.requestSeq) return;
+          const { rows: data, total, paged } = parseHelpPage(response.data);
+          this.total = total;
+          const { rowsNumber: _rowsNumber, ...rest } = this.pagination;
+          this.pagination = paged ? { ...rest, rowsNumber: total } : rest;
           // Preservamos data-helpdetail: el backend indica ahí, por fila, EXACTAMENTE
           // qué campos del form rellenar (con su nombre destino). Lo usamos al elegir.
           this.rows = data.map((row, index) => ({
             ...this.flatten(row),
             __rowid: index,
-            __helpdetail: row.DT_RowAttr?.['data-helpdetail'] ?? null
+            __helpdetail: row.DT_RowAttr?.['data-helpdetail'] ?? null,
+            __recid: row.DT_RowAttr?.['data-recid'] ?? null
           }));
           this.loading = false;
           // Si hay exactamente un resultado lo autoseleccionamos: no tiene sentido
           // mostrar una lista de uno para que el usuario lo clickee.
-          if (this.rows.length === 1) {
+          if (total === 1 && this.rows.length === 1) {
             this.pick(this.rows[0]);
           }
         })
         .catch(() => {
+          if (seq !== this.requestSeq) return;
           this.rows = [];
+          this.total = 0;
           this.loading = false;
         });
     },
@@ -217,8 +243,8 @@ export default {
       // Preferimos el mapa exacto que da el backend (data-helpdetail): campos a
       // rellenar con su nombre destino, sin ensuciar el form con columnas de más.
       // Fallback (sin data-helpdetail): las columnas de la fila, sin internos.
-      const fill = row.__helpdetail ? parseHelpDetail(row.__helpdetail) : omit(row, '__rowid', '__helpdetail');
-      this.$emit('select-row', { row: fill });
+      // El campo de la ayuda, si el mapa no lo trae, sale de la fila (helpSelection).
+      this.$emit('select-row', { row: helpSelection(row, this.helpContainer, parseHelpDetail) });
     },
     onRowClick(_evt, row) {
       this.pick(row);
@@ -244,3 +270,35 @@ export default {
   }
 };
 </script>
+
+<style>
+/* Con muchas filas por página la ayuda se salía de la pantalla y la paginación
+   quedaba inalcanzable. La card toma el alto que Quasar le da al q-menu (lo
+   ajusta al espacio disponible) y sólo las filas scrollean, con el encabezado
+   fijo: el buscador y la paginación quedan siempre a la vista. */
+.histrix-help {
+  display: flex;
+  flex-direction: column;
+  max-height: inherit;
+}
+.histrix-help > .q-card__section:last-child {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.histrix-help .q-table__container {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.histrix-help .q-table__middle {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: 60vh;
+}
+.histrix-help thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+</style>
