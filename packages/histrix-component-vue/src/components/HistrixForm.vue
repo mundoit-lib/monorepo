@@ -85,6 +85,7 @@
                         :submitting="submitting"
                         :query="fieldQuerys[field.name]"
                         :container-query="query"
+                        :eval-error="evalErrors[field.name]"
                         :readonly="localSchema.readonly"
                         :disabled="localSchema.readonly"
                         v-on:selectOption="onSelectOption"
@@ -116,6 +117,7 @@
                 :submitting="submitting"
                 :query="fieldQuerys[field.name]"
                 :container-query="query"
+                :eval-error="evalErrors[field.name]"
                 :readonly="localSchema.readonly"
                 :disabled="localSchema.readonly"
                 v-on:selectOption="onSelectOption"
@@ -132,7 +134,12 @@
            izquierda, Descartar y Grabar a la derecha. En celular, Grabar ocupa
            el ancho que queda. -->
       <div v-if="insertButton || updateButton" class="histrix-form-actions row items-center no-wrap">
-        <div v-if="hasRequiredFields && !$q.screen.lt.sm" class="col text-caption text-grey-6">
+        <!-- Grabar deshabilitado por una __EVAL: el campo que valida puede estar
+             oculto, así que el motivo también va acá. -->
+        <div v-if="hasEvalErrors" class="col text-caption text-negative">
+          {{ evalErrorSummary }}
+        </div>
+        <div v-else-if="hasRequiredFields && !$q.screen.lt.sm" class="col text-caption text-grey-6">
           {{ t('form.requiredHint') }}
         </div>
         <q-space v-else-if="!$q.screen.lt.sm" />
@@ -146,7 +153,7 @@
           type="reset"
         />
         <q-btn
-          :disable="submitting"
+          :disable="submitting || hasEvalErrors"
           type="submit"
           :label="t('form.submit')"
           :icon="$q.screen.lt.sm ? undefined : 'save'"
@@ -194,7 +201,7 @@
 <script>
 import { useVuelidate } from '@vuelidate/core';
 import { isFieldEditable as isFieldEditablePure, isInnerTab } from '../core/fieldVisibility.js';
-import { evaluateFormula } from '../core/formula.js';
+import { evalErrors, runCalcs } from '../core/computedFields.js';
 import { isFocusCandidate, nextFocusable } from '../core/hotkeys.js';
 import { mapUiIcon } from '../core/icons.js';
 import { extractKeys } from '../core/keys.js';
@@ -272,6 +279,24 @@ export default {
       // El form se está usando para confirmar un renglón de un grid embebido
       // (detalle de comprobante) en vez de un alta/edición directa contra la API.
       return ['ing', 'grid', 'livegrid'].includes(this.screenType);
+    },
+    /**
+     * Validaciones __EVAL de computed_fields que no se cumplen: { campo: mensaje }.
+     * Se recalculan con cada cambio de valores; mientras haya alguna, Grabar
+     * queda deshabilitado (p. ej. reqo_grid: pedir más de lo habilitado).
+     */
+    evalErrors() {
+      return evalErrors(this.localSchema.fields, (k) => this.localValues[k], this.t('field.invalidValue'));
+    },
+    hasEvalErrors() {
+      return Object.keys(this.evalErrors).length > 0;
+    },
+    /** "Cant. restante: Valor incorrecto" (la primera __EVAL que falla). */
+    evalErrorSummary() {
+      const [name, message] = Object.entries(this.evalErrors)[0] || [];
+      const field = this.localSchema.fields?.[name];
+      const label = (field?.title || name || '').replace(/\s*\*$/, '');
+      return label ? `${label}: ${message}` : message;
     },
     /** ¿Algún campo obligatorio? Muestra el aviso de la barra de acciones. */
     hasRequiredFields() {
@@ -464,12 +489,11 @@ export default {
           this.valueEdit = true;
           this.$emit('valueEdit', true);
         }
-        for (const formula in this.computedFields) {
-          const result = this.processOperation(this.computedFields[formula]);
-          if (result !== undefined) {
-            this.localValues[formula] = result;
-          }
-        }
+        // Cálculos encadenados (un campo calculado puede ser operando de otro).
+        Object.assign(
+          this.localValues,
+          runCalcs(this.computedFields, (k) => this.localValues[k])
+        );
         this.$emit('update:modelValue', this.localValues);
       },
       deep: true
@@ -555,13 +579,6 @@ export default {
      */
     onComputedTotal(data) {
       this.localValues[data.target] = data.value;
-    },
-    /**
-     * Calcula la fórmula de un campo (computed_fields) con los valores actuales.
-     * La evaluación vive en core/formula.js (evaluador aritmético seguro, sin eval).
-     */
-    processOperation(formula) {
-      return evaluateFormula(formula, (k) => this.localValues[k]);
     },
     reset() {
       this.localValues = { ...this.editedItem };
@@ -768,6 +785,12 @@ export default {
       // primer error. (El botón ya no se deshabilita por v$.$invalid.)
       const valid = await this.validateAndFocus();
       if (!valid) {
+        return;
+      }
+      // Las __EVAL se reevalúan con los valores finales: si alguna no se cumple
+      // no se manda (el botón ya está deshabilitado, pero Enter también envía).
+      if (this.hasEvalErrors) {
+        this.focusFirstError();
         return;
       }
       // Grids tipo "ing"/"grid": las filas NO se graban una por una contra la

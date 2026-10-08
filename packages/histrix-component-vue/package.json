@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "keywords": [
     "histrix",
