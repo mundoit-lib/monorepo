@@ -69,3 +69,17 @@ export function buildLinkParameters(parameters) {
   }
   return out;
 }
+
+/**
+ * Link de una celda de grilla (`{ _, link: { dir, file }, text, … }`), o
+ * `undefined` si la celda no es un objeto. Ojo: un valor string NO sirve con
+ * `cell.link` porque `String.prototype.link` existe (método HTML viejo) y es
+ * truthy: un renglón con `codigo_detalle: 'CONSU00006'` se tomaba como link y
+ * el form mostraba el valor como texto en lugar del campo.
+ *
+ * @param {*} cell
+ * @returns {Object|undefined}
+ */
+export function cellLink(cell) {
+  return cell && typeof cell === 'object' ? cell.link || undefined : undefined;
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildLinkParameters, dirname, resolveHelperLinkPath } from './links.js';
+import { buildLinkParameters, cellLink, dirname, resolveHelperLinkPath } from './links.js';
 
 describe('dirname', () => {
   it('devuelve el directorio con barra final', () => {
@@ -71,5 +71,19 @@ describe('buildLinkParameters', () => {
     expect(buildLinkParameters([])).toEqual({});
     expect(buildLinkParameters(null)).toEqual({});
     expect(buildLinkParameters(undefined)).toEqual({});
+  });
+});
+
+describe('cellLink', () => {
+  it('devuelve el link de una celda objeto', () => {
+    const link = { dir: '/stock', file: 'x.xml' };
+    expect(cellLink({ _: 'A', link })).toBe(link);
+  });
+
+  it('un valor string no es link (String.prototype.link existe)', () => {
+    expect(cellLink('CONSU00006')).toBeUndefined();
+    expect(cellLink('')).toBeUndefined();
+    expect(cellLink(null)).toBeUndefined();
+    expect(cellLink({ _: 'A' })).toBeUndefined();
   });
 });
