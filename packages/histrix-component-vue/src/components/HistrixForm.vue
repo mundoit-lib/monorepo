@@ -76,6 +76,7 @@
                       />
 
                       <HistrixField
+                        :key="containerKey(field)"
                         :model-value="localValues[field.name]"
                         @update:model-value="localValues[field.name] = $event"
                         :name="field.name"
@@ -108,6 +109,7 @@
             </q-tab-panel>
             <q-tab-panel v-for="field in innerTabs" :name="field.name" v-bind:key="field.name">
               <HistrixField
+                :key="containerKey(field)"
                 :model-value="localValues[field.name]"
                 @update:model-value="localValues[field.name] = $event"
                 :name="field.name"
@@ -189,6 +191,7 @@
               :query="linkButtonDialog.query"
               :title="linkButtonDialog.title"
               class="col"
+              v-on:process-finish="onLinkProcessed"
               v-on:closepopup="closeLinkButton"
             />
           </q-page>
@@ -574,13 +577,41 @@ export default {
       };
       this.showLinkButtonDialog = true;
     },
-    /**
-     * Al cerrar el modal de un botón de acción refrescamos el form (por si el
-     * alta modificó datos que la consulta embebida debe volver a leer).
-     */
+    /** Cierra el modal de un botón de acción (X, Esc o el form que terminó). */
     closeLinkButton() {
       this.showLinkButtonDialog = false;
-      this.$emit('process-finish');
+    },
+    /**
+     * El form abierto por un botón de acción grabó (PATCH/POST ok): se cierra el
+     * modal y se vuelve a pedir esta pantalla con sus grillas internas, p. ej. el
+     * tablero de requerimientos después de procesar una orden de trabajo.
+     */
+    onLinkProcessed(data) {
+      this.showLinkButtonDialog = false;
+      if (!this.reloadQueued) {
+        this.$emit('process-finish', data);
+      }
+      this.reloadScreen();
+    },
+    /**
+     * Vuelve a pedir los datos del form (si los había pedido) y remonta los
+     * contenedores internos para que pidan los suyos. El hijo avisa más de una
+     * vez por proceso (su form y su closePopup): se recarga una sola vez.
+     */
+    reloadScreen() {
+      if (this.reloadQueued) return;
+      this.reloadQueued = true;
+      this.$nextTick(() => {
+        this.reloadQueued = false;
+        if (this.query && this.localSchema.preFetch !== false && !this.editedItem) {
+          this.getData();
+        }
+        this.containersReload += 1;
+      });
+    },
+    /** Key de un campo: los contenedores internos cambian con cada recarga. */
+    containerKey(field) {
+      return field.innerContainer ? `${field.name}-${this.containersReload}` : field.name;
     },
 
     computedPath(field) {
@@ -926,6 +957,8 @@ export default {
       currentTab: 'mainTab',
       valueEdit: false,
       showLinkButtonDialog: false, // modal abierto por un botón de acción (helper.link)
+      containersReload: 0, // se incrementa para remontar (y recargar) los contenedores internos
+      reloadQueued: false,
       linkButtonDialog: {} // { path, title, width, query } del botón clickeado
     };
   }
