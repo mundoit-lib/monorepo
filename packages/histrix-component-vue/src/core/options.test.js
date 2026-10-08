@@ -158,3 +158,20 @@ describe('mapRemoteOptions (respuesta remota: array de objetos)', () => {
     expect(mapRemoteOptions(undefined, false)).toEqual({ data: [], flat: false });
   });
 });
+
+describe('labels null (pi_alta_ing de Tork: usuarios sin Nombre)', () => {
+  it('mapDictOptions no revienta y deja la label vacía', () => {
+    const options = { 86: { Nombre: null }, 54: { Nombre: 'Abigail Caccia' } };
+    const { data, flat } = mapDictOptions(options, false);
+    expect(flat).toBe(false);
+    expect(data.map((o) => [o.value, o.label])).toEqual([
+      [54, 'Abigail Caccia'],
+      [86, '']
+    ]);
+  });
+
+  it('mapArrayOptions no revienta con una label null', () => {
+    const { data } = mapArrayOptions([{ Nombre: null, _id: 1 }], false);
+    expect(data[0].label).toBe('');
+  });
+});
