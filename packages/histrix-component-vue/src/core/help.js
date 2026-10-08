@@ -47,3 +47,36 @@ export function buildHelpQuery({
     term: term ?? ''
   };
 }
+
+/**
+ * Params de página para la request de una ayuda: `offset`/`limit` de la página
+ * que muestra la tabla (q-table, `page` desde 1). Con `rowsPerPage` 0 ("Todas")
+ * pide el total si ya se conoce; si no, no limita (el backend usa su default).
+ *
+ * @param {{ page?: number, rowsPerPage?: number, rowsNumber?: number }} pagination
+ * @returns {{ offset: number, limit: number } | {}}
+ */
+export function helpPageParams({ page = 1, rowsPerPage = 0, rowsNumber } = {}) {
+  if (rowsPerPage > 0) {
+    return { offset: (Math.max(page, 1) - 1) * rowsPerPage, limit: rowsPerPage };
+  }
+  return rowsNumber > 0 ? { offset: 0, limit: rowsNumber } : {};
+}
+
+/**
+ * Lee la respuesta de una ayuda. Si trae `pagination` (`{ limit, offset,
+ * total, has_more, next }`) la ayuda está paginada en el backend y `total` es el
+ * total de registros; si no, vino completa y el total son las filas recibidas.
+ *
+ * @param {Object} body - `response.data` de la request.
+ * @returns {{ rows: Array<Object>, total: number, paged: boolean }}
+ */
+export function parseHelpPage(body) {
+  const rows = Array.isArray(body?.data) ? body.data : [];
+  const pagination = body?.pagination;
+  if (pagination && typeof pagination === 'object') {
+    const total = Number(pagination.total ?? body.recordsTotal ?? rows.length);
+    return { rows, total: Number.isFinite(total) ? total : rows.length, paged: true };
+  }
+  return { rows, total: rows.length, paged: false };
+}
