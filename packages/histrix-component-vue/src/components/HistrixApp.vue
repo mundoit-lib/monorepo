@@ -243,6 +243,7 @@ import { createBlobUrlHolder, pdfFilename } from '../core/pdf.js';
 
 import { defineLazyComponent } from '../services/asyncComponents.js';
 
+import { computedCalcs } from '../core/computedFields.js';
 import { resolveScreenKind } from '../core/screenType.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
@@ -430,20 +431,11 @@ export default {
         .join('&');
     },
     /**
-     * map of computed field and formulas
+     * Cálculos de los computed_fields: { campoDestino: fórmula }. Las directivas
+     * (__EVAL, __REQUIRED…) no son campos: las resuelven HistrixForm/HistrixField.
      */
     computedFields() {
-      const computedFields = {};
-      if (this.schema.fields) {
-        Object.entries(this.schema.fields).map((field) => {
-          if (field[1].computed_fields) {
-            Object.entries(field[1].computed_fields).map((formula) => {
-              computedFields[formula[0]] = formula[1];
-            });
-          }
-        });
-      }
-      return computedFields;
+      return computedCalcs(this.schema.fields);
     },
     /**
      * map of computed totals source and targets

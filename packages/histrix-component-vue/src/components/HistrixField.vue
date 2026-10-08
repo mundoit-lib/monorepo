@@ -60,8 +60,8 @@
         :style="style"
         :input-class="inputClass"
         :clearable="clearable"
-        :error="v$.modelValue?.$error"
-        :error-message="v$.modelValue?.$errors?.[0]?.$message"
+        :error="v$.modelValue?.$error || Boolean(evalError)"
+        :error-message="v$.modelValue?.$errors?.[0]?.$message || evalError"
         inline
         :borderless="isDisabled"
         :autocomplete="autoComplet"
@@ -196,6 +196,7 @@ import { QCheckbox, QEditor, QFile, QInput, QOptionGroup, QSelect, QToggle } fro
 
 import { useVuelidate } from '@vuelidate/core';
 import { email, helpers, maxLength, required } from '@vuelidate/validators';
+import { computedDirectives } from '../core/computedFields.js';
 import { computeFormulaFlags, parseDataFormulas } from '../core/dataFormulas.js';
 import { backendDateToDisplay, dateSortParts, displayDateToBackend } from '../core/dates.js';
 import { resolveFieldKind } from '../core/fieldType.js';
@@ -225,6 +226,8 @@ export default {
     // Query del contenedor (form/grilla): la ayuda consulta su mismo xml con
     // `__help`, así que viaja también en la búsqueda (p. ej. `id_oto=31`).
     containerQuery: Object,
+    // Validación __EVAL de computed_fields que no se cumple (la calcula el form).
+    evalError: String,
     modelValue: null,
     row: null,
     submitting: null,
@@ -716,7 +719,9 @@ export default {
      * cuando cambian los campos referenciados en las fórmulas.
      */
     dataFormulaFlags() {
-      const formulas = parseDataFormulas(this.fieldSchema['data-formulas']);
+      // Sin data-formulas, las mismas directivas pueden venir en computed_fields.
+      const dataFormulas = parseDataFormulas(this.fieldSchema['data-formulas']);
+      const formulas = dataFormulas.length ? dataFormulas : computedDirectives(this.fieldSchema);
       if (!formulas.length) {
         return {};
       }
