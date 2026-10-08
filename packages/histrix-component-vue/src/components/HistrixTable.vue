@@ -28,6 +28,20 @@
       @update:pagination="updatePagination"
       @request="onRequest"
     >
+      <!-- Cargando: los renglones quedan visibles debajo (una recarga no deja la
+           pantalla en blanco) y el spinner tapa la tabla mientras llegan. -->
+      <template v-slot:loading>
+        <q-inner-loading
+          showing
+          class="histrix-table-loading"
+          :class="{ 'histrix-table-loading--rows': data.length > 0 }"
+        >
+          <div class="histrix-table-loading__box row items-center no-wrap q-gutter-sm">
+            <q-spinner color="primary" size="1.6em" :thickness="4" />
+            <span class="text-body2 text-primary">{{ t('common.loading') }}</span>
+          </div>
+        </q-inner-loading>
+      </template>
       <!-- TOP LEFT: FILTERS -->
       <template v-slot:top-left="">
         <!-- Los filtros se muestran siempre que el schema los traiga, incluso en
@@ -1031,6 +1045,16 @@ export default {
     refresh() {
       this.getData();
     },
+    /**
+     * Recarga pedida desde afuera (HistrixApp.reload): vuelve a pedir los datos
+     * conservando los renglones, filtros y página mientras carga (loading de la
+     * q-table). Con preFetch:false sin armar no había datos pedidos: no hace nada.
+     */
+    reloadData() {
+      if (this.autoFetchAllowed) {
+        this.getData();
+      }
+    },
     rowChange(row) {
       if (this.screenType !== 'livegrid') {
         return;
@@ -1475,6 +1499,18 @@ export default {
 };
 </script>
 <style>
+/* Con renglones, el aviso de carga va arriba de la tabla: centrado en una
+   grilla larga quedaba fuera de la pantalla. Sin renglones queda centrado. */
+.histrix-table-loading--rows {
+  justify-content: flex-start;
+  padding-top: 120px;
+}
+.histrix-table-loading__box {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 20%);
+  padding: 8px 16px;
+}
 /* Renglón cargado en el form para modificar. */
 .histrix-row--editing td {
   background: rgba(25, 118, 210, 0.08);

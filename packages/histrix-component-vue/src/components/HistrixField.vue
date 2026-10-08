@@ -10,6 +10,7 @@
     </div>
     <div class="content-field">
       <component
+        ref="control"
         v-bind:is="fieldComponent"
         :model-value="localValue"
         @update:model-value="onFieldInput"
@@ -286,6 +287,10 @@ export default {
   },
   emits: ['selectOption', 'computed-total', 'fill-fields', 'update:modelValue', 'field-change'],
   methods: {
+    /** Contenedor interno (HistrixApp): vuelve a pedir sus datos, con loading. */
+    reload() {
+      this.$refs.control?.reload?.();
+    },
     /**
      * Vacía el campo si su nombre está en `names` (string o array). Antes era el
      * evento global `reset-field`; ahora se llama por ref (`fieldRef.resetField('x')`).
