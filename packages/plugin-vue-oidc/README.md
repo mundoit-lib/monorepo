@@ -126,7 +126,7 @@ const { user, isLogged, login, logout, renew, ready } = useOidcSession();
 | `restore()` / `restoring()` | Carga la sesión guardada; `restoring()` es la promesa que espera el guard. |
 | `auth` | El núcleo. |
 
-`user()` está tipado como `HistrixUser` (lo que devuelve `GET /me` de Histrix, de `@mundoit-lib/plugin-vue-axios/http`; también se re-exporta desde acá). Para otra forma, `createOidcAuth<MiUsuario>()` / `useOidc<MiUsuario>()`.
+`user()` está tipado como `HistrixUser` (lo que devuelve `GET /me` de Histrix, de `@mundoit-lib/plugin-vue-axios/http`; también se re-exporta desde acá, junto con los tipos de sus bloques `HistrixPerfil`, `HistrixDatabase`, `HistrixEmpresa`, `HistrixUi`, `HistrixCapabilities` y `HistrixVersion`). Desde 1.2 incluye lo que suma el `/me` de Histrix 2.0: `admin`, `perfil`/`perfiles`, `avatar`, `database`, `empresa`, `ui` (`logo`, `fondo`, `modulos`), `plugins` y `capabilities` (`systemMenu`, `editor`). Para otra forma, `createOidcAuth<MiUsuario>()` / `useOidc<MiUsuario>()`.
 
 ### Ruta `/callback`
 

@@ -74,7 +74,7 @@ onError: {
 | `setDatabase(db)` | `setBaseURL` con `<host>/api/db/<db>` |
 | `axiosInstance` | **Deprecado, se elimina en 3.0**: es `undefined` hasta `initializeAxios`. Usar `getAxiosInstance()` |
 | `HttpClient` (tipo) | Contrato `get/post/put/patch/delete` + `interceptors`, invocable como `http(config)` (2.1+), que usan auth y `histrix-component-vue`. Una instancia de axios lo cumple sin adaptador. También en `@mundoit-lib/plugin-vue-axios/http` (sólo tipos, sin axios ni `$axios`) junto con `HttpRequestConfig`, `HttpResponse` y `HttpInterceptorManager` |
-| `HistrixUser` (tipo, 2.2+) | Usuario que devuelve `GET /me` de Histrix (`id`, `username`, `email`, `roles`, `fullname`, `name`, `socialNetworks`…), con índice abierto para los campos extra de cada instalación. Es el usuario por defecto de `plugin-vue-auth` 2.1+ y `plugin-vue-oidc` 1.1+. También en `./http` |
+| `HistrixUser` (tipo, 2.2+) | Usuario que devuelve `GET /me` de Histrix (`id`, `username`, `email`, `roles`, `fullname`, `name`…), con índice abierto para los campos extra de cada instalación. Desde 2.3 trae también los datos de arranque de la SPA que suma Histrix 2.0: `admin`, `perfil`/`perfiles`, `avatar`, `interno`, `theme`, `rhpersonal_id`, `lang`, `version`, `database` (`id`, `descripcion`, `baseModule`), `empresa` (`nombre`, `cuit`, `iibb`, `direccion`…), `ui` (`logo`, `fondo`, `modulos`), `plugins` y `capabilities` (`systemMenu`, `editor`). Los bloques se exportan como `HistrixPerfil`, `HistrixVersion`, `HistrixDatabase`, `HistrixEmpresa`, `HistrixUi` y `HistrixCapabilities`. Es el usuario por defecto de `plugin-vue-auth` 2.1+ y `plugin-vue-oidc` 1.1+. También en `./http` |
 
 ## Deprecado (se elimina en 3.0)
 

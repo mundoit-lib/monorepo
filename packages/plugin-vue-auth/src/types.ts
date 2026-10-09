@@ -133,4 +133,14 @@ export interface HttpRequestConfig extends BaseHttpRequestConfig {
  * Se re-exporta por compatibilidad. Sólo tipos, inlineados en el `.d.ts`: auth no depende de plugin-vue-axios
  * ni de axios, ni en runtime ni en tipos.
  */
-export type { HistrixUser, HttpClient, HttpResponse } from '@mundoit-lib/plugin-vue-axios/http';
+export type {
+  HistrixCapabilities,
+  HistrixDatabase,
+  HistrixEmpresa,
+  HistrixPerfil,
+  HistrixUi,
+  HistrixUser,
+  HistrixVersion,
+  HttpClient,
+  HttpResponse
+} from '@mundoit-lib/plugin-vue-axios/http';
