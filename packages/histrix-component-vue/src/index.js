@@ -33,12 +33,14 @@ import HistrixLog from './components/widgets/HistrixLog.vue';
 import HistrixMenu from './components/widgets/HistrixMenu.vue';
 import HistrixMenuSearch from './components/widgets/HistrixMenuSearch.vue';
 import HistrixNews from './components/widgets/HistrixNews.vue';
+import HistrixSystemMenu from './components/widgets/HistrixSystemMenu.vue';
 import HistrixUsers from './components/widgets/HistrixUsers.vue';
 import notificationMenu from './components/widgets/notificationMenu.vue';
 import profileMenu from './components/widgets/profileMenu.vue';
 import profileMenuItems from './components/widgets/profileMenuItems.vue';
 import { useHistrixMenu } from './composables/useHistrixMenu.js';
 import { useHistrixSession } from './composables/useHistrixSession.js';
+import { useHistrixSystemMenu } from './composables/useHistrixSystemMenu.js';
 import { HistrixApiError, isHistrixApiError, normalizeApiError } from './core/apiError.js';
 import { normalizeData } from './core/apiResponse.js';
 import { setHistrixApp } from './services/appContext.js';
@@ -87,6 +89,7 @@ const components = [
   HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
+  HistrixSystemMenu,
   HistrixTable,
   HistrixTree,
   HistrixUsers,
@@ -128,6 +131,7 @@ export {
   HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
+  HistrixSystemMenu,
   HistrixTable,
   HistrixTree,
   HistrixUsers,
@@ -163,6 +167,7 @@ export {
   useHistrixNavigate,
   useHistrixSession,
   useHistrixMenu,
+  useHistrixSystemMenu,
   createHistrixI18n,
   provideHistrixI18n,
   useHistrixI18n,
@@ -198,6 +203,7 @@ export default {
   HistrixPdfViewer,
   HistrixRegisterSplit,
   HistrixResetPasswordSplit,
+  HistrixSystemMenu,
   HistrixTable,
   HistrixTree,
   HistrixUsers,

@@ -68,14 +68,10 @@ const currentHashPath = () => {
 };
 
 /**
- * @param {object} [options]
- * @param {string | import('vue').Ref<string>} [options.level] nivel que se pide a `getMenu`.
- * @param {boolean | import('vue').Ref<boolean>} [options.favorites] habilita los favoritos del usuario.
- * @param {Array} [options.tree] árbol ya cargado: no se pide el menú (ni featured ni favoritos).
- * @param {() => void} [options.onClose] se llama al elegir un item (cerrar el drawer).
- * @param {() => void} [options.onFavoritesChange] se llama al agregar o quitar un favorito.
+ * Estado y acciones del menú, sin pedirlo ni compartirlo con los niveles anidados
+ * (eso lo hace useHistrixMenu). Lo usa también el menú de sistema.
  */
-export function useHistrixMenu({
+export function createHistrixMenu({
   level,
   favorites: favoritesEnabled = false,
   tree: initialTree,
@@ -92,7 +88,7 @@ export function useHistrixMenu({
   const tree = ref(initialTree || []);
   const featured = ref([]);
   const favorites = ref([]);
-  const loading = ref(!initialTree);
+  const loading = ref(false);
   const featuredOpen = ref(storage.get('menu.featuredOpen') !== '0');
   const favoritesOpen = ref(storage.get('menu.favoritesOpen') !== '0');
 
@@ -176,7 +172,7 @@ export function useHistrixMenu({
     loading.value = false;
   };
 
-  const menu = {
+  return {
     tree,
     featured,
     favorites,
@@ -192,10 +188,20 @@ export function useHistrixMenu({
     label: decodeHTML,
     reload
   };
+}
 
+/**
+ * @param {object} [options]
+ * @param {string | import('vue').Ref<string>} [options.level] nivel que se pide a `getMenu`.
+ * @param {boolean | import('vue').Ref<boolean>} [options.favorites] habilita los favoritos del usuario.
+ * @param {Array} [options.tree] árbol ya cargado: no se pide el menú (ni featured ni favoritos).
+ * @param {() => void} [options.onClose] se llama al elegir un item (cerrar el drawer).
+ * @param {() => void} [options.onFavoritesChange] se llama al agregar o quitar un favorito.
+ */
+export function useHistrixMenu(options = {}) {
+  const menu = createHistrixMenu(options);
   if (getCurrentInstance()) provide(HISTRIX_MENU_KEY, menu);
-  if (!initialTree) reload();
-
+  if (!options.tree) menu.reload();
   return menu;
 }
 

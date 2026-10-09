@@ -160,6 +160,8 @@ export default {
   'menu.removeFavorite': 'Remove from favorites',
   'menu.favoriteSaved': 'Favorite saved',
   'menu.favoriteError': 'The favorite could not be saved',
+  'systemMenu.title': 'System menu',
+  'systemMenu.empty': 'No options',
   'menuSearch.placeholder': 'Search…',
   'menuSearch.inputLabel': 'Search the menu',
   'menuSearch.clear': 'Clear search',
