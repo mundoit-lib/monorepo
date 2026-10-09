@@ -40,7 +40,7 @@ export default {
   'form.processFinished': 'Process finished',
   'form.loadError': 'Error loading data',
   'form.submit': 'Save',
-  'form.discard': 'Discard',
+  'form.discard': 'Close',
   'form.requiredHint': 'Check the fields marked with * before saving.',
 
   'table.perPage': 'Per page',
