@@ -1,6 +1,15 @@
 import type { AxiosInstance } from 'axios';
 import { describe, expectTypeOf, it } from 'vitest';
-import type { HistrixUser, HttpClient, HttpRequestConfig, HttpResponse } from './http';
+import type {
+  HistrixCapabilities,
+  HistrixEmpresa,
+  HistrixPerfil,
+  HistrixUi,
+  HistrixUser,
+  HttpClient,
+  HttpRequestConfig,
+  HttpResponse
+} from './http';
 
 // Test de tipos: Vitest lo valida con tsc (typecheck en vitest.config.ts), no se ejecuta en runtime.
 describe('HttpClient', () => {
@@ -21,5 +30,21 @@ describe('HistrixUser', () => {
     expectTypeOf<HistrixUser['emailVerified']>().toEqualTypeOf<boolean>();
     expectTypeOf<{ id: 1; extra: string }>().not.toExtend<HistrixUser>();
     expectTypeOf<HistrixUser['cualquierCampo']>().toEqualTypeOf<unknown>();
+  });
+
+  it('trae los datos de arranque de la SPA: perfiles, base, empresa, ui, plugins y capabilities', () => {
+    expectTypeOf<HistrixUser['admin']>().toEqualTypeOf<boolean>();
+    expectTypeOf<HistrixUser['perfil']>().toEqualTypeOf<{ id: number | null; nombre: string }>();
+    expectTypeOf<HistrixUser['perfiles']>().toEqualTypeOf<HistrixPerfil[]>();
+    expectTypeOf<HistrixUser['avatar']>().toEqualTypeOf<string | null>();
+    expectTypeOf<HistrixUser['rhpersonal_id']>().toEqualTypeOf<number | null>();
+    expectTypeOf<HistrixUser['database']['id']>().toEqualTypeOf<string>();
+    expectTypeOf<HistrixUser['empresa']>().toEqualTypeOf<HistrixEmpresa>();
+    expectTypeOf<HistrixEmpresa['cuit']>().toEqualTypeOf<string>();
+    expectTypeOf<HistrixUser['ui']>().toEqualTypeOf<HistrixUi>();
+    expectTypeOf<HistrixUi['modulos']>().toEqualTypeOf<string[]>();
+    expectTypeOf<HistrixUser['plugins']>().toEqualTypeOf<string[]>();
+    expectTypeOf<HistrixUser['capabilities']>().toEqualTypeOf<HistrixCapabilities>();
+    expectTypeOf<HistrixCapabilities['systemMenu']>().toEqualTypeOf<boolean>();
   });
 });

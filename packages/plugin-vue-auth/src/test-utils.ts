@@ -22,6 +22,21 @@ export function histrixUser(overrides: Partial<HistrixUser> = {}): HistrixUser {
     emailVerified: true,
     last_log: null,
     socialNetworks: {},
+    regcuenta_id: null,
+    admin: false,
+    perfil: { id: 2, nombre: 'Ventas' },
+    perfiles: [{ id: 2, nombre: 'Ventas' }],
+    avatar: null,
+    interno: '',
+    theme: '',
+    rhpersonal_id: null,
+    lang: 'es',
+    version: { histrix: '2.0', api: '1.0' },
+    database: { id: 'demo', descripcion: 'Demo', baseModule: 'erp-full' },
+    empresa: { nombre: 'Demo SA', cuit: '', iibb: '', direccion: '', localidad: '', telefonos: '', mail: '', web: '' },
+    ui: { logo: null, fondo: null, modulos: [] },
+    plugins: [],
+    capabilities: { systemMenu: false, editor: false },
     ...overrides
   };
 }

@@ -1,12 +1,28 @@
 import type { User, UserManager, UserManagerSettings } from 'oidc-client-ts';
-import type { HistrixUser } from '@mundoit-lib/plugin-vue-axios/http';
+import type {
+  HistrixCapabilities,
+  HistrixDatabase,
+  HistrixEmpresa,
+  HistrixPerfil,
+  HistrixUi,
+  HistrixUser,
+  HistrixVersion
+} from '@mundoit-lib/plugin-vue-axios/http';
 import type { ComputedRef, ShallowRef } from 'vue';
 import type { OidcIssuer } from './issuer';
 
 /** Sesión OIDC (tokens + claims) tal como la guarda `oidc-client-ts`. */
 export type OidcUser = User;
-/** Usuario de `GET /me` de Histrix: el usuario por defecto de `user()`. */
-export type { HistrixUser };
+/** Usuario de `GET /me` de Histrix (el usuario por defecto de `user()`) y los tipos de sus bloques. */
+export type {
+  HistrixCapabilities,
+  HistrixDatabase,
+  HistrixEmpresa,
+  HistrixPerfil,
+  HistrixUi,
+  HistrixUser,
+  HistrixVersion
+};
 
 /** Storage sincrónico tipo `localStorage`: tokens de oidc-client-ts y usuario de la app. */
 export type OidcStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem' | 'key' | 'length'>;
