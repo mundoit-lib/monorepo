@@ -45,7 +45,7 @@ export default {
   'form.processFinished': 'Proceso finalizado',
   'form.loadError': 'Error de carga de datos',
   'form.submit': 'Grabar',
-  'form.discard': 'Descartar',
+  'form.discard': 'Cerrar',
   'form.requiredHint': 'Revisá los campos con * antes de guardar.',
 
   // HistrixTable / HistrixTree / HistrixList

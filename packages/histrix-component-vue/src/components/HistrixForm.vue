@@ -133,7 +133,7 @@
         </div>
       </div>
       <!-- Barra de acciones fija abajo (sticky): aviso de obligatorios a la
-           izquierda, Descartar y Grabar a la derecha. En celular, Grabar ocupa
+           izquierda, Cerrar y Grabar a la derecha. En celular, Grabar ocupa
            el ancho que queda. -->
       <div v-if="insertButton || updateButton" class="histrix-form-actions row items-center no-wrap">
         <!-- Grabar deshabilitado por una __EVAL: el campo que valida puede estar
