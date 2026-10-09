@@ -40,7 +40,7 @@ Peers opcionales (declarados en `peerDependenciesMeta`): son los adaptadores por
 | Piezas de pantalla | `HistrixField`, `HistrixCell`, `HistrixFilters`, `HistrixHelp` (picker de ayudas), `HistrixPdfViewer` (visor de PDF nativo, ver [PDF](#pdf)), `ExportForm`, `HistrixUnsupported` |
 | Auth nativa (sin Quasar) | `HistrixLoginSplit`, `HistrixRegisterSplit`, `HistrixForgotPasswordSplit`, `HistrixResetPasswordSplit` |
 | Auth con Quasar | `LoginForm`, `FormLoginNotStyles`, `HistrixPasswordChange`, `InputPassword` |
-| Menú y shell | `HistrixMenu`, `HistrixExpansionMenu`, `HistrixMenuSearch` (buscador con Ctrl/⌘+K), `FavoritItems`, `profileMenu`, `profileMenuItems`, `notificationMenu` |
+| Menú y shell | `HistrixMenu`, `HistrixExpansionMenu`, `HistrixSystemMenu` (engranaje del menú de sistema), `HistrixMenuSearch` (buscador con Ctrl/⌘+K), `FavoritItems`, `profileMenu`, `profileMenuItems`, `notificationMenu` |
 | Conexión y utilidades | `DatabaseSelector`, `HistrixConnectionSettings`, `HistrixFileManager`, `HistrixLog`, `HistrixNews`, `HistrixUsers` |
 
 El detalle de props y eventos de cada uno está en `docs/03-componentes.md` del repo.
@@ -283,6 +283,60 @@ const menu = useHistrixMenu({ level: 'phpmen', favorites: true, onClose: () => (
 ```
 
 `level` y `favorites` aceptan un valor, una ref o un getter. `toggleFavorite` llama a la API, notifica y emite `update-favorit` por el bus, como el menú. Llamado dentro de un componente, comparte su estado con los `HistrixExpansionMenu` anidados por `provide`/`inject`.
+
+## Menú de sistema (engranaje)
+
+`HistrixSystemMenu` es el engranaje de Histrix: un botón con un popup que lista el menú de sistema (`GET /menu/phpmen-fsm`: usuarios, perfiles, plugins, impresoras…). Se dibuja sólo si el `/me` trae `capabilities.systemMenu: true` (administradores) y el menú se pide recién al abrirlo, una vez por usuario. Con `systemMenu` en `false` o sin `capabilities` (Histrix anterior a 2.0) no se dibuja ni se pide nada. Los ítems ocultos y los permisos por perfil los filtra el servidor: se dibuja lo que llega. Cada ítem se abre como cualquier ítem del menú, por su `uri`.
+
+```vue
+<HistrixSystemMenu />
+<!-- otro ícono, o forzar mostrarlo/ocultarlo sin mirar capabilities -->
+<HistrixSystemMenu icon="admin_panel_settings" :enabled="esAdmin" @close="drawer = false" />
+```
+
+Si el menú trae ramas (ítems con `children`), se dibujan como encabezados con sus ítems debajo.
+
+### Slots
+
+Como en `HistrixExpansionMenu`, son scoped y tienen el diseño de la librería como default.
+
+| Slot | Props | Reemplaza |
+| --- | --- | --- |
+| `#button` | `loading`, `open` | el ícono del botón |
+| `#header` | `title` | el título del popup |
+| `#loading` | — | los skeletons mientras carga |
+| `#empty` | — | el aviso de menú vacío |
+| `#section` | `node`, `label`, `depth` | el encabezado de una rama |
+| `#item` | `node`, `to`, `label`, `subtitle`, `depth`, `onClick`, `open` | cada ítem |
+
+`:to="to"` + `@click="onClick"` o `@click="open"` navegan y cierran el popup, igual que en el menú lateral. Los tipos están en `HistrixSystemMenuSlots`.
+
+```vue
+<HistrixSystemMenu>
+  <template #item="{ node, label, open }">
+    <q-item clickable dense @click="open">
+      <q-item-section avatar><q-icon :name="node.icon || 'build'" /></q-item-section>
+      <q-item-section>{{ label }}</q-item-section>
+    </q-item>
+  </template>
+</HistrixSystemMenu>
+```
+
+### Composable
+
+Para armarlo desde cero (otro tipo de popup, un drawer, una página), `useHistrixSystemMenu` da la lógica sin diseño:
+
+```js
+import { useHistrixSystemMenu } from '@mundoit-lib/histrix-component-vue';
+
+const system = useHistrixSystemMenu({ immediate: false, onClose: () => (open.value = false) });
+// system.enabled: computed, capabilities.systemMenu del usuario de la sesión
+// system.tree: ref con el árbol tal como llega; system.entries: computed aplanado ({ node, depth, header })
+// system.loading: ref; system.load(): lo pide una vez por usuario; system.reload(): lo vuelve a pedir
+// system.nodeUri(node), system.open(node), system.onItemClick(node), system.label(text)
+```
+
+`enabled` acepta un valor, una ref o un getter y pisa a `capabilities.systemMenu`. Con `immediate: true` (default) el menú se pide apenas está habilitado; con `false`, al llamar a `load()`. Al cambiar de usuario se descarta y se vuelve a pedir. Si el pedido falla o el menú viene vacío, el próximo `load()` lo reintenta.
 
 ## Atajos de teclado
 

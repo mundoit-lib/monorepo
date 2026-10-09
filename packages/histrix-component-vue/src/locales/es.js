@@ -174,6 +174,8 @@ export default {
   'menu.removeFavorite': 'Quitar de favoritos',
   'menu.favoriteSaved': 'Favorito guardado',
   'menu.favoriteError': 'El favorito no se pudo guardar',
+  'systemMenu.title': 'Menú de sistema',
+  'systemMenu.empty': 'Sin opciones',
   'menuSearch.placeholder': 'Buscar…',
   'menuSearch.inputLabel': 'Buscar en el menú',
   'menuSearch.clear': 'Limpiar búsqueda',

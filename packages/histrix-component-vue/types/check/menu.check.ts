@@ -2,8 +2,14 @@
  * Validación de los tipos del menú (no se publica). Lo corre `typecheck`.
  */
 import { ref } from 'vue';
-import type { HistrixExpansionMenuSlots, HistrixMenu, HistrixMenuNode } from '../index';
-import { useHistrixMenu } from '../index';
+import type {
+  HistrixExpansionMenuSlots,
+  HistrixMenu,
+  HistrixMenuNode,
+  HistrixSystemMenu,
+  HistrixSystemMenuSlots
+} from '../index';
+import { useHistrixMenu, useHistrixSystemMenu } from '../index';
 
 const level = ref('phpmen');
 const menu: HistrixMenu = useHistrixMenu({ level, favorites: () => true, onClose: () => undefined });
@@ -33,3 +39,19 @@ void [isFav, leaf.toggleFavorite()];
 // @ts-expect-error la sección es 'featured' o 'favorites'
 const section: HistrixExpansionMenuSlots['section-header']['section'] = 'otra';
 void section;
+
+const system: HistrixSystemMenu = useHistrixSystemMenu({ immediate: false, onClose: () => undefined });
+useHistrixSystemMenu({ enabled: ref(true) });
+useHistrixSystemMenu();
+const showGear: boolean = system.enabled.value && !system.loading.value;
+for (const entry of system.entries.value) {
+  if (!entry.header) system.open(entry.node);
+}
+void [showGear, system.load(), system.reload()];
+// @ts-expect-error enabled es booleano
+useHistrixSystemMenu({ enabled: 'si' });
+
+const item = {} as HistrixSystemMenuSlots['item'];
+const depth: number = item.depth;
+item.onClick();
+void depth;

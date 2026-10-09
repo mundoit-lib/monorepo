@@ -13,6 +13,8 @@
         </q-toolbar-title>
 
         <HistrixMenuSearch v-if="loggedIn" level="phpmen" placeholder="Buscar en el menú…" class="q-mr-sm" />
+        <!-- Engranaje del menú de sistema: sólo si el /me trae capabilities.systemMenu -->
+        <HistrixSystemMenu v-if="loggedIn" class="q-mr-sm" />
 
         <!-- Switch de prueba del i18n de la lib (HD-7530): cambia el locale en caliente. -->
         <q-btn-toggle

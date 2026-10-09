@@ -1,6 +1,6 @@
 {
   "name": "@mundoit-lib/histrix-component-vue",
-  "version": "0.8.2",
+  "version": "0.9.0",
   "description": "Histrix Vue 3 client components (Quasar 2)",
   "keywords": [
     "histrix",
@@ -172,6 +172,10 @@
       "import": "./src/components/widgets/HistrixNews.vue",
       "require": "./src/components/widgets/HistrixNews.vue"
     },
+    "./components/widgets/HistrixSystemMenu": {
+      "import": "./src/components/widgets/HistrixSystemMenu.vue",
+      "require": "./src/components/widgets/HistrixSystemMenu.vue"
+    },
     "./components/widgets/HistrixUsers": {
       "import": "./src/components/widgets/HistrixUsers.vue",
       "require": "./src/components/widgets/HistrixUsers.vue"
@@ -196,6 +200,11 @@
     "./composables/useHistrixSession": {
       "import": "./src/composables/useHistrixSession.js",
       "require": "./src/composables/useHistrixSession.js"
+    },
+    "./composables/useHistrixSystemMenu": {
+      "types": "./types/menu.d.ts",
+      "import": "./src/composables/useHistrixSystemMenu.js",
+      "require": "./src/composables/useHistrixSystemMenu.js"
     },
     "./services/auth": {
       "import": "./src/services/auth.js",

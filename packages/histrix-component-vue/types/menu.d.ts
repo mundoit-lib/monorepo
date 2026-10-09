@@ -1,8 +1,9 @@
 /**
  * Menú lateral: `useHistrixMenu` (composables/useHistrixMenu.js) y los slots de
  * `HistrixExpansionMenu`, para que la app cambie el diseño sin reimplementar la lógica.
+ * Menú de sistema (engranaje): `useHistrixSystemMenu` y los slots de `HistrixSystemMenu`.
  */
-import type { MaybeRefOrGetter, Ref } from 'vue';
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue';
 
 /** Item del árbol que devuelve `getMenu(level)`. Con `children` es una rama; sin, una hoja. */
 export interface HistrixMenuNode {
@@ -94,4 +95,51 @@ export interface HistrixExpansionMenuSlots {
     isFavorite: boolean;
     toggleFavorite: () => Promise<void>;
   };
+}
+
+export interface UseHistrixSystemMenuOptions {
+  /** Si se muestra. Default: `capabilities.systemMenu` del usuario de la sesión (`/me`). */
+  enabled?: MaybeRefOrGetter<boolean>;
+  /** Pide el menú apenas está habilitado. Con `false`, recién al llamar a `load()`. Default `true`. */
+  immediate?: boolean;
+  /** Se llama al elegir un item (cerrar el popup). */
+  onClose?: () => void;
+}
+
+/** Item del menú de sistema aplanado: una rama es un encabezado seguido de sus items. */
+export interface HistrixSystemMenuEntry {
+  node: HistrixMenuNode;
+  /** 0 en el primer nivel. */
+  depth: number;
+  /** Rama (tiene `children`): se dibuja como encabezado, no se navega. */
+  header: boolean;
+}
+
+export interface HistrixSystemMenu {
+  /** `capabilities.systemMenu` (o la opción `enabled`): si es `false` no se dibuja ni se pide el menú. */
+  enabled: ComputedRef<boolean>;
+  /** Árbol de `/menu/phpmen-fsm`, tal como llega. */
+  tree: Ref<HistrixMenuNode[]>;
+  entries: ComputedRef<HistrixSystemMenuEntry[]>;
+  loading: Ref<boolean>;
+  nodeUri: HistrixMenu['nodeUri'];
+  open: HistrixMenu['open'];
+  onItemClick: HistrixMenu['onItemClick'];
+  label: HistrixMenu['label'];
+  /** Pide el menú una vez por usuario (si vino vacío o falló, lo vuelve a pedir). */
+  load(): Promise<void>;
+  /** Lo vuelve a pedir siempre. */
+  reload(): Promise<void>;
+}
+
+export declare function useHistrixSystemMenu(options?: UseHistrixSystemMenuOptions): HistrixSystemMenu;
+
+/** Props de los scoped slots de `HistrixSystemMenu`. */
+export interface HistrixSystemMenuSlots {
+  button: { loading: boolean; open: boolean };
+  header: { title: string };
+  loading: Record<string, never>;
+  empty: Record<string, never>;
+  section: { node: HistrixMenuNode; label: string; depth: number };
+  item: HistrixMenuItemSlotProps & { node: HistrixMenuNode; subtitle: string; depth: number };
 }
