@@ -57,6 +57,17 @@ export default {
   'table.saveRow': 'Save row',
   'table.checkAll': 'Check / uncheck all',
 
+  // HistrixTree
+  'tree.search': 'Search the tree',
+  'tree.expandAll': 'Expand all',
+  'tree.collapseAll': 'Collapse all',
+  'tree.more': 'More options',
+  'tree.reload': 'Reload',
+  'tree.addRoot': 'New at the root',
+  'tree.addChild': 'Add inside',
+  'tree.confirmDelete': 'Delete “{label}”?',
+  'tree.confirmDeleteBranch': '“{label}” has {count} items inside. Delete it anyway?',
+
   'field.required': '* Required',
   'field.invalidEmail': 'Invalid email',
   'field.maxLength': 'Cannot be longer than {max} characters',

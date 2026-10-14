@@ -101,7 +101,7 @@ app.use(HistrixPlugin, {
 });
 ```
 
-Para la sesión, `useHistrixSession()` devuelve `{ user, isLogged, login(u, p), logout(), refresh() }`. Es la única fuente de `user` y reemplaza a leer `localStorage.user`. Para las pantallas, `HistrixPage` reemplaza el `pages/Histrix.vue` de cada app y `HistrixAppDialog`, los `HistrixAppCard`. `HistrixList`/`HistrixTree` ya no navegan a la ruta `form`, que no existe: emiten `select` con `{ path, query }`. `HistrixField.resetField(names)` reemplaza al evento global `reset-field`.
+Para la sesión, `useHistrixSession()` devuelve `{ user, isLogged, login(u, p), logout(), refresh() }`. Es la única fuente de `user` y reemplaza a leer `localStorage.user`. Para las pantallas, `HistrixPage` reemplaza el `pages/Histrix.vue` de cada app y `HistrixAppDialog`, los `HistrixAppCard`. `HistrixList` ya no navega a la ruta `form`, que no existe: emite `select` con `{ path, query }`. `HistrixField.resetField(names)` reemplaza al evento global `reset-field`.
 
 ## PDF
 
@@ -337,6 +337,17 @@ const system = useHistrixSystemMenu({ immediate: false, onClose: () => (open.val
 ```
 
 `enabled` acepta un valor, una ref o un getter y pisa a `capabilities.systemMenu`. Con `immediate: true` (default) el menú se pide apenas está habilitado; con `false`, al llamar a `load()`. Al cambiar de usuario se descarta y se vuelve a pedir. Si el pedido falla o el menú viene vacío, el próximo `load()` lo reintenta.
+
+## Árboles (`arbol`)
+
+Las pantallas `type: "arbol"` (p. ej. `histrix/menu/menues.xml`, el menú del sistema) las muestra `HistrixTree` sobre `q-tree`. Es una tabla autorreferenciada: cada fila cuelga del nodo cuyo `schema.childField` es igual a su `schema.parentField` (en el menú, `hijo` del padre = `Id_menu` del hijo), y la raíz es `schema.values[parentField]` (`phpmen`). El backend, filtrando por la raíz, ya devuelve las filas anidadas en `children`; una lista plana también se arma.
+
+- **Mostrar**: el texto del nodo es el primer campo visible de texto que no es clave (`titulo`) y al lado van los otros visibles (`Orden: 10`), con el estilo de celda que manda el backend. Buscador sin mayúsculas ni tildes (texto y valores de la fila, sin el campo padre), un botón que expande o contrae todo, y recargar/exportar/imprimir (en celular, en un menú ⋮ con texto, y sin el detalle al lado del texto); lo abierto se conserva al recargar.
+- **Editar** (con `PUT` en `resources`): botón o doble click en el nodo; abre `HistrixForm` en un diálogo y al grabar recarga.
+- **Agregar** (con `POST`): `Nuevo` agrega en la raíz y `+` en un nodo agrega adentro, con el `parentField` ya cargado con el `childField` del padre. Sólo se puede agregar dentro de un nodo que tiene `childField` (en el menú, un ítem que llama a un submenú).
+- **Borrar** (con `DELETE`): pide confirmación (avisa si el nodo tiene elementos adentro) y manda las claves (`esClave`) del nodo.
+
+`can_insert`/`can_update`/`can_delete: false` o `readonly` ocultan la acción aunque el recurso exista. La lógica pura está en `src/core/tree.js`.
 
 ## Atajos de teclado
 

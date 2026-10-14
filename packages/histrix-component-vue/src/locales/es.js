@@ -63,6 +63,17 @@ export default {
   'table.saveRow': 'Guardar renglón',
   'table.checkAll': 'Marcar / desmarcar todos',
 
+  // HistrixTree
+  'tree.search': 'Buscar en el árbol',
+  'tree.expandAll': 'Expandir todo',
+  'tree.collapseAll': 'Contraer todo',
+  'tree.more': 'Más opciones',
+  'tree.reload': 'Recargar',
+  'tree.addRoot': 'Nuevo en la raíz',
+  'tree.addChild': 'Agregar dentro',
+  'tree.confirmDelete': '¿Borrar «{label}»?',
+  'tree.confirmDeleteBranch': '«{label}» tiene {count} elementos adentro. ¿Borrarlo igual?',
+
   // HistrixField
   'field.required': '* Valor requerido',
   'field.invalidEmail': 'Valor email',
