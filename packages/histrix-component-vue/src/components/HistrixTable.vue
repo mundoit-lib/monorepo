@@ -446,6 +446,7 @@ import { buildFieldQueries } from '../core/fieldQueries.js';
 import { detailQueryParams } from '../core/links.js';
 import { resolveFieldKind } from '../core/fieldType.js';
 import { visibleColumnNames } from '../core/fieldVisibility.js';
+import { filterQueryParams } from '../core/filters.js';
 import { evaluateFormula } from '../core/formula.js';
 import {
   columnTotals,
@@ -1422,7 +1423,8 @@ export default {
     getData(index) {
       const url = this.xmlUrl();
       const pageParams = this.serverSide ? buildPageParams(this.pagination, this.paginationConfig) : {};
-      const filters = { ...this.query, ...this.localFilters, ...pageParams };
+      // Los filtros de HistrixFilters (`fullQuery`) se perdían desde 0.3.3: el botón Buscar repetía el pedido sin `_f[]`.
+      const filters = { ...this.query, ...filterQueryParams(this.fullQuery), ...this.localFilters, ...pageParams };
       // Al montar llegan dos pedidos iguales (el update:pagination inicial de la q-table y mounted):
       // si ya hay uno en vuelo con la misma URL y filtros, no se repite.
       const requestKey = JSON.stringify([url, filters, index ?? null]);

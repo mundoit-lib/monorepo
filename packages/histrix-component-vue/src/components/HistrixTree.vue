@@ -185,6 +185,7 @@ import {
   treeLabelField,
   treeRootValue
 } from '../core/tree.js';
+import { filterQueryParams } from '../core/filters.js';
 import { newRecordValues } from '../core/values.js';
 import useApi from '../services/histrixApi.js';
 import { useHistrixI18n } from '../services/i18n.js';
@@ -326,7 +327,8 @@ export default {
       this.expanded = [];
     },
     applyFilters(query) {
-      this.localFilters = query && typeof query === 'object' ? query : {};
+      // HistrixFilters emite el querystring `&_f[]=…`: se pasa a params para axios.
+      this.localFilters = query && typeof query === 'object' ? query : filterQueryParams(query);
     },
     /** Lo llama HistrixApp después de un proceso (reload). */
     reloadData() {

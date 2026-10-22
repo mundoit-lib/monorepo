@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { buildFilterQuery } from './filters.js';
+import { buildFilterQuery, filterQueryParams } from './filters.js';
 
 describe('buildFilterQuery', () => {
   it('arma un filtro simple', () => {
@@ -39,5 +39,26 @@ describe('buildFilterQuery', () => {
 
   it('devuelve string vacío con array vacío', () => {
     expect(buildFilterQuery([])).toBe('');
+  });
+
+  it('codifica el valor para que un & no parta el querystring', () => {
+    expect(buildFilterQuery([{ campo: 'nombre', operador: 'like', valor: 'A&B 50%' }])).toBe(
+      '&_f[]=nombre&_o[]=like&_v[]=A%26B%2050%25'
+    );
+  });
+});
+
+describe('filterQueryParams', () => {
+  it('convierte el querystring de los filtros en params para axios', () => {
+    const query = buildFilterQuery([
+      { campo: 'codigo', operador: 'like', valor: 'var' },
+      { campo: 'estado', operador: '=', valor: 'A&B' }
+    ]);
+    expect(filterQueryParams(query)).toEqual({ _f: ['codigo', 'estado'], _o: ['like', '='], _v: ['var', 'A&B'] });
+  });
+
+  it('sin filtrar todavía (fullQuery es el objeto query) no agrega nada', () => {
+    expect(filterQueryParams({ id_oto: '128' })).toEqual({});
+    expect(filterQueryParams(undefined)).toEqual({});
   });
 });
