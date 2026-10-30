@@ -63,3 +63,20 @@ export function createBlobUrlHolder(urlApi = globalThis.URL) {
     }
   };
 }
+
+/**
+ * Impresiones que pide la respuesta de un proceso (`print`), como
+ * `{ path, params }` para `getAppPdf`. Se usa `xml` + `params` y no `url`: la
+ * `url` trae el host del servidor, que no siempre es el que ve la app.
+ *   { print: [{ xml: 'qry/comprobante.xml', params: { id: '1' }, url: '…' }] }
+ *
+ * @param {{ print?: Array<{ xml?: string, params?: Object }> }} [data] `response.data` del proceso.
+ * @returns {Array<{ path: string, params: Object }>}
+ */
+export function processPrints(data) {
+  const print = data?.print;
+  if (!Array.isArray(print)) return [];
+  return print
+    .filter((job) => typeof job?.xml === 'string' && job.xml !== '')
+    .map((job) => ({ path: job.xml.replace(/^\/+/, ''), params: { ...job.params } }));
+}

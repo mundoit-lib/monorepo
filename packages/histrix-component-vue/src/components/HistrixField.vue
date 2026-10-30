@@ -47,6 +47,7 @@
         :disabled="isDisabled || undefined"
         :disable="isDisabled || undefined"
         :readonly="isDisabled || undefined"
+        :hide-dropdown-icon="isDisabled || undefined"
         :counter="isMultiple"
         :fonts="{
           arial: 'Arial',

@@ -210,6 +210,7 @@ import { mapUiIcon } from '../core/icons.js';
 import { extractKeys } from '../core/keys.js';
 import { buildLinkParameters, cellLink, resolveHelperLinkPath } from '../core/links.js';
 import { normalizeScreenType } from '../core/normalize.js';
+import { processPrints } from '../core/pdf.js';
 import { queryValues } from '../core/values.js';
 import { defineLazyComponent } from '../services/asyncComponents.js';
 import useApi from '../services/histrixApi.js';
@@ -726,8 +727,12 @@ export default {
           this.submitting = false;
           this.notify.success(this.t('form.processFinished'));
           const data = response?.data?.resourceIds || [];
+          // El proceso puede pedir imprimir el comprobante que generó: lo abre
+          // HistrixApp en su visor de PDF.
+          const [print] = processPrints(response?.data);
           this.reset();
           this.refresh();
+          if (print) this.$emit('print', print);
           this.$emit('process-finish', data);
           this.$emit('closepopup');
         })
@@ -946,6 +951,7 @@ export default {
     'open-popup',
     'closepopup',
     'process-finish',
+    'print',
     'form-saved',
     'insert-row'
   ],

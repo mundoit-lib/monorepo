@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { canSharePdf, canShowPdfInline, createBlobUrlHolder, pdfFilename } from './pdf.js';
+import { canSharePdf, canShowPdfInline, createBlobUrlHolder, pdfFilename, processPrints } from './pdf.js';
 
 describe('canShowPdfInline', () => {
   it('false sólo si pdfViewerEnabled es false', () => {
@@ -68,5 +68,33 @@ describe('createBlobUrlHolder', () => {
 
     holder.revoke();
     expect(urlApi.revokeObjectURL).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe('processPrints', () => {
+  it('arma path y params desde xml, no desde la url', () => {
+    const data = {
+      debug: 'process succesfull',
+      resourceIds: [],
+      print: [
+        {
+          xml: 'qry/comprobante.xml',
+          url: 'http://servidor.interno/api/db/demo/pdf/qry/comprobante.xml?id=1',
+          params: { id: '1' },
+          printer: '',
+          copies: 1
+        }
+      ]
+    };
+    expect(processPrints(data)).toEqual([{ path: 'qry/comprobante.xml', params: { id: '1' } }]);
+  });
+
+  it('sin print, o con entradas sin xml, no hay nada que imprimir', () => {
+    expect(processPrints(undefined)).toEqual([]);
+    expect(processPrints({ resourceIds: [] })).toEqual([]);
+    expect(processPrints({ print: [{ url: 'x' }, null] })).toEqual([]);
+    expect(processPrints({ print: [{ xml: '/qry/comprobante.xml' }] })).toEqual([
+      { path: 'qry/comprobante.xml', params: {} }
+    ]);
   });
 });

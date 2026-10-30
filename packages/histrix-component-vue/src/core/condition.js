@@ -7,7 +7,9 @@
  *
  * Soporta: identificadores (resueltos vía getValue), números, strings entre
  * comillas, aritmética (+ - * /), comparaciones (== === = != !== <> < <= > >=)
- * y lógicos (&& || / and or), con paréntesis. Es seguro (no usa eval): cualquier
+ * lógicos (&& || / and or) y el ternario `c ? a : b`, con paréntesis. Ej. un
+ * campo visible sólo si se elige la opción configurada:
+ * `opcion_especial != 0 ? opcion == opcion_especial : 0`. Es seguro (no usa eval): cualquier
  * token no soportado o sintaxis inválida devuelve `false`.
  */
 
@@ -84,7 +86,7 @@ function tokenize(str) {
     const c = str[i];
     if (c === ' ' || c === '\t' || c === '\n' || c === '\r') {
       i++;
-    } else if (c === '(' || c === ')') {
+    } else if (c === '(' || c === ')' || c === '?' || c === ':') {
       tokens.push({ type: c });
       i++;
     } else if (c === '"' || c === "'") {
@@ -199,6 +201,59 @@ function evalRPN(rpn) {
   return stack[0];
 }
 
+/** Índice del `)` que cierra el `(` de `start`. */
+function closingParen(tokens, start) {
+  let depth = 0;
+  for (let i = start; i < tokens.length; i++) {
+    if (tokens[i].type === '(') depth++;
+    else if (tokens[i].type === ')' && --depth === 0) return i;
+  }
+  throw new Error('paréntesis desbalanceado');
+}
+
+/**
+ * Evalúa tokens ya resueltos, con el ternario `c ? a : b` (menor precedencia,
+ * asociativo a derecha). Los paréntesis que tienen un ternario adentro se
+ * resuelven antes, recursivamente; el resto va por shunting-yard.
+ */
+function evalTokens(tokens) {
+  const flat = [];
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== '(') {
+      flat.push(tokens[i]);
+      continue;
+    }
+    const end = closingParen(tokens, i);
+    const inner = tokens.slice(i + 1, end);
+    if (inner.some((t) => t.type === '?')) {
+      flat.push({ type: 'val', value: evalTokens(inner) });
+    } else {
+      flat.push(...tokens.slice(i, end + 1));
+    }
+    i = end;
+  }
+
+  let question = -1;
+  let depth = 0;
+  for (let i = 0; i < flat.length && question < 0; i++) {
+    if (flat[i].type === '(') depth++;
+    else if (flat[i].type === ')') depth--;
+    else if (flat[i].type === '?' && depth === 0) question = i;
+  }
+  if (question < 0) {
+    return evalRPN(toRPN(normalizeUnary(flat)));
+  }
+  let nested = 0;
+  for (let i = question + 1; i < flat.length; i++) {
+    if (flat[i].type === '?') nested++;
+    else if (flat[i].type === ':' && nested-- === 0) {
+      const branch = truthy(evalTokens(flat.slice(0, question))) ? flat.slice(question + 1, i) : flat.slice(i + 1);
+      return evalTokens(branch);
+    }
+  }
+  throw new Error('ternario sin `:`');
+}
+
 /**
  * Evalúa una condición booleana.
  *
@@ -220,7 +275,7 @@ export function evaluateCondition(formula, getValue) {
   });
 
   try {
-    return truthy(evalRPN(toRPN(normalizeUnary(resolved))));
+    return truthy(evalTokens(resolved));
   } catch {
     return false;
   }
