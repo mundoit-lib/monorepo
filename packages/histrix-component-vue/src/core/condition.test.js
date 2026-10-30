@@ -22,6 +22,23 @@ describe('evaluateCondition', () => {
     expect(evaluateCondition('cantidad < 10', ctx({ cantidad: 9 }))).toBe(true);
   });
 
+  it('ternario c ? a : b con espacios de más y string vs número', () => {
+    const formula = 'opcion_especial   !=   0   ?   opcion   ==   opcion_especial   :   0';
+    expect(evaluateCondition(formula, ctx({ opcion_especial: '42', opcion: 42 }))).toBe(true);
+    expect(evaluateCondition(formula, ctx({ opcion_especial: '42', opcion: '7' }))).toBe(false);
+    expect(evaluateCondition(formula, ctx({ opcion_especial: '42', opcion: '' }))).toBe(false);
+    expect(evaluateCondition(formula, ctx({ opcion_especial: '0', opcion: '0' }))).toBe(false);
+  });
+
+  it('ternarios anidados, entre paréntesis y mal formados', () => {
+    expect(evaluateCondition('a == 1 ? b == 2 ? 1 : 0 : 1', ctx({ a: 1, b: 2 }))).toBe(true);
+    expect(evaluateCondition('a == 1 ? b == 2 ? 1 : 0 : 1', ctx({ a: 1, b: 3 }))).toBe(false);
+    expect(evaluateCondition('a == 1 ? 0 : b == 2 ? 1 : 0', ctx({ a: 0, b: 2 }))).toBe(true);
+    expect(evaluateCondition('(a == 1 ? 5 : 2) > 3 && b == 1', ctx({ a: 1, b: 1 }))).toBe(true);
+    expect(evaluateCondition('(a == 1 ? 5 : 2) > 3', ctx({ a: 0 }))).toBe(false);
+    expect(evaluateCondition('a == 1 ? 1', ctx({ a: 1 }))).toBe(false);
+  });
+
   it('lógicos && || and or con precedencia y paréntesis', () => {
     expect(evaluateCondition('a == 1 && b == 2', ctx({ a: 1, b: 2 }))).toBe(true);
     expect(evaluateCondition('a == 1 && b == 2', ctx({ a: 1, b: 9 }))).toBe(false);

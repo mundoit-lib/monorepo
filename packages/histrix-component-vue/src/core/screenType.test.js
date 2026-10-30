@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { resolveScreenKind } from './screenType.js';
+import { reloadsAfterProcess, resolveScreenKind } from './screenType.js';
 
 describe('resolveScreenKind', () => {
   it('mapea los types de formulario a "form"', () => {
@@ -72,5 +72,15 @@ describe('resolveScreenKind', () => {
     expect(resolveScreenKind('')).toBeNull();
     expect(resolveScreenKind(undefined)).toBeNull();
     expect(resolveScreenKind(null)).toBeNull();
+  });
+});
+
+describe('reloadsAfterProcess', () => {
+  it('sólo los comprobantes se vuelven a pedir después de procesar', () => {
+    expect(reloadsAfterProcess('fichaing')).toBe(true);
+    expect(reloadsAfterProcess('cabecera')).toBe(true);
+    expect(reloadsAfterProcess('ficha')).toBe(false);
+    expect(reloadsAfterProcess('consulta')).toBe(false);
+    expect(reloadsAfterProcess(undefined)).toBe(false);
   });
 });

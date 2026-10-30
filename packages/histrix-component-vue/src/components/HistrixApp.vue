@@ -26,6 +26,7 @@
               <component
                 v-if="!hasStepper"
                 ref="main"
+                :key="mainKey"
                 v-bind:is="histrixComponent"
                 v-bind="$attrs"
                 :path="path"
@@ -245,7 +246,7 @@ import { defineLazyComponent } from '../services/asyncComponents.js';
 
 import { computedCalcs } from '../core/computedFields.js';
 import { detailQueryParams } from '../core/links.js';
-import { resolveScreenKind } from '../core/screenType.js';
+import { reloadsAfterProcess, resolveScreenKind } from '../core/screenType.js';
 import { useHistrixI18n } from '../services/i18n.js';
 
 // Render: kind de pantalla → componente Vue. Los kinds que no están acá
@@ -569,6 +570,11 @@ export default {
     },
     refreshMaster(data) {
       this.processing = false;
+      // Un comprobante procesado se pide de nuevo (número y transacción nuevos)
+      // y se rearma, así su grilla interna también arranca vacía.
+      if (!this.inner && reloadsAfterProcess(this.schema.type)) {
+        this.getSchema().then(() => this.mainKey++);
+      }
       this.$emit('process-finish', data);
       if (this.redirectPage) {
         this.navigate(this.redirectPage);
@@ -733,8 +739,9 @@ export default {
       if (this.$refs.main && 'selectedId' in this.$refs.main) this.$refs.main.selectedId = null;
     },
 
-    togglePdf() {
-      this.fetchPDF();
+    /** Abre el visor con el PDF de la pantalla, o con el que pidió un proceso (`{ path, params }`). */
+    togglePdf(print) {
+      this.fetchPDF(print?.path ? print : undefined);
       this.showPdfPopup = true;
     },
 
@@ -874,13 +881,13 @@ export default {
      * Sólo cuenta la última petición: una respuesta vieja, o que llega
      * después de desmontar, se descarta (`pdfRequest` cambió).
      */
-    fetchPDF() {
+    fetchPDF({ path = this.path, params = this.query } = {}) {
       const request = (this.pdfRequest = (this.pdfRequest || 0) + 1);
       this.pdfUrls ??= createBlobUrlHolder();
       this.pdfUrls.revoke();
       this.pdfSrc = '';
       this.pdfBlob = null;
-      this.getAppPdf(this.path, this.query)
+      this.getAppPdf(path, params)
         .then((res) => {
           if (request !== this.pdfRequest) return;
           // Siempre PDF: con application/octet-stream el iframe lo descargaría en vez de mostrarlo.
@@ -912,7 +919,7 @@ export default {
      */
     getSchema() {
       this.schemaLoading = true;
-      this.getAppSchema(this.path, this.query)
+      return this.getAppSchema(this.path, this.query)
         .then((response) => {
           this.resources = response.data.resources;
           this.schema = response.data.schema;
@@ -981,6 +988,7 @@ export default {
       step: 1, // default initial Step
       validity: true,
       processing: false,
+      mainKey: 0, // se incrementa para rearmar la pantalla (comprobante procesado)
       reloadQueued: false, // recarga pendiente tras un proceso en el modal de un link
       showPdfPopup: false,
       pdfSrc: '',

@@ -76,3 +76,16 @@ export const SCREEN_TYPE_TO_KIND = {
 export function resolveScreenKind(type) {
   return SCREEN_TYPE_TO_KIND[normalizeScreenType(type)] ?? null;
 }
+
+/**
+ * ¿La pantalla se vuelve a pedir entera después de procesar? Los comprobantes
+ * (`fichaing`, `cabecera`) traen en el schema el próximo número y la
+ * transacción nueva, y su grilla interna arranca vacía: hay que pedir el
+ * schema otra vez y rearmar la pantalla, no sólo limpiar el form.
+ * @param {import('../../types').HistrixScreenType} type
+ * @returns {boolean}
+ */
+export function reloadsAfterProcess(type) {
+  const normalized = normalizeScreenType(type);
+  return normalized === 'fichaing' || normalized === 'cabecera';
+}
